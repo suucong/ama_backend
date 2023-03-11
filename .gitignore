@@ -28,7 +28,6 @@
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
 
-.DS_Store
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
@@ -46,6 +45,7 @@
 # *.iml
 # *.ipr
 
+.DS_Store
 # CMake
 cmake-build-*/
 
