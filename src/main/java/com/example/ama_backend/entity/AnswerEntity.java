@@ -13,6 +13,7 @@ public class AnswerEntity {
     private String nickName;  // 유저의 닉네임
     private String answerText; // 답변 내용
     private LocalDateTime createdTime; //답변이 올라온 시간
+
     // @ManyToOne 어노테이션을 사용하여 QuestionEntity 클래스의 answers 프로퍼티와 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", referencedColumnName = "id")
