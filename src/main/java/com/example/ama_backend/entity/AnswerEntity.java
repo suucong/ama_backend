@@ -1,15 +1,23 @@
 package com.example.ama_backend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 @Entity
 @Table(name = "answers")
 public class AnswerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id; // 질문의 고유 ID
+    private long id; // 답변의 고유 ID
     private String nickName;  // 유저의 닉네임
     private String answerText; // 답변 내용
     private LocalDateTime createdTime; //답변이 올라온 시간
@@ -18,27 +26,4 @@ public class AnswerEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id", referencedColumnName = "id")
     private QuestionEntity question; // QuestionEntity에 대한 외래 키 참조
-    //생성자
-    public AnswerEntity(long id, String nickName, String answerText, LocalDateTime createdTime) {
-        this.id = id;
-        this.nickName = nickName;
-        this.answerText = answerText;
-        this.createdTime = createdTime;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public String getAnswerText() {
-        return answerText;
-    }
-
-    public LocalDateTime getCreatedTime() {
-        return createdTime;
-    }
 }

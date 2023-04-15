@@ -1,11 +1,19 @@
 package com.example.ama_backend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+@Builder
 @Entity
 @Table(name = "questions")
 public class QuestionEntity {
@@ -19,56 +27,4 @@ public class QuestionEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<AnswerEntity> answers = new ArrayList<>(); //종속된 답변 리스트
 
-    public QuestionEntity(long id, String nickName, String questionText, LocalDateTime createdTime) {
-        this.id = id;
-        this.nickName = nickName;
-        this.questionText = questionText;
-        this.createdTime = createdTime;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
-
-    public void setCreatedTime(LocalDateTime createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    public void setAnswers(List<AnswerEntity> answers) {
-        this.answers = answers;
-    }
-
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-
-    public long getId() {
-        return id;
-    }
-
-    public String getNickName() {
-        return nickName;
-    }
-
-    public String getQuestionText() {
-        return questionText;
-    }
-
-    public LocalDateTime getCreatedTime() {
-        return createdTime;
-    }
-
-    public List<AnswerEntity> getAnswers() {
-        return answers;
-    }
-
-    public void addAnswer(AnswerEntity answer) {
-        answers.add(answer);
-    }
 }
