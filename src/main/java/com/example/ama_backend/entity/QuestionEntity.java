@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,8 +19,9 @@ import java.util.List;
 @Table(name = "questions")
 public class QuestionEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id; // 질문의 고유 ID
+    @GeneratedValue(generator ="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    private String id; // 이 오브젝트의 아이디
     private String nickName;  // 익명 유저의 닉네임
     private String questionText; // 질문 내용
     private LocalDateTime createdTime;  // 질문이 올라온 시간
