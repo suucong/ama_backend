@@ -1,5 +1,6 @@
 package com.example.ama_backend.dto;
 
+import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.entity.QuestionEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,19 +16,26 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class QuestionDTO {
-    private long id;
-    private String nickName;
+    private String id;
+    //private String nickName;
     private String questionText;
     private LocalDateTime createdTime;
-    private List<AnswerDTO> answers;
+    private List<AnswerEntity> answers;
 
     public QuestionDTO(QuestionEntity question) {
         this.id = question.getId();
-        this.nickName = question.getNickName();
+        //this.nickName = question.getNickName();
         this.questionText = question.getQuestionText();
         this.createdTime = question.getCreatedTime();
-        this.answers = question.getAnswers().stream()
-                .map(AnswerDTO::new)
-                .collect(Collectors.toList());
+        this.answers = question.getAnswers();
+    }
+
+    public static QuestionEntity toEntity(final QuestionDTO dto){
+        return QuestionEntity.builder()
+                .id(dto.getId())
+                .questionText(dto.getQuestionText())
+                .createdTime(dto.getCreatedTime())
+                .answers(dto.getAnswers())
+                .build();
     }
 }
