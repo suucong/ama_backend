@@ -1,8 +1,11 @@
 package com.example.ama_backend.persistence;
 
 import com.example.ama_backend.entity.AnswerEntity;
+import com.example.ama_backend.entity.QuestionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  JpaRepository 를 상속하면 기본적인 CRUD 메소드를 자동 생성해주기 때문에 별도의 코드 작성 필요없음
@@ -10,4 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AnswerRepository extends JpaRepository<AnswerEntity, String> {
+    List<AnswerEntity> findByUserId(String userId);
 }
