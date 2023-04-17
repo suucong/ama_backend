@@ -18,23 +18,23 @@ public class AnswerDTO {
     //private String nickName;
     private String answerText;
     private LocalDateTime createdTime;
-    private QuestionDTO question;
+    private QuestionEntity question;
 
     public AnswerDTO(AnswerEntity answerEntity) {
         this.id = answerEntity.getId();
        // this.nickName = answerEntity.getNickName();
         this.answerText = answerEntity.getAnswerText();
         this.createdTime = answerEntity.getCreatedTime();
-        this.question = new QuestionDTO(answerEntity.getQuestion());
+        this.question = answerEntity.getQuestion();
     }
 
 
-//    public static AnswerEntity toEntity(final AnswerDTO dto){
-//        return AnswerEntity.builder()
-//                .id(dto.getId())
-//                .answerText(dto.getAnswerText())
-//                .createdTime(dto.getCreatedTime())
-//                .question(dto.getQuestion())
-//                .build();
-  // }
+    public static AnswerEntity toEntity(final AnswerDTO dto){
+        return AnswerEntity.builder()
+                .id(dto.getId())
+                .answerText(dto.getAnswerText())
+                .createdTime(dto.getCreatedTime())
+                .question(dto.getQuestion())
+                .build();
+   }
 }
