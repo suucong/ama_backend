@@ -28,11 +28,11 @@ public class QAService {
     // 빈을 주입받은 각 repository 를 매개변수로 QAService 객체 생성
     // repository 인스턴스 생성 및 초기화없이 스프링 프레임워크가 생성한 인스턴스를 사용 가능
     // -> 코드의 유지보수성과 테스트 용이성 증가
-    @Autowired
-    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository) {
-        this.questionRepository = questionRepository;
-        this.answerRepository = answerRepository;
-    }
+//    @Autowired
+//    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository) {
+//        this.questionRepository = questionRepository;
+//        this.answerRepository = answerRepository;
+//    }
 
     //모든 질문과 답변을 조회하는 기능
     public List<QuestionEntity> getAllQuestions() {
@@ -40,8 +40,8 @@ public class QAService {
     }
 
     // 내가 한 질문과 답변을 조회하는 기능
-    public List<QuestionEntity> getMyQuestions(final String userId) {
-        return questionRepository.findByUserId(userId);
+    public List<QuestionEntity> getMyQuestions(final String nickname) {
+        return questionRepository.findByUserId(nickname);
     }
 
     // 리팩토링한 질문 검증 메소드
@@ -52,8 +52,8 @@ public class QAService {
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
         if(isAnnoymous){
-            questionEntity.setNickName("익명");
-        }else if(questionEntity.getNickName()==null){
+            questionEntity.setUserId("익명");
+        }else if(questionEntity.getUserId()==null){
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
@@ -69,7 +69,7 @@ public class QAService {
             log.warn("Answer Entity 는 null 이면 안됩니다.");
             throw new RuntimeException("Answer Entity 는 null 이면 안됩니다.");
         }
-        if(answerEntity.getNickname()==null){
+        if(answerEntity.getUserId()==null){
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
@@ -84,7 +84,7 @@ public class QAService {
         validateQuestion(questionEntity,isAnonymous);
         questionRepository.save(questionEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", questionEntity.getId());
-        return questionRepository.findByUserId(questionEntity.getNickName());
+        return questionRepository.findByUserId(questionEntity.getUserId());
     }
 
     // 답변 등록 기능 - 당연히 닉네임으로
@@ -92,7 +92,7 @@ public class QAService {
         validateAnswer(answerEntity);
         answerRepository.save(answerEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
-        return answerRepository.findByUserId(answerEntity.getNickname());
+        return answerRepository.findByUserId(answerEntity.getUserId());
     }
 
     // 특정 질문과 그에 대한 모든 답변을 삭제하는 기능
