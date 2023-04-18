@@ -44,6 +44,11 @@ public class QAService {
         return questionRepository.findByUserId(nickname);
     }
 
+    // 내가 한 답변 답변을 조회하는 기능
+    public List<AnswerEntity> getMyAnswers(final String nickname) {
+        return answerRepository.findByUserId(nickname);
+    }
+
     // 리팩토링한 질문 검증 메소드
     private void validateQuestion(final QuestionEntity questionEntity,boolean isAnnoymous){
         if(questionEntity==null){
@@ -96,10 +101,10 @@ public class QAService {
     }
 
     // 특정 질문과 그에 대한 모든 답변을 삭제하는 기능
-    public List<QuestionEntity> deleteQuestionAndAnswers(String questionId){
+    public List<QuestionEntity> deleteQuestionAndAnswers(final QuestionEntity questionEntity){
 
         // questionId에 해당하는 질문과 그에 대한 모든 답변을 가져옴
-        Optional<QuestionEntity> optionalQuestion=questionRepository.findById(questionId);
+        Optional<QuestionEntity> optionalQuestion=questionRepository.findById(questionEntity.getId());
         if(optionalQuestion.isPresent()){
             QuestionEntity question=optionalQuestion.get();
             List<AnswerEntity> answers=question.getAnswers();
@@ -109,7 +114,7 @@ public class QAService {
                 answerRepository.deleteAll(answers);
                 questionRepository.delete(question);
             }catch (Exception e){
-                log.error("질문 엔터티 삭제 중 에러 발생", questionId, e );
+                log.error("질문 엔터티 삭제 중 에러 발생", questionEntity.getId(), e );
                 // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
                 throw new RuntimeException("질문 엔터티 삭제 중 에러 발생" , e);
                 // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
@@ -121,7 +126,31 @@ public class QAService {
         }
 
         // 새로고침한 질문과 답변을 가져와 리턴한다
-        return getMyQuestions(questionId);
+        return getMyQuestions(questionEntity.getUserId());
+    }
+
+    // 답변을 삭제하는 기능
+    public List<AnswerEntity> deleteAnswer(final AnswerEntity answerEntity){
+
+        // answerId에 해당하는 답변을 가져옴
+        Optional<AnswerEntity> optionalAnswer=answerRepository.findById(answerEntity.getId());
+        if(optionalAnswer.isPresent()){
+            AnswerEntity answer=optionalAnswer.get();
+            try{
+                // 가져온 답변을 삭제
+                answerRepository.delete(answer);
+            }catch (Exception e){
+                log.error("답변 엔터티 삭제 중 에러 발생", answerEntity.getId(), e );
+                // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
+                throw new RuntimeException("답변 엔터티 삭제 중 에러 발생" , e);
+            }
+
+        } else {
+            throw new IllegalArgumentException("답변을 찾을 수 없습니다.");
+        }
+
+        // 새로고침한 답변을 가져와 리턴한다
+        return getMyAnswers(answerEntity.getUserId());
     }
 
 }
