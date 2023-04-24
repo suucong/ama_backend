@@ -12,6 +12,6 @@ import java.util.List;
  이후 서비스 클래스에서 해당 메소드들을 호출하여 데이터베이스와 상호작용하면 됨
  */
 @Repository
-public interface AnswerRepository extends JpaRepository<AnswerEntity, String> {
+public interface AnswerRepository extends JpaRepository<AnswerEntity,Long> {
     List<AnswerEntity> findByUserId(String userId);
 }

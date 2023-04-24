@@ -50,13 +50,13 @@ public class QAService {
     }
 
     // 리팩토링한 질문 검증 메소드
-    private void validateQuestion(final QuestionEntity questionEntity,boolean isAnnoymous){
+    private void validateQuestion(final QuestionEntity questionEntity,boolean isAnonymous){
         if(questionEntity==null){
             log.warn("Question Entity 는 null 이면 안됩니다.");
             throw new RuntimeException("Question Entity 는 null 이면 안됩니다.");
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
-        if(isAnnoymous){
+        if(isAnonymous){
             questionEntity.setUserId("익명");
         }else if(questionEntity.getUserId()==null){
             log.warn("등록되지 않은 유저입니다.");
@@ -69,12 +69,15 @@ public class QAService {
     }
 
     // 리팩토링한 답변 검증 메소드
-    private void validateAnswer(final AnswerEntity answerEntity){
+    private void validateAnswer(final AnswerEntity answerEntity,boolean isAnonymous){
         if(answerEntity==null){
             log.warn("Answer Entity 는 null 이면 안됩니다.");
             throw new RuntimeException("Answer Entity 는 null 이면 안됩니다.");
         }
-        if(answerEntity.getUserId()==null){
+
+        if(isAnonymous){
+            answerEntity.setUserId("익명");
+        }else if(answerEntity.getUserId()==null){
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
@@ -93,18 +96,18 @@ public class QAService {
     }
 
     // 답변 등록 기능 - 당연히 닉네임으로
-    public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity){
-        validateAnswer(answerEntity);
+    public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity,Boolean isAnonymous){
+        validateAnswer(answerEntity,isAnonymous);
         answerRepository.save(answerEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
         return answerRepository.findByUserId(answerEntity.getUserId());
     }
 
     // 특정 질문과 그에 대한 모든 답변을 삭제하는 기능
-    public List<QuestionEntity> deleteQuestionAndAnswers(final QuestionEntity questionEntity){
+    public List<QuestionEntity> deleteQuestionAndAnswers(Long questionId){
 
         // questionId에 해당하는 질문과 그에 대한 모든 답변을 가져옴
-        Optional<QuestionEntity> optionalQuestion=questionRepository.findById(questionEntity.getId());
+        Optional<QuestionEntity> optionalQuestion=questionRepository.findById(questionId);
         if(optionalQuestion.isPresent()){
             QuestionEntity question=optionalQuestion.get();
             List<AnswerEntity> answers=question.getAnswers();
@@ -114,7 +117,7 @@ public class QAService {
                 answerRepository.deleteAll(answers);
                 questionRepository.delete(question);
             }catch (Exception e){
-                log.error("질문 엔터티 삭제 중 에러 발생", questionEntity.getId(), e );
+                log.error("질문 엔터티 삭제 중 에러 발생", questionId, e );
                 // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
                 throw new RuntimeException("질문 엔터티 삭제 중 에러 발생" , e);
                 // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
@@ -126,7 +129,7 @@ public class QAService {
         }
 
         // 새로고침한 질문과 답변을 가져와 리턴한다
-        return getMyQuestions(questionEntity.getUserId());
+        return getAllQuestions();
     }
 
     // 답변을 삭제하는 기능
