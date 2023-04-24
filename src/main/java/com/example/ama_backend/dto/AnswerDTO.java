@@ -8,33 +8,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-
+import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
 public class AnswerDTO {
-    private String id;
-    //private String nickName;
+    private Long id;
     private String answerText;
     private LocalDateTime createdTime;
-    private QuestionEntity question;
+    private Long questionId;
 
     public AnswerDTO(AnswerEntity answerEntity) {
         this.id = answerEntity.getId();
-       // this.nickName = answerEntity.getNickName();
         this.answerText = answerEntity.getAnswerText();
         this.createdTime = answerEntity.getCreatedTime();
-        this.question = answerEntity.getQuestion();
+        this.questionId = answerEntity.getQuestion().getId();
     }
-
 
     public static AnswerEntity toEntity(final AnswerDTO dto){
         return AnswerEntity.builder()
                 .id(dto.getId())
                 .answerText(dto.getAnswerText())
                 .createdTime(dto.getCreatedTime())
-                .question(dto.getQuestion())
+                .question(QuestionEntity.builder().id(dto.getQuestionId()).build())
                 .build();
-   }
+    }
 }
