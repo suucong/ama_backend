@@ -37,5 +37,4 @@ public class QuestionEntity {
             fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
-
 }
