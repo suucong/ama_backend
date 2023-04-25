@@ -80,13 +80,6 @@ public class YourSpaceController {
         try {
             String temporaryUserId = "temporary-user";
 
-            // QuestionEntity 로 변환
-           // QuestionEntity questionEntity = QuestionDTO.toEntity(questionDTO);
-
-            // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
-            // 로그인 없이 사용할 수 있는 애플리케이션인 셈이다.
-            //questionEntity.setUserId(temporaryUserId);
-
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<QuestionEntity> entities = qaService.deleteQuestionAndAnswers(questionId);
 
@@ -108,10 +101,10 @@ public class YourSpaceController {
 
 
     /**
-     * mock -
+     *
      * 질문에 답변 등록 API
      * */
-    @PostMapping("/answer")
+    @PostMapping("/answer/create")
     public ResponseEntity<?> createAnswer(@RequestBody AnswerDTO answerDTO,boolean isAnonymous) {
         try {
             String temporaryUserId = "temporary-user";
