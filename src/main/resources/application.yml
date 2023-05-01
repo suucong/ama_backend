@@ -6,6 +6,23 @@ spring:
           github:
             client-id: Iv1.ee6a630dc0ea7ffb
             client-secret: 91bd43b348e8e2cd4362ec0e39da87f911c7209b
+            scope: 'email+profile'
           google:
             client-id: 79338396351-nlfng4potnd3bpd6uvhs8i0t15tv231i.apps.googleusercontent.com
             client-secret: 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
+            scope: 'email+profile'
+          kakao:
+            client-id: d2c26f36c69325cd253b8d0b68802286
+            client-secret: 7hzKqhAAB9bw2m6T5zdWb5l8BYP0go43
+            redirect-uri: http://localhost:8080/api/v1/user
+            authorization-grant-type: authorization_code
+            scope: 'profile_nickname+profile_image'
+            client-name: Kakao
+            client-authentication-method: POST
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+

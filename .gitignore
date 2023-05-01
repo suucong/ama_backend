@@ -9,6 +9,7 @@ gradlew.bat
 gradlew
 HELP.md
 settings.gradle
+application-oauth.properties
 
 ### STS ###
 .apt_generated
