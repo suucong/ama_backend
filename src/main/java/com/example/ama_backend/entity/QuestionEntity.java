@@ -38,4 +38,8 @@ public class QuestionEntity {
     @Builder.Default
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "space_id")
+    private SpaceEntity space; // SpaceEntity 객체를 참조
+
 }

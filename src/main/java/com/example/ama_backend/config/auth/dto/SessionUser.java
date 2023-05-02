@@ -2,6 +2,7 @@ package com.example.ama_backend.config.auth.dto;
 
 import com.example.ama_backend.entity.UserEntity;
 import jakarta.persistence.GeneratedValue;
+import lombok.Data;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ import java.io.Serializable;
  * */
 
 @Getter
+@Data
 public class SessionUser implements Serializable {
     private String name;
     private String email;
