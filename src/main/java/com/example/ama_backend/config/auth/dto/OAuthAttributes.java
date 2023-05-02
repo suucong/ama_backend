@@ -12,18 +12,18 @@ import java.util.Map;
 public class OAuthAttributes {
     private Map<String,Object> attributes;
     private String nameAttributeKey;
-    private String nickname;
+    private String name;
     private String email;
-    private String profileImageUrl;
+    private String picture;
 
     @Builder
-    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String nickname,
-                           String email, String profileImageUrl){
+    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String name,
+                           String email, String picture){
         this.attributes=attributes;
         this.nameAttributeKey=nameAttributeKey;
-        this.nickname=nickname;
+        this.name=name;
         this.email=email;
-        this.profileImageUrl=profileImageUrl;
+        this.picture=picture;
     }
 
     // OAuth2User 에서 반환하는 사용자 정보는 Map 이기 때문에 값 하나하나를 변환해야만 함
@@ -34,9 +34,9 @@ public class OAuthAttributes {
 
     private static OAuthAttributes ofGoogle(String userNameAttributeName, Map<String,Object> attributes){
         return OAuthAttributes.builder()
-                .nickname((String) attributes.get("nickname"))
+                .name((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
-                .profileImageUrl((String) attributes.get("profileImgUrl"))
+                .picture((String) attributes.get("picture"))
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -47,10 +47,10 @@ public class OAuthAttributes {
     // 가입할 때의 기본 권할을 GUEST 로 주기 위해서 ROLE 빌더 값에 Role.GUEST 를 사용함
     public UserEntity toEntity(){
         return UserEntity.builder()
-                .nickname(nickname)
+                .name(name)
                 .email(email)
-                .profileImageUrl(profileImageUrl)
-                .role(Role.GUEST)
+                .picture(picture)
+                .role(Role.USER)
                 .build();
     }
 

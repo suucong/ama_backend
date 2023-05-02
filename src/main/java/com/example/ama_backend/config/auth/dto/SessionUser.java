@@ -19,13 +19,13 @@ import java.io.Serializable;
 
 @Getter
 public class SessionUser implements Serializable {
-    private String nickname;
+    private String name;
     private String email;
-    private String profileImageUrl;
+    private String picture;
 
     public SessionUser(UserEntity userEntity){
-        this.nickname=userEntity.getNickname();
+        this.name=userEntity.getName();
         this.email=userEntity.getEmail();
-        this.profileImageUrl=userEntity.getProfileImageUrl();
+        this.picture=userEntity.getPicture();
     }
 }
