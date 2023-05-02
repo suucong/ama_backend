@@ -8,6 +8,7 @@ import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.entity.QuestionEntity;
 import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
+import com.example.ama_backend.persistence.QuestionRepository;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/my-space-id")
+@RequestMapping
 public class MySpaceController {
 
     @Autowired
@@ -33,19 +34,32 @@ public class MySpaceController {
     private UserRepository userRepository;
     @Autowired
     private HttpSession httpSession;
+    @Autowired
+    private QuestionRepository questionRepository;
 
 
     @GetMapping("/{spaceId}")
     public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
-        SpaceEntity space = spaceRepository.findById(spaceId).orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
         SessionUser sessionUser = (SessionUser) session.getAttribute("user");
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+
+        // 스페이스가 현재 사용자가 소유한 스페이스인지 판별하여 isOwner 속성 추가
         if (space.isOwnedBy(user)) {
             model.addAttribute("isOwner", true);
         } else {
             model.addAttribute("isOwner", false);
         }
-//        model.addAttribute("space", space);
+
+        // 내가 보낸 질문과 받은 질문 리스트를 조회
+        assert user != null;
+        List<QuestionEntity> sentQuestions=spaceRepository.findQuestionsByQuestionsAndUserId(space,user.getId());
+        List<QuestionEntity> receivedQuestions=spaceRepository.findReceivedQuestionsBySpaceAndUserId(space, user.getId());
+
+        model.addAttribute("space", space);
+        model.addAttribute("sentQuestions", sentQuestions);
+        model.addAttribute("receivedQuestions", receivedQuestions);
         return "space";
     }
 
