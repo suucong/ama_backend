@@ -21,11 +21,12 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("posts", qaService.getAllQuestions());
+        //model.addAttribute("posts", qaService.getAllQuestions());
         SessionUser user = (SessionUser) httpSession.getAttribute("user");
         if (user != null) {
             model.addAttribute("userName", user.getName());
         }
+
         return "index";
     }
 }
