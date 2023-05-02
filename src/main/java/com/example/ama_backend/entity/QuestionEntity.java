@@ -42,4 +42,8 @@ public class QuestionEntity {
     @JoinColumn(name = "space_id")
     private SpaceEntity space; // SpaceEntity 객체를 참조
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_space_id")
+    private SpaceEntity toSpace; //
+
 }
