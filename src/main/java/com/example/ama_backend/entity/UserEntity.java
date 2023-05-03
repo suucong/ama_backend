@@ -29,20 +29,33 @@ public class UserEntity  {
     @Column(nullable = false)
     private Role role;
 
+    @Column(length = 20,nullable = true)
+    private String instaId = null;
+
+    @Column(length = 70,nullable = true)
+    private String introduce = null;
+
     @Builder
-    public UserEntity(String name, String email, String picture, Role role) {
+    public UserEntity(Long id, String name, String email, String picture, String introduce, String instaId, Role role) {
+        this.id = id;       // UserDTO생성할때 자꾸 오류가떠서 추가함(넣어주면안되나요??은영언니..)
         this.name = name;
         this.email = email;
         this.picture = picture;
         this.role = role;
+        this.introduce = introduce;
+        this.instaId = instaId;
     }
 
-    public UserEntity update(String name, String picture) {
+    public UserEntity update(String name, String picture, String introduce, String instaId) {
         this.name = name;
         this.picture = picture;
+        this.introduce = introduce;
+        this.instaId = instaId;
 
         return this;
     }
+
+//    public UserEntity profileUpdate(String)
 
     public String getRoleKey() {
         return this.role.getKey();

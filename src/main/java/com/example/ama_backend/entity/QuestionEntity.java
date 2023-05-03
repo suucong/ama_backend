@@ -18,8 +18,8 @@ import java.util.List;
 @Entity
 @Table(name = "questions")
 public class QuestionEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id     // 이 Entity의 기본 키 필드 ID를 정의
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // id 자동 생성해주는 코드
     private Long id; // 이 오브젝트의 아이디
 
     @Column(nullable = false)
@@ -36,6 +36,9 @@ public class QuestionEntity {
 
     private LocalDateTime createdTime;  // 질문이 올라온 시간
 
+    @Column(nullable = false)
+    private Boolean isAnonymous; // "익명"으로 질문했는지 여부
+
     // @OneToMany 어노테이션을 사용하여 AnswerEntity 클래스의 question 프로퍼티와 매핑하겠습니다.
     @OneToMany(mappedBy = "question",
             //질문 삭제되면 답변 또한 삭제돼야 한다,
@@ -43,4 +46,9 @@ public class QuestionEntity {
             fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "space_id")
+    private SpaceEntity space; // SpaceEntity 객체를 참조
+
 }
