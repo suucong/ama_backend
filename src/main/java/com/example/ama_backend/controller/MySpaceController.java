@@ -52,16 +52,16 @@ public class MySpaceController {
     }
 
     // 내가 보낸 질문 조회
-    public ResponseEntity<List<QuestionDTO>> getMySentQuestions(SpaceEntity space) {
-        List<QuestionEntity> questions = questionRepository.findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(
-                currentUserService.getCurrentUser().getId(),
-                space.getId()
-        );
-        List<QuestionDTO> questionDtoList = questions.stream()
-                .map(QuestionDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(questionDtoList);
-    }
+ //   public ResponseEntity<List<QuestionDTO>> getMySentQuestions(SpaceEntity space) {
+//        List<QuestionEntity> questions = questionRepository.findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(
+//                currentUserService.getCurrentUser().getId(),
+//                space.getId()
+//        );
+//        List<QuestionDTO> questionDtoList = questions.stream()
+//                .map(QuestionDTO::new)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(questionDtoList);
+//    }
 
 
     // 내가 받은 질문 조회 API
@@ -111,7 +111,7 @@ public class MySpaceController {
         assert user != null;
         model.addAttribute("userName",user.getName());
         model.addAttribute("userEmail",user.getEmail());
-        model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
+       // model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
         return "space";
     }
