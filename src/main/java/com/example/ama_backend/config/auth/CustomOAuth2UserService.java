@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -77,10 +78,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     protected UserEntity saveOrUpdate(OAuthAttributes attributes){
         UserEntity userEntity=userRepository.findByEmail(attributes.getEmail())
-                .map(entity-> entity.update(attributes.getName(), attributes.getPicture(), attributes.getIntroudce(), attributes.getInstaId()))
+                .map(entity-> entity.update(attributes.getId(), attributes.getName(), attributes.getPicture(), attributes.getIntroudce(), attributes.getInstaId()))
                 .orElse(attributes.toEntity());
 
         return userRepository.save(userEntity);
-
     }
 }

@@ -46,7 +46,8 @@ public class UserEntity  {
         this.instaId = instaId;
     }
 
-    public UserEntity update(String name, String picture, String introduce, String instaId) {
+    public UserEntity update(Long id,String name, String picture, String introduce, String instaId) {
+        this.id = id;
         this.name = name;
         this.picture = picture;
         this.introduce = introduce;
