@@ -1,5 +1,6 @@
 package com.example.ama_backend.controller;
 
+import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
@@ -15,10 +16,15 @@ import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +42,68 @@ public class MySpaceController {
     private HttpSession httpSession;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
+
+
+    @GetMapping("/user")
+    public Principal user(Principal principal) {
+        return principal;
+    }
+
+    // 내가 보낸 질문 조회 API
+    @GetMapping("/my-questions/sent")
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getMySentQuestions() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
+            OAuth2User oauthUser = oauthToken.getPrincipal();
+            String userId = oauthUser.getAttribute("sub"); // Google의 경우 sub 속성에 고유 아이디가 저장되어 있음
+
+
+            assert userId != null;
+            Long myUserId = Long.valueOf(userId);
+            List<QuestionEntity> questionEntities = questionRepository.findBySendingUserId(myUserId);
+
+            List<QuestionDTO> questionDTOs = questionEntities.stream().map(QuestionDTO::new).collect(Collectors.toList());
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(questionDTOs).build();
+
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
+
+    // 내가 받은 질문 조회 API
+    @GetMapping("/my-questions/received")
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getMyReceivedQuestions() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
+            OAuth2User oauthUser = oauthToken.getPrincipal();
+            String userId = oauthUser.getAttribute("sub"); // Google의 경우 sub 속성에 고유 아이디가 저장되어 있음
+
+
+            assert userId != null;
+            Long myUserId = Long.valueOf(userId);
+            List<QuestionEntity> questionEntities = questionRepository.findByReceivingUserId(myUserId);
+
+            List<QuestionDTO> questionDTOs = questionEntities.stream().map(QuestionDTO::new).collect(Collectors.toList());
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(questionDTOs).build();
+
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+    }
 
 
     @GetMapping
@@ -52,14 +120,10 @@ public class MySpaceController {
             model.addAttribute("isOwner", false);
         }
 
-        // 내가 보낸 질문과 받은 질문 리스트를 조회
-        assert user != null;
-        List<QuestionEntity> sentQuestions=spaceRepository.findQuestionsByQuestionsAndUserId(space,user.getId());
-        List<QuestionEntity> receivedQuestions=spaceRepository.findReceivedQuestionsBySpaceAndUserId(space, user.getId());
 
         model.addAttribute("space", space);
-        model.addAttribute("sentQuestions", sentQuestions);
-        model.addAttribute("receivedQuestions", receivedQuestions);
+        model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
+        model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
         return "space";
     }
 
@@ -67,7 +131,13 @@ public class MySpaceController {
     @PostMapping("{questionId}/answer/create")
     public ResponseEntity<?> createAnswer(@RequestBody AnswerDTO answerDTO) {
         try {
-            String temporaryUserId = "temporary-user";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
+            OAuth2User oauthUser = oauthToken.getPrincipal();
+            String name = oauthUser.getAttribute("name");
+
 
             // AnswerEntity 로 변환
             AnswerEntity answerEntity = AnswerDTO.toEntity(answerDTO);
@@ -75,9 +145,10 @@ public class MySpaceController {
             // id를 null 로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
             answerEntity.setId(null);
 
-            // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
-            // 로그인 없이 사용할 수 있는 애플리케이션인 셈이다.
-            answerEntity.setUserId(temporaryUserId);
+            // 현재 구글로 로그인한 유저의 네임
+            answerEntity.setUserId(name);
+
+
 
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
@@ -102,17 +173,22 @@ public class MySpaceController {
     @DeleteMapping("{id}/answer/delete")
     public ResponseEntity<?> deleteAnswer(@RequestBody AnswerDTO answerDTO) {
         try {
-            String temporaryUserId = "temporary-user";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
+            OAuth2User oauthUser = oauthToken.getPrincipal();
+            String name = oauthUser.getAttribute("name");
+
 
             // AnswerEntity 로 변환
             AnswerEntity answerEntity = AnswerDTO.toEntity(answerDTO);
 
-            // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
-            // 로그인 없이 사용할 수 있는 애플리케이션인 셈이다.
-            answerEntity.setUserId(temporaryUserId);
+
+            answerEntity.setUserId(name);
 
             // 서비스를 이용해 답변 엔티티를 생성한다
-            List<AnswerEntity> entities = qaService.deleteAnswer(answerEntity);
+            List<AnswerEntity> entities = qaService.deleteAnswer(answerEntity.getId());
 
             // 자바 스트림을 이용해 리턴된 엔티티 리스트를 AnswerDTO 리스트로 변환한다.
             List<AnswerDTO> dtos = entities.stream().map(AnswerDTO::new).collect(Collectors.toList());
@@ -141,7 +217,13 @@ public class MySpaceController {
     public ResponseEntity<?> createQuestion(@RequestBody QuestionDTO questionDTO,
                                             @RequestParam(name = "anonymous", required = false, defaultValue = "false") boolean isAnonymous) {
         try {
-            String temporaryUserId = "temporary-user";
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
+            OAuth2User oauthUser = oauthToken.getPrincipal();
+            String name = oauthUser.getAttribute("name");
+
 
             // QuestionEntity 로 변환
             QuestionEntity questionEntity = QuestionDTO.toEntity(questionDTO);
@@ -151,7 +233,7 @@ public class MySpaceController {
 
             // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
             // 로그인 없이 사용할 수 있는 애플리케이션인 셈이다.
-            questionEntity.setUserId(temporaryUserId);
+            questionEntity.setUserId(name);
 
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<QuestionEntity> entities = qaService.saveQuestion(questionEntity, isAnonymous);
@@ -195,15 +277,6 @@ public class MySpaceController {
     @DeleteMapping("{id}/question/delete")
     public ResponseEntity<?> deleteQuestion(@RequestParam Long questionId) {
         try {
-            String temporaryUserId = "temporary-user";
-
-            // QuestionEntity 로 변환
-            // QuestionEntity questionEntity = QuestionDTO.toEntity();
-
-            // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
-            // 로그인 없이 사용할 수 있는 애플리케이션인 셈이다.
-            //questionEntity.setUserId(temporaryUserId);
-
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<QuestionEntity> entities = qaService.deleteQuestionAndAnswers(questionId);
 

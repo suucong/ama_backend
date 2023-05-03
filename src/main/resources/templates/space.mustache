@@ -9,68 +9,50 @@
 <h1>{{userName}}의 스페이스</h1>
 <p>{{userEmail}}</p>
 
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-6">
-            {{#isOwner}}
-                <!-- 자신의 스페이스인 경우 -->
-                <button class="btn btn-primary">프로필 수정</button>
-            {{/isOwner}}
-            {{^isOwner}}
-                <!-- 남의 스페이스인 경우 -->
-                <button class="btn btn-primary">질문하기</button>
-            {{/isOwner}}
+
+<!-- 보낸 질문과 받은 질문 탭 -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#sent">보낸 질문</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#received">받은 질문</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="sent">
+                    {{#sentQuestions}}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{questionText}}</h5>
+                                <p class="card-text">{{userId}} - {{createdTime}}</p>
+                            </div>
+                        </div>
+                    {{/sentQuestions}}
+                    {{^sentQuestions}}
+                        <p>보낸 질문이 없습니다.</p>
+                    {{/sentQuestions}}
+                </div>
+                <div class="tab-pane fade" id="received">
+                    {{#receivedQuestions}}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{questionText}}</h5>
+                                <p class="card-text">{{userId}} - {{createdTime}}</p>
+                            </div>
+                        </div>
+                    {{/receivedQuestions}}
+                    {{^receivedQuestions}}
+                        <p>받은 질문이 없습니다.</p>
+                    {{/receivedQuestions}}
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-
-<!-- 보낸 질문과 받은 질문 탭 -->
-<div class="tabs">
-    <button class="tablink" onclick="openTab('sent-tab')">보낸 질문</button>
-    <button class="tablink" onclick="openTab('received-tab')">받은 질문</button>
-</div>
-
-<!-- 내가 보낸 질문 탭 -->
-<div id="sent-tab" class="tabcontent">
-    <h2>내가 보낸 질문</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>질문 제목</th>
-            <th>작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#sentQuestions}}
-            <tr>
-                <td><a href="/qna/{{id}}">{{title}}</a></td>
-                <td>{{creationTime}}</td>
-            </tr>
-        {{/sentQuestions}}
-        </tbody>
-    </table>
-</div>
-
-<!-- 내가 받은 질문 탭 -->
-<div id="received-tab" class="tabcontent">
-    <h2>내가 받은 질문</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>질문 제목</th>
-            <th>작성일</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#receivedQuestions}}
-            <tr>
-                <td><a href="/qna/{{id}}">{{title}}</a></td>
-                <td>{{creationTime}}</td>
-            </tr>
-        {{/receivedQuestions}}
-        </tbody>
-    </table>
-</div>
 </body>
 </html>

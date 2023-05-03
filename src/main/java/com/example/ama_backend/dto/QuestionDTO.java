@@ -20,6 +20,8 @@ public class QuestionDTO {
     private String questionText;
     private LocalDateTime createdTime;
     private List<AnswerDTO> answers;
+    private String userId; // 질문자 닉네임 또는 "익명"
+    private Boolean isAnonymous; // "익명"으로 질문했는지 여부
 
     public QuestionDTO(QuestionEntity question) {
         this.id = question.getId();
@@ -28,6 +30,8 @@ public class QuestionDTO {
         this.answers = question.getAnswers() != null
                 ? question.getAnswers().stream().map(AnswerDTO::new).collect(Collectors.toList())
                 : null;
+        this.userId=question.getUserId();
+        this.isAnonymous=question.getIsAnonymous();
     }
 
     public static QuestionEntity toEntity(final QuestionDTO dto){
@@ -38,6 +42,8 @@ public class QuestionDTO {
                 .answers(dto.getAnswers() != null
                         ? dto.getAnswers().stream().map(AnswerDTO::toEntity).collect(Collectors.toList())
                         : null)
+                .userId(dto.getUserId())
+                .isAnonymous(dto.getIsAnonymous())
                 .build();
     }
 }

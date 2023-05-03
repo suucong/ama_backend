@@ -1,7 +1,5 @@
 package com.example.ama_backend.service;
 
-import com.example.ama_backend.dto.QuestionDTO;
-import com.example.ama_backend.dto.ResponseDTO;
 import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.entity.QuestionEntity;
 import com.example.ama_backend.persistence.AnswerRepository;
@@ -9,14 +7,10 @@ import com.example.ama_backend.persistence.QuestionRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.stereotype.Service;
 
-import java.net.Socket;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -54,10 +48,10 @@ public class QAService {
         return questionRepository.findByReceivingUserId(receivingUserId);
     }
 
-//    // 내가 한 답변을 조회하는 기능
-//    public List<AnswerEntity> getMyAnswers(final Long ) {
-//        return answerRepository.findByUserId(nickname);
-//    }
+    // 내가 한 답변을 조회하는 기능
+    public List<AnswerEntity> getMyAnswers(final Long id) {
+        return answerRepository.findByUserId(id);
+    }
 
     // 리팩토링한 질문 검증 메소드
     private void validateQuestion(final QuestionEntity questionEntity, boolean isAnonymous) {
@@ -114,10 +108,11 @@ public class QAService {
 
 
     // 답변 등록 기능 - 당연히 닉네임으로
-    public void saveAnswer(final AnswerEntity answerEntity) {
+    public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
         validateAnswer(answerEntity);
         answerRepository.save(answerEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
+        return getMyAnswers(answerEntity.getId());
     }
 
 
@@ -157,7 +152,7 @@ public class QAService {
     }
 
     // 답변을 삭제하는 기능
-    public List<QuestionEntity> deleteAnswer(Long answerId) {
+    public List<AnswerEntity> deleteAnswer(Long answerId) {
 
         // answerId에 해당하는 답변을 가져옴
         Optional<AnswerEntity> optionalAnswer = answerRepository.findById(answerId);
@@ -176,18 +171,8 @@ public class QAService {
             throw new IllegalArgumentException("답변을 찾을 수 없습니다.");
         }
 
-        // 만약 내가 보낸 질문을 삭제하는 거면 내가 보낸 질문을 조회함
-        if (answerId.equals(optionalAnswer.get().getQuestion().getSendingUserId())) {
-            return getMySendingQuestions(answerId);
-        }
-        // 내가 받은 질문을 삭제하는 거면 내가 받은 질문을 조회함
-        else if (answerId.equals(optionalAnswer.get().getQuestion().getReceivingUserId())) {
-            return getMyReceivingQuestions(answerId);
-        }
-        // 그 외에는 모든 질문을 조회함
-        else {
-            throw new IllegalArgumentException("답변을 찾을 수 없습니다.");
-        }
+
+        return getMyAnswers(answerId);
     }
 
 }
