@@ -19,8 +19,8 @@ import java.util.List;
 @Entity
 @Table(name = "questions")
 public class QuestionEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id     // 이 Entity의 기본 키 필드 ID를 정의
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // id 자동 생성해주는 코드
     private Long id; // 이 오브젝트의 아이디
 
     private String userId;  // 익명 유저의 닉네임
@@ -41,5 +41,4 @@ public class QuestionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_id")
     private SpaceEntity space; // SpaceEntity 객체를 참조
-
 }

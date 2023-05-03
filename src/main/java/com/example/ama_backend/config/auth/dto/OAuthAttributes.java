@@ -15,15 +15,19 @@ public class OAuthAttributes {
     private String name;
     private String email;
     private String picture;
+    private String introudce;
+    private String instaId;
 
     @Builder
     public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String name,
-                           String email, String picture){
+                           String email, String picture, String introudce, String instaId){
         this.attributes=attributes;
         this.nameAttributeKey=nameAttributeKey;
         this.name=name;
         this.email=email;
         this.picture=picture;
+        this.introudce=introudce;
+        this.instaId=instaId;   // 프로필 수정(인스타아이디)
     }
 
     // OAuth2User 에서 반환하는 사용자 정보는 Map 이기 때문에 값 하나하나를 변환해야만 함
@@ -50,6 +54,8 @@ public class OAuthAttributes {
                 .name(name)
                 .email(email)
                 .picture(picture)
+                .introduce(introudce)
+                .instaId(instaId)   //프로필수정(인스타 아이디)
                 .role(Role.USER)
                 .build();
     }
