@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 @RequiredArgsConstructor
 public class IndexController {
-
     private final QAService qaService;
     private final HttpSession httpSession;
 
@@ -27,8 +26,13 @@ public class IndexController {
             model.addAttribute("userName", user.getName());
             model.addAttribute("userEmail",user.getEmail());
             model.addAttribute("userPicture",user.getPicture());
+            model.addAttribute("userId", user.getId());
         }
 
+        return "index";
+    }
+    @GetMapping("/userUpdate")
+    public String userUpdate() {
         return "index";
     }
 }

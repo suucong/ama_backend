@@ -12,6 +12,7 @@ import java.util.Map;
 public class OAuthAttributes {
     private Map<String,Object> attributes;
     private String nameAttributeKey;
+    private Long id;
     private String name;
     private String email;
     private String picture;
@@ -19,10 +20,11 @@ public class OAuthAttributes {
     private String instaId;
 
     @Builder
-    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String name,
+    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, Long id, String name,
                            String email, String picture, String introudce, String instaId){
         this.attributes=attributes;
         this.nameAttributeKey=nameAttributeKey;
+        this.id=id;
         this.name=name;
         this.email=email;
         this.picture=picture;
@@ -51,6 +53,7 @@ public class OAuthAttributes {
     // 가입할 때의 기본 권할을 GUEST 로 주기 위해서 ROLE 빌더 값에 Role.GUEST 를 사용함
     public UserEntity toEntity(){
         return UserEntity.builder()
+                .id(id)
                 .name(name)
                 .email(email)
                 .picture(picture)
@@ -59,5 +62,4 @@ public class OAuthAttributes {
                 .role(Role.USER)
                 .build();
     }
-
 }
