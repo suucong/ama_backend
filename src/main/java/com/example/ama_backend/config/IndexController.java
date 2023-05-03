@@ -4,13 +4,9 @@ import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,9 +27,16 @@ public class IndexController {
 
         return "index";
     }
-    @GetMapping("/userUpdate")
-    public String userUpdate() {
-        return "index";
+    @GetMapping("/modify")
+    public String modify(Model model) {
+        SessionUser user = (SessionUser) httpSession.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("userName", user.getName());
+            model.addAttribute("userIntroduce",user.getIntroduce());
+            model.addAttribute("userPicture",user.getPicture());
+            model.addAttribute("userInstaId", user.getInstaId());
+        }
+        return "/profile-edit";
     }
 }
 //    @GetMapping

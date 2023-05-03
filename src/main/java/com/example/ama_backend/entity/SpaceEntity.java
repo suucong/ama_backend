@@ -19,7 +19,6 @@ public class SpaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 스페이스의 고유 id
-
     private Long userId; // 스페이스 생성한 사용자의 고유 id
 
     @OneToMany(mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
