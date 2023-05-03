@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping
+@RequestMapping("/{spaceId}")
 public class MySpaceController {
 
     @Autowired
@@ -38,7 +38,7 @@ public class MySpaceController {
     private QuestionRepository questionRepository;
 
 
-    @GetMapping("/{spaceId}")
+    @GetMapping
     public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -64,16 +64,15 @@ public class MySpaceController {
     }
 
     // 답변 등록 API
-    @PostMapping("/answer/create")
-    public ResponseEntity<?> createAnswer(@RequestBody AnswerDTO answerDTO,
-                                          @RequestParam(name = "anonymous", required = false, defaultValue = "false") boolean isAnonymous) {
+    @PostMapping("{questionId}/answer/create")
+    public ResponseEntity<?> createAnswer(@RequestBody AnswerDTO answerDTO) {
         try {
             String temporaryUserId = "temporary-user";
 
             // AnswerEntity 로 변환
             AnswerEntity answerEntity = AnswerDTO.toEntity(answerDTO);
 
-            // id를 null로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
+            // id를 null 로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
             answerEntity.setId(null);
 
             // 임시 사용자 아이디를 설정해 준다. 나중에 인증과 인가를 통해 수정할 예정이다. 지금은 한 명의 사용자(temporary-user)만
@@ -81,7 +80,7 @@ public class MySpaceController {
             answerEntity.setUserId(temporaryUserId);
 
             // 서비스를 이용해 질문 엔티티를 생성한다
-            List<AnswerEntity> entities = qaService.saveAnswer(answerEntity, isAnonymous);
+            List<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
 
             // 자바 스트림을 이요해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
             List<AnswerDTO> dtos = entities.stream().map(AnswerDTO::new).collect(Collectors.toList());
@@ -100,7 +99,7 @@ public class MySpaceController {
     }
 
     // 답변 삭제 API
-    @DeleteMapping("/answer/delete")
+    @DeleteMapping("{id}/answer/delete")
     public ResponseEntity<?> deleteAnswer(@RequestBody AnswerDTO answerDTO) {
         try {
             String temporaryUserId = "temporary-user";
@@ -133,7 +132,8 @@ public class MySpaceController {
 
     /**
      * mock -
-     * 내 스페이스에 질문 등록 api
+     * 내 스페이스에 질문 등록은 불가능하다
+     * 그냥 테스트용 api임
      */
 
     // 질문 등록 API
@@ -172,6 +172,7 @@ public class MySpaceController {
         }
     }
 
+    /*
     // 질답 조회 API
     @GetMapping
     public ResponseEntity<?> getMyAllQuestions() {
@@ -188,10 +189,10 @@ public class MySpaceController {
 
         // ResponseDTO 리턴한다
         return ResponseEntity.ok().body(responseDTO);
-    }
+    }*/
 
-    // 질문 삭제 API
-    @DeleteMapping("/question/delete")
+    // 질문 삭제 API - 남이 보낸 질문이라도 삭제 기능이 있다.
+    @DeleteMapping("{id}/question/delete")
     public ResponseEntity<?> deleteQuestion(@RequestParam Long questionId) {
         try {
             String temporaryUserId = "temporary-user";

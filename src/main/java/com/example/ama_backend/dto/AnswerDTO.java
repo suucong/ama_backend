@@ -15,12 +15,14 @@ import java.util.UUID;
 @Builder
 public class AnswerDTO {
     private Long id;
+    private Boolean isPublic;
     private String answerText;
     private LocalDateTime createdTime;
     private Long questionId;
 
     public AnswerDTO(AnswerEntity answerEntity) {
         this.id = answerEntity.getId();
+        this.isPublic=answerEntity.getIsPublic();
         this.answerText = answerEntity.getAnswerText();
         this.createdTime = answerEntity.getCreatedTime();
         this.questionId = answerEntity.getQuestion().getId();
@@ -29,6 +31,7 @@ public class AnswerDTO {
     public static AnswerEntity toEntity(final AnswerDTO dto){
         return AnswerEntity.builder()
                 .id(dto.getId())
+                .isPublic(dto.getIsPublic())
                 .answerText(dto.getAnswerText())
                 .createdTime(dto.getCreatedTime())
                 .question(QuestionEntity.builder().id(dto.getQuestionId()).build())

@@ -11,7 +11,6 @@ import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -23,7 +22,14 @@ public class QuestionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 이 오브젝트의 아이디
 
-    private String userId;  // 익명 유저의 닉네임
+    @Column(nullable = false)
+    private String userId; // "익명" 혹은 유저네임
+
+    @Column(nullable = false)
+    private Long sendingUserId;  // 질문하는 유저의 아이디
+
+    @Column(nullable = false)
+    private Long receivingUserId;  // 질문받는 유저의 아이디
 
     @Column(length = 500, nullable = false)
     private String questionText; // 질문 내용
@@ -37,13 +43,4 @@ public class QuestionEntity {
             fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "space_id")
-    private SpaceEntity space; // SpaceEntity 객체를 참조
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_space_id")
-    private SpaceEntity toSpace; //
-
 }
