@@ -17,11 +17,8 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
-
     @Autowired
     private final CustomOAuth2UserService customOAuth2UserService;
-
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

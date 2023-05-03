@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 public class AmaBackendApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(AmaBackendApplication.class, args);
 	}

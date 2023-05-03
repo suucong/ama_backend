@@ -1,9 +1,8 @@
 package com.example.ama_backend.config.auth.dto;
 
+import com.example.ama_backend.entity.Role;
 import com.example.ama_backend.entity.UserEntity;
-import jakarta.persistence.GeneratedValue;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 import java.io.Serializable;
 
@@ -17,17 +16,39 @@ import java.io.Serializable;
  ** @OneToMany, @ManyToOne 등 자식 엔터티를 갖고 있다면 직렬화 대상에 자식들까지 포함되니 성능이슈, 부수효과가 발생할 확률이 높다
  ** 그래서 직렬화 기능을 가진 DTO 를 하나 추가로 만든 것이 더 좋은 방법이다.
  * */
-
-@Getter
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Builder
 public class SessionUser implements Serializable {
+    private Long id;
     private String name;
     private String email;
     private String picture;
+    private Role role;
+    private String instaId;
+    private String introduce;
 
     public SessionUser(UserEntity userEntity){
+        this.id= userEntity.getId();
         this.name=userEntity.getName();
         this.email=userEntity.getEmail();
+        this.role=userEntity.getRole();
         this.picture=userEntity.getPicture();
+        this.introduce=userEntity.getIntroduce();
+        this.instaId=userEntity.getInstaId();
+    }
+
+    public static SessionUser toEntity(final SessionUser dto) {
+        return SessionUser.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .picture(dto.getPicture())
+                .role(dto.getRole())
+                .instaId(dto.getInstaId())
+                .introduce(dto.getIntroduce())
+                .build();
     }
 }

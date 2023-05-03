@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/{spaceId}")
+@RequestMapping("/my-space-id")
 public class MySpaceController {
 
     @Autowired
@@ -51,32 +51,18 @@ public class MySpaceController {
         return principal;
     }
 
-    // 내가 보낸 질문 조회 API
-    @GetMapping("/my-questions/sent")
-    public ResponseEntity<ResponseDTO<QuestionDTO>> getMySentQuestions() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
-            OAuth2User oauthUser = oauthToken.getPrincipal();
-            String userId = oauthUser.getAttribute("sub"); // Google의 경우 sub 속성에 고유 아이디가 저장되어 있음
-
-
-            assert userId != null;
-            Long myUserId = Long.valueOf(userId);
-            List<QuestionEntity> questionEntities = questionRepository.findBySendingUserId(myUserId);
-
-            List<QuestionDTO> questionDTOs = questionEntities.stream().map(QuestionDTO::new).collect(Collectors.toList());
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(questionDTOs).build();
-
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            String err = e.getMessage();
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
-            return ResponseEntity.badRequest().body(responseDTO);
-        }
+    // 내가 보낸 질문 조회
+    public ResponseEntity<List<QuestionDTO>> getMySentQuestions(SpaceEntity space) {
+        List<QuestionEntity> questions = questionRepository.findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(
+                currentUserService.getCurrentUser().getId(),
+                space.getId()
+        );
+        List<QuestionDTO> questionDtoList = questions.stream()
+                .map(QuestionDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(questionDtoList);
     }
+
 
     // 내가 받은 질문 조회 API
     @GetMapping("/my-questions/received")
@@ -106,7 +92,7 @@ public class MySpaceController {
     }
 
 
-    @GetMapping
+    @GetMapping("/{spaceId}")
     public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -122,6 +108,9 @@ public class MySpaceController {
 
 
         model.addAttribute("space", space);
+        assert user != null;
+        model.addAttribute("userName",user.getName());
+        model.addAttribute("userEmail",user.getEmail());
         model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
         return "space";

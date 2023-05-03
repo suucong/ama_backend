@@ -8,7 +8,20 @@
 <body>
 <h1>{{userName}}의 스페이스</h1>
 <p>{{userEmail}}</p>
-
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-6">
+            {{#isOwner}}
+                <!-- 자신의 스페이스인 경우 -->
+                <button class="btn btn-primary" onclick="location.href=''">프로필 수정</button>
+            {{/isOwner}}
+            {{^isOwner}}
+                <!-- 남의 스페이스인 경우 -->
+                <button class="btn btn-primary">질문하기</button>
+            {{/isOwner}}
+        </div>
+    </div>
+</div>
 
 <!-- 보낸 질문과 받은 질문 탭 -->
 <div class="container">
