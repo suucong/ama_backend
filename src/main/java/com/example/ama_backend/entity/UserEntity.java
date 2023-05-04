@@ -6,8 +6,10 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
@@ -29,11 +31,11 @@ public class UserEntity  {
     @Column(nullable = false)
     private Role role;
 
-    @Column(length = 20,nullable = true)
-    private String instaId = null;
+    @Column(length = 20, nullable = true)
+    private String instaId = "suu";
 
     @Column(length = 70,nullable = true)
-    private String introduce = null;
+    private String introduce = "suucong";
 
     @Builder
     public UserEntity(Long id, String name, String email, String picture, String introduce, String instaId, Role role) {
@@ -55,8 +57,6 @@ public class UserEntity  {
 
         return this;
     }
-
-//    public UserEntity profileUpdate(String)
 
     public String getRoleKey() {
         return this.role.getKey();

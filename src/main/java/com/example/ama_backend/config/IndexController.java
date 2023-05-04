@@ -1,39 +1,33 @@
 package com.example.ama_backend.config;
 
+import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 import com.example.ama_backend.config.auth.dto.SessionUser;
-import com.example.ama_backend.entity.SpaceEntity;
-import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequiredArgsConstructor
 public class IndexController {
     private final QAService qaService;
     private final HttpSession httpSession;
-    @Autowired
-    private SpaceRepository spaceRepository;
-
+    public final CustomOAuth2UserService customOAuth2UserService;
 
     @GetMapping("/")
     public String index(Model model) {
+        //model.addAttribute("posts", qaService.getAllQuestions());
         SessionUser user = (SessionUser) httpSession.getAttribute("user");
-       Long spaceId;
         if (user != null) {
-            // 현재 로그인한 유저의 고유 아이디로 스페이스 엔터티 가져오기
-            SpaceEntity space = spaceRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-
-            model.addAttribute("space", space);
             model.addAttribute("userName", user.getName());
             model.addAttribute("userEmail",user.getEmail());
             model.addAttribute("userPicture",user.getPicture());
-            model.addAttribute("spaceId",space.getId());
+            model.addAttribute("userId", user.getId());
         }
 
         return "index";
@@ -46,6 +40,7 @@ public class IndexController {
             model.addAttribute("userIntroduce",user.getIntroduce());
             model.addAttribute("userPicture",user.getPicture());
             model.addAttribute("userInstaId", user.getInstaId());
+            model.addAttribute("userDTO", user);
         }
         return "/profile-edit";
     }
