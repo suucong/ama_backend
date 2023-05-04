@@ -13,5 +13,5 @@ public interface SpaceRepository extends JpaRepository<SpaceEntity, Long> {
 
     Optional<SpaceEntity> findByIdAndUserId(Long id, Long userId);
 
-    Optional<SpaceEntity> findByUserId(Long userId);
+    Optional<SpaceEntity> findByUserId(Long userId); // 주인 유저 고유 아이디로 스페이스엔티티 찾는 메소드
 }

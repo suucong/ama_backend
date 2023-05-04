@@ -6,8 +6,17 @@
     <script src="/js/index.js"></script>
 </head>
 <body>
-<h1>{{userName}}의 스페이스</h1>
-<p>{{userEmail}}</p>
+{{#isOwner}}
+    <!-- 자신의 스페이스인 경우 -->
+    <h1>{{userName}}의 스페이스</h1>
+    <p>{{userEmail}}</p>
+{{/isOwner}}
+{{^isOwner}}
+    <!-- 남의 스페이스인 경우 -->
+    <h1>{{ownerName}}의 스페이스</h1>
+    <p>{{ownerEmail}}</p>
+{{/isOwner}}
+
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-6">

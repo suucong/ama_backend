@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/my-space-id")
-public class MySpaceController {
+@RequestMapping("/spaces")
+public class SpaceController {
 
     @Autowired
     private QAService qaService;
@@ -50,6 +50,7 @@ public class MySpaceController {
     public Principal user(Principal principal) {
         return principal;
     }
+
 
     // 내가 보낸 질문 조회
     public ResponseEntity<ResponseDTO<QuestionDTO>> getMySentQuestions(Long spaceId) {
@@ -89,27 +90,34 @@ public class MySpaceController {
     }
 
 
-    @GetMapping("/{spaceId}")
-    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
+    @GetMapping("/{id}")
+    public String qnaForm(@PathVariable("id") Long spaceId, Model model, HttpSession session) {
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
         SessionUser sessionUser = (SessionUser) session.getAttribute("user");
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+        UserEntity ownerUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-        // 스페이스가 현재 사용자가 소유한 스페이스인지 판별하여 isOwner 속성 추가
+        // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
+            assert user != null;
             model.addAttribute("isOwner", true);
-        } else {
+            model.addAttribute("userName", user.getName());
+            model.addAttribute("userEmail", user.getEmail());
+        }
+        // 현재 스페이스가 현재 로그인한 소유한 스페이스가 아니라면
+        else {
             model.addAttribute("isOwner", false);
+            model.addAttribute("ownerName", ownerUser.getName());
+            model.addAttribute("ownerEmail", ownerUser.getEmail());
         }
 
 
         model.addAttribute("space", space);
-        assert user != null;
-        model.addAttribute("userName", user.getName());
-        model.addAttribute("userEmail", user.getEmail());
-        model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
-        model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
+
+        model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
+        model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
         return "space";
     }
 
@@ -155,8 +163,8 @@ public class MySpaceController {
     }
 
     // 답변 삭제 API
-    @DeleteMapping("{id}/answer/delete")
-    public ResponseEntity<?> deleteAnswer(@RequestBody AnswerDTO answerDTO) {
+    @DeleteMapping("{answerId}/answer/delete")
+    public ResponseEntity<?> deleteAnswer(@RequestParam Long answerId) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -166,19 +174,13 @@ public class MySpaceController {
             String name = oauthUser.getAttribute("name");
 
 
-            // AnswerEntity 로 변환
-            AnswerEntity answerEntity = AnswerDTO.toEntity(answerDTO);
+            // 서비스를 이용해 질문 엔티티를 생성한다
+            List<AnswerEntity> entities = qaService.deleteAnswer(answerId);
 
-
-            answerEntity.setUserId(name);
-
-            // 서비스를 이용해 답변 엔티티를 생성한다
-            List<AnswerEntity> entities = qaService.deleteAnswer(answerEntity.getId());
-
-            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 AnswerDTO 리스트로 변환한다.
+            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 QuestionDTO 리스트로 변환한다.
             List<AnswerDTO> dtos = entities.stream().map(AnswerDTO::new).collect(Collectors.toList());
 
-            // 변환된  AnswerDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
             ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().data(dtos).build();
 
             // ResponseDTO 를 리턴한다.
@@ -190,12 +192,6 @@ public class MySpaceController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
-    /**
-     * mock -
-     * 내 스페이스에 질문 등록은 불가능하다
-     * 그냥 테스트용 api임
-     */
 
     // 질문 등록 API
     @PostMapping("/question/create")
@@ -239,27 +235,9 @@ public class MySpaceController {
         }
     }
 
-    /*
-    // 질답 조회 API
-    @GetMapping
-    public ResponseEntity<?> getMyAllQuestions() {
-        String temporaryUserId = "temporary-user";
-
-        // 서비스 메소드의 조회 메소드를 사용해서 질문 리스트를 가져온다
-        List<QuestionEntity> entities = qaService.getMyQuestions(temporaryUserId);
-
-        // 자바 스트림을 이용해 리턴된 엔터티 리스트를 DTO 리스트로 변환한다
-        List<QuestionDTO> dtos = entities.stream().map(QuestionDTO::new).collect(Collectors.toList());
-
-        // 변환된 DTO 리스트를 이용해 ResponseDTO 를 초기화한다
-        ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
-
-        // ResponseDTO 리턴한다
-        return ResponseEntity.ok().body(responseDTO);
-    }*/
 
     // 질문 삭제 API - 남이 보낸 질문이라도 삭제 기능이 있다.
-    @DeleteMapping("{id}/question/delete")
+    @DeleteMapping("{questionId}/question/delete")
     public ResponseEntity<?> deleteQuestion(@RequestParam Long questionId) {
         try {
             // 서비스를 이용해 질문 엔티티를 생성한다
