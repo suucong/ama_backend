@@ -52,25 +52,31 @@ public class MySpaceController {
     }
 
     // 내가 보낸 질문 조회
-    public ResponseEntity<List<QuestionDTO>> getMySentQuestions(Long sendingUserId, Long spaceId) {
-        List<QuestionEntity> questions = questionRepository.findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(
-                sendingUserId,
-                spaceId
-        );
-        List<QuestionDTO> questionDtoList = questions.stream()
-                .map(QuestionDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(questionDtoList);
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getMySentQuestions(Long spaceId) {
+        try {
+            // 해당 스페이스의 주인 유저의 고유 아이디 가져오기
+            SpaceEntity space = spaceRepository.findById(spaceId).orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+            Long ownerUserId = space.getUserId();
+
+            List<QuestionEntity> questionEntities = questionRepository.findBySendingUserId(ownerUserId);
+            List<QuestionDTO> questionDTOs = questionEntities.stream().map(QuestionDTO::new).collect(Collectors.toList());
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(questionDTOs).build();
+
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
     }
 
-    // 해당 스페이스의 받은 질문 조회
-    public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestionsBySpaceId(Long spaceId) {
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getMyReceivedQuestions(Long spaceId) {
         try {
-            List<QuestionEntity> questionEntities = questionRepository.findByReceivingUserIdAndSpaceIdOrderByCreatedAtDesc(
-                    currentUserService.getCurrentUser().getId(),
-                    spaceId
-            );
+            // 해당 스페이스의 주인 유저의 고유 아이디 가져오기
+            SpaceEntity space = spaceRepository.findById(spaceId).orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+            Long ownerUserId = space.getUserId();
 
+            List<QuestionEntity> questionEntities = questionRepository.findByReceivingUserId(ownerUserId);
             List<QuestionDTO> questionDTOs = questionEntities.stream().map(QuestionDTO::new).collect(Collectors.toList());
             ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(questionDTOs).build();
 
@@ -100,8 +106,8 @@ public class MySpaceController {
 
         model.addAttribute("space", space);
         assert user != null;
-        model.addAttribute("userName",user.getName());
-        model.addAttribute("userEmail",user.getEmail());
+        model.addAttribute("userName", user.getName());
+        model.addAttribute("userEmail", user.getEmail());
         model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
         return "space";
@@ -127,7 +133,6 @@ public class MySpaceController {
 
             // 현재 구글로 로그인한 유저의 네임
             answerEntity.setUserId(name);
-
 
 
             // 서비스를 이용해 질문 엔티티를 생성한다
