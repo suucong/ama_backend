@@ -116,6 +116,7 @@ public class SpaceController {
 
         model.addAttribute("space", space);
 
+        assert user != null;
         model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
         return "space";

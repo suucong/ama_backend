@@ -12,8 +12,8 @@ import java.util.List;
 */
 @Repository
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
-    List<QuestionEntity> findByReceivingUserId(Long Id); // 내가 받은 질문 조회하는 메소드
 
+    List<QuestionEntity> findByReceivingUserId(Long Id); // 내가 받은 질문 조회하는 메소드
     List<QuestionEntity> findBySendingUserId(Long id); // 내가 받은 질문 조회하는 메소드
 
 }
