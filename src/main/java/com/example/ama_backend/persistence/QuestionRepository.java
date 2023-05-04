@@ -12,7 +12,7 @@ import java.util.List;
 */
 @Repository
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
-    List<QuestionEntity> findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(Long sendingUserId, Long spaceId);
+//    List<QuestionEntity> findBySendingUserIdAndSpaceIdOrderByCreatedAtDesc(Long sendingUserId, Long spaceId);
 
     List<QuestionEntity> findByReceivingUserId(Long receivingUserId); // 내가 받은 질문 조회하는 메솓,
 

@@ -108,8 +108,8 @@ public class MySpaceController {
         assert user != null;
         model.addAttribute("userName", user.getName());
         model.addAttribute("userEmail", user.getEmail());
-        model.addAttribute("sentQuestions", getMySentQuestions().getBody().getData());
-        model.addAttribute("receivedQuestions", getMyReceivedQuestions().getBody().getData());
+        model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
+        model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
         return "space";
     }
 
