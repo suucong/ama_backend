@@ -24,10 +24,6 @@ public class SpaceEntity {
     private List<QuestionEntity> questions = new ArrayList<>(); //스페이스에 포함된 질문들(보낸질문+받은질문)
 
 
-//    @OneToMany(mappedBy = "toSpace", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @Builder.Default
-//    private List<QuestionEntity> receivedQuestions = new ArrayList<>(); // 스페이스에 전송된 질문들
-
     // 현재 사용자가 소유한 스페이스인지 즉, 본인 스페이스인지 판별하는 메소드
     public boolean isOwnedBy(UserEntity user){
         return user!=null && this.userId!=null && this.userId.equals(user.getId());

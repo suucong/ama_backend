@@ -5,6 +5,7 @@ import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
+import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.entity.QuestionEntity;
 import com.example.ama_backend.entity.SpaceEntity;
@@ -15,6 +16,7 @@ import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,10 +48,6 @@ public class SpaceController {
     private CustomOAuth2UserService customOAuth2UserService;
 
 
-    @GetMapping("/user")
-    public Principal user(Principal principal) {
-        return principal;
-    }
 
 
     // 내가 보낸 질문 조회
@@ -90,8 +88,8 @@ public class SpaceController {
     }
 
 
-    @GetMapping("/{id}")
-    public String qnaForm(@PathVariable("id") Long spaceId, Model model, HttpSession session) {
+    @GetMapping("/{spaceId}")
+    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
         SessionUser sessionUser = (SessionUser) session.getAttribute("user");
@@ -103,14 +101,22 @@ public class SpaceController {
         if (space.isOwnedBy(user)) {
             assert user != null;
             model.addAttribute("isOwner", true);
-            model.addAttribute("userName", user.getName());
-            model.addAttribute("userEmail", user.getEmail());
+            model.addAttribute("picture", user.getPicture());
+            model.addAttribute("name", user.getName());
+            model.addAttribute("email", user.getEmail());
+            model.addAttribute("introduce", user.getIntroduce());
+            model.addAttribute("instaId",user.getInstaId());
+            model.addAttribute("role", user.getRole());
         }
         // 현재 스페이스가 현재 로그인한 소유한 스페이스가 아니라면
         else {
             model.addAttribute("isOwner", false);
-            model.addAttribute("ownerName", ownerUser.getName());
-            model.addAttribute("ownerEmail", ownerUser.getEmail());
+            model.addAttribute("picture", ownerUser.getPicture());
+            model.addAttribute("name", ownerUser.getName());
+            model.addAttribute("email", ownerUser.getEmail());
+            model.addAttribute("introduce", ownerUser.getIntroduce());
+            model.addAttribute("instaId",ownerUser.getInstaId());
+            model.addAttribute("role", ownerUser.getRole());
         }
 
 
@@ -121,6 +127,32 @@ public class SpaceController {
         model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
         return "space";
     }
+
+
+    // UserEntity 수정
+    @PutMapping("/user/update/{userId}")
+    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequestDto requestDto) {
+        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+        UserEntity currentUser = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+        }
+
+        if (!currentUser.getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
+        }
+
+        currentUser.setName(requestDto.getName());
+        currentUser.setIntroduce(requestDto.getIntroduce());
+        currentUser.setInstaId(requestDto.getInstaId());
+        currentUser.setPicture(requestDto.getPicture());
+
+        userRepository.save(currentUser);
+
+        return ResponseEntity.ok("수정이 완료되었습니다.");
+    }
+
 
     // 답변 등록 API
     @PostMapping("{questionId}/answer/create")

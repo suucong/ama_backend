@@ -32,10 +32,10 @@ public class UserEntity  {
     private Role role;
 
     @Column(length = 20, nullable = true)
-    private String instaId = "suu";
+    private String instaId;
 
     @Column(length = 70,nullable = true)
-    private String introduce = "suucong";
+    private String introduce;
 
     @Builder
     public UserEntity(Long id, String name, String email, String picture, String introduce, String instaId, Role role) {
