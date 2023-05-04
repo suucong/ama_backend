@@ -16,4 +16,6 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
 
     List<QuestionEntity> findByReceivingUserId(Long receivingUserId); // 내가 받은 질문 조회하는 메솓,
 
+    List<QuestionEntity> findBySendingUserId(Long id);
+
 }
