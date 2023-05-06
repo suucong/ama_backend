@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Builder
 public class QuestionDTO {
     private Long id;
+    private String sentUserPic;
     private String questionText;
     private LocalDateTime createdTime;
     private List<AnswerDTO> answers;
@@ -25,6 +26,7 @@ public class QuestionDTO {
 
     public QuestionDTO(QuestionEntity question) {
         this.id = question.getId();
+        this.sentUserPic=question.getSentUserPic();
         this.questionText = question.getQuestionText();
         this.createdTime = question.getCreatedTime();
         this.answers = question.getAnswers() != null
@@ -37,6 +39,7 @@ public class QuestionDTO {
     public static QuestionEntity toEntity(final QuestionDTO dto){
         return QuestionEntity.builder()
                 .id(dto.getId())
+                .sentUserPic(dto.getSentUserPic())
                 .questionText(dto.getQuestionText())
                 .createdTime(dto.getCreatedTime())
                 .answers(dto.getAnswers() != null

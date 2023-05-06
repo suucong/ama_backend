@@ -23,6 +23,9 @@ public class QuestionEntity {
     private Long id; // 이 오브젝트의 아이디
 
     @Column(nullable = false)
+    private String sentUserPic;
+
+    @Column(nullable = false)
     private String userId; // "익명" 혹은 유저네임
 
     @Column(nullable = false)
@@ -46,9 +49,5 @@ public class QuestionEntity {
             fetch = FetchType.LAZY)
     @Builder.Default
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "space_id")
-    private SpaceEntity space; // SpaceEntity 객체를 참조
 
 }

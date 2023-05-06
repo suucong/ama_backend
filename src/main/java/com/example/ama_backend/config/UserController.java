@@ -9,14 +9,12 @@ import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class IndexController {
+public class UserController {
 
     @Autowired
     private QAService qaService;
@@ -28,7 +26,12 @@ public class IndexController {
     private UserRepository userRepository;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String main(Model model){
+        return "main";
+    }
+
+    @GetMapping("/signin")
+    public String login(Model model) {
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
         if (sessionUser != null) {
             //String email = (String) oauth2User.getAttribute("email");
@@ -44,7 +47,7 @@ public class IndexController {
                 model.addAttribute("spaceId", space.getId());
             }
         }
-        return "index";
+        return "login";
     }
 
     @GetMapping("/logout")
@@ -62,7 +65,7 @@ public class IndexController {
     }
 
 
-    @GetMapping("/updatingForm")
+    @GetMapping("/userUpdating")
     public String modify(Model model) {
         SessionUser user = (SessionUser) httpSession.getAttribute("user");
         if (user != null) {

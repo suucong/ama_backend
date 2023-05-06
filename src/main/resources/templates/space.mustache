@@ -9,10 +9,11 @@
     img {
         border-radius: 50%;
     }
+
     </style>
 </head>
 <body>
-<img class="photo" width="90" height="90" src="{{ picture }}" />
+<img class="photo" width="90" height="90" src="{{ picture }}"/>
 <h1>{{name}}의 스페이스</h1>
 <p>{{email}}</p>
 <p>{{introduce}}</p>
@@ -25,36 +26,33 @@
             {{#isOwner}}
                 <!-- 자신의 스페이스인 경우 -->
                 <button class="btn btn-primary"
-                        onclick="location.href='/updatingForm'">프로필 수정
+                        onclick="location.href='/userUpdating'">프로필 수정
                 </button>
             {{/isOwner}}
             {{^isOwner}}
                 <!-- 남의 스페이스인 경우 -->
-                <button class="btn btn-primary">질문하기</button>
+                <button class="btn btn-primary"
+                        onclick="location.href='/spaces/{{spaceId}}/question'">질문하기
+                </button>
             {{/isOwner}}
         </div>
     </div>
 </div>
 
-<!-- 보낸 질문과 받은 질문 탭 -->
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
-            <ul class="nav nav-tabs mb-4">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" href="#sent">보낸 질문</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="tab" href="#received">받은 질문</a>
-                </li>
-            </ul>
+            <div class="btn-group mb-4" id="question-tabs" role="group">
+                <button type="button" class="btn btn-secondary active" data-toggle="tab" data-target="#sent-questions" id="sent-tab">보낸 질문</button>
+                <button type="button" class="btn btn-secondary" data-toggle="tab" data-target="#received-questions" id="received-tab">받은 질문</button>
+            </div>
             <div class="tab-content">
-                <div class="tab-pane fade show active" id="sent">
+                <div class="tab-pane fade show active" id="sent-questions">
                     {{#sentQuestions}}
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h5 class="card-title">{{questionText}}</h5>
                                 <p class="card-text">{{userId}} - {{createdTime}}</p>
+                                <h5 class="card-title">{{questionText}}</h5>
                             </div>
                         </div>
                     {{/sentQuestions}}
@@ -62,12 +60,12 @@
                         <p>보낸 질문이 없습니다.</p>
                     {{/sentQuestions}}
                 </div>
-                <div class="tab-pane fade" id="received">
+                <div class="tab-pane fade" id="received-questions">
                     {{#receivedQuestions}}
                         <div class="card mb-3">
                             <div class="card-body">
-                                <h5 class="card-title">{{questionText}}</h5>
                                 <p class="card-text">{{userId}} - {{createdTime}}</p>
+                                <h5 class="card-title">{{questionText}}</h5>
                             </div>
                         </div>
                     {{/receivedQuestions}}
@@ -79,6 +77,9 @@
         </div>
     </div>
 </div>
+
+
+
 
 </body>
 </html>

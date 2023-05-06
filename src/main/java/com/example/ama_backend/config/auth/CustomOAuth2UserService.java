@@ -47,11 +47,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // 이후 카카오나 네이버 같은 소셜 로그인이 이 클래스 사용함
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
+        // 유저엔터티 관련 메소드
         UserEntity userEntity = loadOrSave(attributes);
         // SessionUser : 세션에 사용자 정보를 저장하기 위핸 DTO 클래스다
 
         httpSession.setAttribute("user", new SessionUser(userEntity));
 
+        // 스페이스 생성 관련 메소드
        saveOrGet(userEntity.getId());
 
         return new DefaultOAuth2User(
@@ -72,10 +74,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                     return entity;
                 })
                 // 존재하지 않는다면 엔터티를 새로 생성한다
-                .orElseGet(() -> {
-
-                    return userRepository.save(attributes.toEntity());
-                });
+                .orElseGet(() -> userRepository.save(attributes.toEntity()));
 
         return userEntity;
     }

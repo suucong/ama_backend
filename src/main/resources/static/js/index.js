@@ -1,4 +1,7 @@
 $(document).ready(function() {
+ $("#received-questions").hide();
+$("#received-tab").removeClass("active");
+
   // 보낸 질문 탭 클릭 시
   $("#sent-tab").on('click', function() {
     $("#sent-questions").show();

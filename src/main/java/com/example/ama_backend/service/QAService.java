@@ -54,15 +54,17 @@ public class QAService {
     }
 
     // 리팩토링한 질문 검증 메소드
-    private void validateQuestion(final QuestionEntity questionEntity, boolean isAnonymous) {
+    private void validateQuestion(final QuestionEntity questionEntity) {
         if (questionEntity == null) {
             log.warn("Question Entity 는 null 이면 안됩니다.");
             throw new RuntimeException("Question Entity 는 null 이면 안됩니다.");
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
-        if (isAnonymous) {
+        if (questionEntity.getIsAnonymous()==true) {
             questionEntity.setUserId("익명");
-        } else if (questionEntity.getUserId() == null) {
+        }
+
+        if (questionEntity.getUserId() == null) {
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
@@ -90,8 +92,8 @@ public class QAService {
     }
 
     // 질문 등록 가능 - 익명/닉네임 질문 둘 다 가능하도록
-    public List<QuestionEntity> saveQuestion(final QuestionEntity questionEntity, Boolean isAnonymous) {
-        validateQuestion(questionEntity, isAnonymous);
+    public List<QuestionEntity> saveQuestion(final QuestionEntity questionEntity) {
+        validateQuestion(questionEntity);
         questionRepository.save(questionEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", questionEntity.getId());
         return questionRepository.findBySendingUserId(questionEntity.getSendingUserId());
