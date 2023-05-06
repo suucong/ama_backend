@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class UserController {
@@ -65,16 +66,15 @@ public class UserController {
     }
 
 
-    @GetMapping("/userUpdating")
-    public String modify(Model model) {
+    @GetMapping("/spaces/{spaceId}/update")
+    public String modify(@PathVariable Long spaceId, Model model) {
+        //이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
         SessionUser user = (SessionUser) httpSession.getAttribute("user");
         if (user != null) {
             UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElse(null);
             if (userEntity != null) {
-                SpaceEntity space = spaceRepository.findByUserId(userEntity.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-
-
                 model.addAttribute("userId", userEntity.getId());
                 model.addAttribute("userName", userEntity.getName());
                 model.addAttribute("userIntroduce", userEntity.getIntroduce());

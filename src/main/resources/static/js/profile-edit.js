@@ -6,6 +6,7 @@ const cancelBtn = document.querySelector('#cancelBtn');
 
 updateUserBtn.addEventListener('click', async () => {
   const Id = $('#id').val();
+  const spaceId= $('#spaceId').val();
   const nameInput = document.querySelector('#username');
   const introduceInput = document.querySelector('#introduce');
   const pictureInput = document.querySelector('#picture');
@@ -35,7 +36,7 @@ updateUserBtn.addEventListener('click', async () => {
     }
 
     alert('유저 정보가 수정되었습니다.');
-    location.href = '/signin';
+    location.href = '/spaces/'+spaceId;
   } catch (error) {
     console.error(error);
   }
@@ -45,7 +46,7 @@ cancelBtn.addEventListener('click', async () => {
 
 try{
     alert('유저 정보 수정이 취소되었습니다.');
-    location.href = '/signin';
+   location.href = '/spaces/'+spaceId;
   } catch (error) {
     console.error(error);
   }
