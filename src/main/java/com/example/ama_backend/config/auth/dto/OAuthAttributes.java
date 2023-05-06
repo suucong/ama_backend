@@ -33,7 +33,7 @@ public class OAuthAttributes {
     }
 
     // OAuth2User 에서 반환하는 사용자 정보는 Map 이기 때문에 값 하나하나를 변환해야만 함
-    public static OAuthAttributes of(String registrationId, String userNameAttributeName,
+    public static OAuthAttributes of(String userNameAttributeName,
                                      Map<String,Object> attributes){
         return ofGoogle(userNameAttributeName,attributes);
     }
