@@ -5,9 +5,14 @@
     <title>Space</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/index.js"></script>
+    <style>
+    img {
+        border-radius: 50%;
+    }
+    </style>
 </head>
 <body>
-<p>{{picture}}</p>
+<img class="photo" width="90" height="90" src="{{ picture }}" />
 <h1>{{name}}의 스페이스</h1>
 <p>{{email}}</p>
 <p>{{introduce}}</p>
@@ -20,7 +25,8 @@
             {{#isOwner}}
                 <!-- 자신의 스페이스인 경우 -->
                 <button class="btn btn-primary"
-                        onclick="location.href='/updatingForm'">프로필 수정</button>
+                        onclick="location.href='/updatingForm'">프로필 수정
+                </button>
             {{/isOwner}}
             {{^isOwner}}
                 <!-- 남의 스페이스인 경우 -->

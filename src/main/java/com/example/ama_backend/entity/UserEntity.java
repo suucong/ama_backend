@@ -31,10 +31,10 @@ public class UserEntity  {
     @Column(nullable = false)
     private Role role;
 
-    @Column(length = 20, nullable = true)
+    @Column(nullable = true)
     private String instaId;
 
-    @Column(length = 70,nullable = true)
+    @Column(length = 100,nullable = true)
     private String introduce;
 
     @Builder
