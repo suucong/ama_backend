@@ -20,6 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 @Builder
 public class SessionUser implements Serializable {
     private Long id;
@@ -38,17 +39,5 @@ public class SessionUser implements Serializable {
         this.picture=userEntity.getPicture();
         this.introduce=userEntity.getIntroduce();
         this.instaId=userEntity.getInstaId();
-    }
-
-    public static SessionUser toEntity(final SessionUser dto) {
-        return SessionUser.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .picture(dto.getPicture())
-                .role(dto.getRole())
-                .instaId(dto.getInstaId())
-                .introduce(dto.getIntroduce())
-                .build();
     }
 }
