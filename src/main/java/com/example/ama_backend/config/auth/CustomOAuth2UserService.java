@@ -45,7 +45,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         // OAuth2Service를 통해 가져온 OAuth2User의 attribute를 담을 클래스이다
         // 이후 카카오나 네이버 같은 소셜 로그인이 이 클래스 사용함
-        OAuthAttributes attributes = OAuthAttributes.of(userNameAttributeName, oAuth2User.getAttributes());
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId,userNameAttributeName, oAuth2User.getAttributes());
 
         // 유저엔터티 관련 메소드
         UserEntity userEntity = loadOrSave(attributes);

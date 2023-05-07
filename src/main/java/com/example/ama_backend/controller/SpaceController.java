@@ -28,7 +28,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -161,17 +163,44 @@ public class SpaceController {
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
+    @PostMapping("/{spaceId}/{questionId}/answer")
+    public String AnswerInput(@PathVariable Long spaceId,@PathVariable Long questionId,Model model){
+        // 이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+
+        // 이동한 스페이스 주인아이디로 유저엔터티 찾기
+        UserEntity spaceUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+
+        // 답변달 질문 엔터티
+        QuestionEntity question=questionRepository.findById(questionId)
+                .orElseThrow(()->  new IllegalArgumentException("Invalid question id"));
+
+        SessionUser user = (SessionUser) httpSession.getAttribute("user");
+        if (user != null) {
+            // 현재 로그인한 유저 엔터티
+            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElse(null);
+            if (userEntity != null) {
+                // 현재 로그인한 유저의 스페이스 엔터티
+
+
+                model.addAttribute("sendingUserId", userEntity.getId());
+                model.addAttribute("sendingUserName", userEntity.getName());
+                model.addAttribute("sendingUserPicture", userEntity.getPicture());
+                model.addAttribute("questionId", question.getId());
+                model.addAttribute("receivingUserSpaceId", space.getId());
+
+            }
+
+        }
+        return "question";
+    }
 
     // 답변 등록 API
     @PostMapping("{questionId}/answer/create")
-    public ResponseEntity<?> createAnswer(@RequestBody AnswerDTO answerDTO) {
+    public ResponseEntity<?> createAnswer(@PathVariable Long questionId,@RequestBody AnswerDTO answerDTO) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
-            OAuth2User oauthUser = oauthToken.getPrincipal();
-            String name = oauthUser.getAttribute("name");
 
 
             // AnswerEntity 로 변환
@@ -181,7 +210,7 @@ public class SpaceController {
             answerEntity.setId(null);
 
             // 현재 구글로 로그인한 유저의 네임
-            answerEntity.setUserId(name);
+           // answerEntity.setUserId(name);
 
 
             // 서비스를 이용해 질문 엔티티를 생성한다
@@ -302,6 +331,7 @@ public class SpaceController {
             questionEntity.setAnswers(null);
             //현재 시각 설정
             questionEntity.setCreatedTime(LocalDateTime.now());
+
             //질문 보내는 사람 프사 설정
             questionEntity.setSentUserPic(currentUser.getPicture());
 

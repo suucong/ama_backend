@@ -61,7 +61,7 @@ public class QAService {
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
         if (questionEntity.getIsAnonymous()==true) {
-            questionEntity.setUserId("익명");
+            questionEntity.setUserId("😼익명의 냥이");
         }
 
         if (questionEntity.getUserId() == null) {

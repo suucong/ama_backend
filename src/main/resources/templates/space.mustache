@@ -9,6 +9,13 @@
     img {
         border-radius: 50%;
     }
+.card {
+    background-color: #F2F2F2;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+}
+
 
     </style>
 </head>
@@ -43,15 +50,20 @@
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
             <div class="btn-group mb-4" id="question-tabs" role="group">
-                <button type="button" class="btn btn-secondary active" data-toggle="tab" data-target="#sent-questions" id="sent-tab">보낸 질문</button>
-                <button type="button" class="btn btn-secondary" data-toggle="tab" data-target="#received-questions" id="received-tab">받은 질문</button>
+                <button type="button" class="btn btn-secondary active" data-toggle="tab" data-target="#sent-questions"
+                        id="sent-tab">보낸 질문
+                </button>
+                <button type="button" class="btn btn-secondary" data-toggle="tab" data-target="#received-questions"
+                        id="received-tab">받은 질문
+                </button>
             </div>
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="sent-questions">
                     {{#sentQuestions}}
                         <div class="card mb-3">
                             <div class="card-body">
-                                <p class="card-text">{{userId}} - {{createdTime}}</p>
+                                <img width="45" height="45" src="{{sentUserPic}}"/>
+                                <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                 <h5 class="card-title">{{questionText}}</h5>
                             </div>
                         </div>
@@ -64,7 +76,8 @@
                     {{#receivedQuestions}}
                         <div class="card mb-3">
                             <div class="card-body">
-                                <p class="card-text">{{userId}} - {{createdTime}}</p>
+                                <img width="45" height="45" src="{{sentUserPic}}"/>
+                                <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                 <h5 class="card-title">{{questionText}}</h5>
                             </div>
                         </div>
@@ -77,8 +90,6 @@
         </div>
     </div>
 </div>
-
-
 
 
 </body>

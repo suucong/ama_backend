@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
 const updateUserBtn = document.querySelector('#updateBtn');
 const cancelBtn = document.querySelector('#cancelBtn');
 const currentSpaceId = $('#receivingSpaceId').val();
@@ -11,12 +10,13 @@ console.log(currentSpaceId.value);
 
 updateUserBtn.addEventListener('click', async () => {
   const questionInput = document.querySelector('#questionText');
+const isAnonymous_ = (document.getElementById("isPublic").value == "🔒냥이로 녹아들기") ? true : false;
 
   const QuestionDTO = {
   questionText: questionInput.value,
   sentUserPic: sentUserPics,
   userId: sendingUserName.value,
-  isAnonymous : false
+  isAnonymous : isAnonymous_
   };
 
   try {
