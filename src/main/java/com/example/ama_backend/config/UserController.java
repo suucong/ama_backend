@@ -2,23 +2,23 @@ package com.example.ama_backend.config;
 
 import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 import com.example.ama_backend.config.auth.dto.SessionUser;
-import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Controller
 public class UserController {
@@ -53,25 +53,33 @@ public class UserController {
                 model.addAttribute("userEmail", userEntity.getEmail());
                 model.addAttribute("userPicture", userEntity.getPicture());
                 model.addAttribute("spaceId", space.getId());
+
             }
         }
+
         return "login";
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        /**
-         * "redirect:/"는 스프링 프레임워크에서 제공하는 URL 리다이렉트 기능입니다.
-         * 이 코드는 "/logout" 요청을 처리한 후, 다시 클라이언트 측으로 "redirect:/"" 응답을 보내게 됩니다.
-         * 이 응답은 브라우저에서 다시 "/" URL로 요청을 보내게끔 유도하여, 클라이언트가 "/" URL로 리다이렉트 되도록 합니다.
-         * 따라서, 로그아웃 후에는 다시 메인 페이지로 리다이렉트 되게 됩니다.*/
-        return "redirect:/";
-    }
 
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("JSESSIONID")) {
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                }
+            }
+        }
+
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/spaces/{spaceId}/update")
     public String modify(@PathVariable Long spaceId, Model model, MultipartFile imgFile) throws Exception {

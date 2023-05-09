@@ -48,6 +48,7 @@ public class SecurityConfig {
                     .logoutSuccessUrl("/")
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
+                     .deleteCookies("JSESSIONID")
                     .permitAll()
                 .and()
                 // OAuth2 로그인 기능에 대한 여러 설정들의 진입점
