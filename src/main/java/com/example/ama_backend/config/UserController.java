@@ -1,6 +1,8 @@
 package com.example.ama_backend.config;
 
+import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 import com.example.ama_backend.config.auth.dto.SessionUser;
+import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.SpaceRepository;
@@ -9,10 +11,14 @@ import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Controller
 public class UserController {
@@ -25,6 +31,8 @@ public class UserController {
     private SpaceRepository spaceRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CustomOAuth2UserService userService;
 
     @GetMapping("/")
     public String main(Model model){
@@ -35,7 +43,6 @@ public class UserController {
     public String login(Model model) {
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
         if (sessionUser != null) {
-            //String email = (String) oauth2User.getAttribute("email");
             UserEntity userEntity = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
             if (userEntity != null) {
                 SpaceEntity space = spaceRepository.findByUserId(userEntity.getId())
@@ -67,7 +74,7 @@ public class UserController {
 
 
     @GetMapping("/spaces/{spaceId}/update")
-    public String modify(@PathVariable Long spaceId, Model model) {
+    public String modify(@PathVariable Long spaceId, Model model, MultipartFile imgFile) throws Exception {
         //이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -79,11 +86,10 @@ public class UserController {
                 model.addAttribute("userName", userEntity.getName());
                 model.addAttribute("userIntroduce", userEntity.getIntroduce());
                 model.addAttribute("userPicture", userEntity.getPicture());
+                model.addAttribute("userProfileImgName", userEntity.getProfileImgName());
                 model.addAttribute("userInstaId", userEntity.getInstaId());
                 model.addAttribute("spaceId", space.getId());
-
-            }
-
+             }
         }
         return "profile-edit";
     }

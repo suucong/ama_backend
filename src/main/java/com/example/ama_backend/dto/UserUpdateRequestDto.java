@@ -13,14 +13,16 @@ public class UserUpdateRequestDto {
     private Long userId;
     private String name;
     private String picture;
+    private String profileImgName;
     private String instaId;
     private String introduce;
 
     @Builder
-    public UserUpdateRequestDto(Long id, String name, String picture, String instaId, String introduce) {
+    public UserUpdateRequestDto(Long id, String name, String picture, String profileImgName, String instaId, String introduce) {
         this.userId=id;
         this.name = name;
         this.picture = picture;
+        this.profileImgName=profileImgName;
         this.introduce = introduce;
         this.instaId = instaId;
     }
@@ -30,6 +32,7 @@ public class UserUpdateRequestDto {
                 .id(userUpdateRequestDto.getUserId())
                 .name(userUpdateRequestDto.getName())
                 .picture(userUpdateRequestDto.getPicture())
+                .profileImgName(userUpdateRequestDto.getProfileImgName())
                 .instaId(userUpdateRequestDto.getInstaId())
                 .introduce(userUpdateRequestDto.getIntroduce())
                 .build();

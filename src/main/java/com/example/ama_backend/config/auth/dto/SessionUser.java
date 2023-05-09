@@ -27,6 +27,7 @@ public class SessionUser implements Serializable {
     private String name;
     private String email;
     private String picture;
+    private String profileImgName;
     private Role role;
     private String instaId;
     private String introduce;
@@ -37,6 +38,7 @@ public class SessionUser implements Serializable {
         this.email=userEntity.getEmail();
         this.role=userEntity.getRole();
         this.picture=userEntity.getPicture();
+        this.profileImgName=userEntity.getProfileImgName();
         this.introduce=userEntity.getIntroduce();
         this.instaId=userEntity.getInstaId();
     }

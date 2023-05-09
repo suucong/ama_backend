@@ -27,6 +27,9 @@ public class UserEntity  {
     @Column
     private String picture;
 
+    @Column
+    private String profileImgName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -38,20 +41,22 @@ public class UserEntity  {
     private String introduce;
 
     @Builder
-    public UserEntity(Long id, String name, String email, String picture, String introduce, String instaId, Role role) {
-        this.id = id;       // UserDTO생성할때 자꾸 오류가떠서 추가함(넣어주면안되나요??은영언니..)
+    public UserEntity(Long id, String name, String email, String picture, String profileImgName, String introduce, String instaId, Role role) {
+        this.id = id;
         this.name = name;
         this.email = email;
         this.picture = picture;
+        this.profileImgName = profileImgName;
         this.role = role;
         this.introduce = introduce;
         this.instaId = instaId;
     }
 
-    public UserEntity update(Long id,String name, String picture, String introduce, String instaId) {
+    public UserEntity update(Long id,String name, String picture, String profileImgName, String introduce, String instaId) {
         this.id = id;
         this.name = name;
         this.picture = picture;
+        this.profileImgName = profileImgName;
         this.introduce = introduce;
         this.instaId = instaId;
 

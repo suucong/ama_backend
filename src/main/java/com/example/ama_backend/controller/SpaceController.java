@@ -25,14 +25,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import javax.validation.Valid;
 
-import javax.swing.text.html.Option;
-import java.security.Principal;
-import java.time.LocalDate;
+
+
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -145,7 +144,7 @@ public class SpaceController {
 
     // UserEntity 수정
     @PutMapping("/user/update/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestBody UserUpdateRequestDto requestDto) {
+    public ResponseEntity<String> updateUser(@PathVariable Long userId,@RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile",required = false) MultipartFile imgFile) throws Exception {
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
         UserEntity currentUser = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
@@ -160,10 +159,13 @@ public class SpaceController {
         currentUser.setName(requestDto.getName());
         currentUser.setIntroduce(requestDto.getIntroduce());
         currentUser.setInstaId(requestDto.getInstaId());
-        currentUser.setPicture(requestDto.getPicture());
 
-        userRepository.save(currentUser);
-
+        if (imgFile == null) {
+            customOAuth2UserService.saveUserAccountWithoutProfile(currentUser);
+        }
+        else {
+            customOAuth2UserService.updatePicture(currentUser, imgFile);
+        }
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
