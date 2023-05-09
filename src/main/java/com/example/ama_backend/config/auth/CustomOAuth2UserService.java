@@ -2,6 +2,7 @@ package com.example.ama_backend.config.auth;
 
 import com.example.ama_backend.config.auth.dto.OAuthAttributes;
 import com.example.ama_backend.config.auth.dto.SessionUser;
+import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.SpaceRepository;
@@ -16,9 +17,14 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 소셜 로그인 이후 가져온 사용자의 정보(email,picture,nickname) 등을 기반으로 가입 및 정보 수정, 세션 저장 등의 기능을 지원함
@@ -64,19 +70,40 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     }
 
-
-    protected UserEntity loadOrSave(OAuthAttributes attributes) {
+    public UserEntity loadOrSave(OAuthAttributes attributes) {
         // 로그인하려는 이메일이 유저엔터티에 이미 존재하는 이메일인지 여부 확인
         UserEntity userEntity = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> {
                     // 존재한다면 유저 엔터티를 반환한다
-                    entity.update(attributes.getId(), attributes.getName(), attributes.getPicture(), attributes.getIntroduce(), attributes.getInstaId());
+                    entity.update(attributes.getId(), attributes.getName(), attributes.getPicture(), attributes.getProfileImgName(), attributes.getIntroduce(), attributes.getInstaId());
                     return entity;
                 })
                 // 존재하지 않는다면 엔터티를 새로 생성한다
                 .orElseGet(() -> userRepository.save(attributes.toEntity()));
 
         return userEntity;
+    }
+    // 사진 넣어주는 부분
+    public void updatePicture(UserEntity user, MultipartFile imgFile) throws Exception{
+
+        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\files";
+
+        UUID uuid = UUID.randomUUID();
+
+        String fileName = uuid + "_" + imgFile.getOriginalFilename();
+
+        File saveFile = new File(projectPath, fileName);
+
+        imgFile.transferTo(saveFile);
+
+        user.setProfileImgName(fileName);
+        user.setPicture("/files/" + fileName);
+
+        userRepository.save(user);
+    };
+
+    public void saveUserAccountWithoutProfile(UserEntity user) {
+        userRepository.save(user);
     }
 
     public SpaceEntity saveOrGet(Long userId) {
