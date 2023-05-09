@@ -60,13 +60,26 @@
             <div class="tab-content">
                 <div class="tab-pane fade show active" id="sent-questions">
                     {{#sentQuestions}}
+                        <!--스페이스의 주인이 나라면-->
+                        {{#isOwner}}
                         <div class="card mb-3">
                             <div class="card-body">
                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                 <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                 <h5 class="card-title">{{questionText}}</h5>
+                                <p onclick="location.href='/spaces/{{spaceId}}/{{id}}/answer'">답변하기</p>
                             </div>
                         </div>
+                        {{/isOwner}}
+                        {{^isOwner}}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <img width="45" height="45" src="{{sentUserPic}}"/>
+                                    <p class="card-text">{{userId}}   at {{createdTime}}</p>
+                                    <h5 class="card-title">{{questionText}}</h5>
+                                </div>
+                            </div>
+                        {{/isOwner}}
                     {{/sentQuestions}}
                     {{^sentQuestions}}
                         <p>보낸 질문이 없습니다.</p>
@@ -74,13 +87,26 @@
                 </div>
                 <div class="tab-pane fade" id="received-questions">
                     {{#receivedQuestions}}
+                            <!--스페이스의 주인이 나라면-->
+                        {{#isOwner}}
                         <div class="card mb-3">
                             <div class="card-body">
                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                 <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                 <h5 class="card-title">{{questionText}}</h5>
+                                <p onclick="location.href='/spaces/{{spaceId}}/{{id}}/answer'">답변하기</p>
                             </div>
                         </div>
+                        {{/isOwner}}
+                        {{^isOwner}}
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <img width="45" height="45" src="{{sentUserPic}}"/>
+                                    <p class="card-text">{{userId}}   at {{createdTime}}</p>
+                                    <h5 class="card-title">{{questionText}}</h5>
+                                </div>
+                            </div>
+                        {{/isOwner}}
                     {{/receivedQuestions}}
                     {{^receivedQuestions}}
                         <p>받은 질문이 없습니다.</p>

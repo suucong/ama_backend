@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/answer.js"></script>
+    <script>
+    function change() {
+        var elem = document.getElementById("isPublic");
+        if (elem.value == "📢 공개 답변") {
+            elem.value = "🔒질문자에게만 보이는 답변";
+        } else {
+            elem.value = "📢 공개 답변";
+        }
+    }
+
+
+    </script>
+
+    <style>
+        .input,
+        .textarea {
+        border: 1px solid #ccc;
+        font-family: inherit;
+        font-size: inherit;
+        padding: 1px 6px;
+        }
+
+        .textarea {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        resize: both;
+        min-height: 40px;
+        line-height: 20px;
+        }
+
+        .textarea:empty::before {
+        content: "답변을 입럭하세요..";
+        color: gray;
+        }
+        img {
+        border-radius: 50%;
+         }
+
+
+    </style>
+
+</head>
+<body>
+
+<div class="container" id="main">
+    <div class="col-md-6 col-md-offset-3">
+        {{#spaceId}}
+            <input type="hidden" id="questionId" value="{{questionId}}"/>
+            <input type="hidden" id="spaceId" value="{{spaceId}}"/>
+            <img class="photo" id="sentUserPic" width="90" height="90" src="{{ sendingUserPicture }}"/>
+            <p id="sendingUserName">{{sendingUserName}}</p>
+            <input onclick="change()" type="button" value="📢 공개 답변" id="isPublic"/><br><br>
+            <textarea class="textarea resize-ta" id="answerText"></textarea>
+            <br>
+            <button id="updateBtn" type="button" class="btn btn-primary">보내기</button>
+            <button id="cancelBtn" type="button" class="btn btn-secondary">취소</button>
+        {{/spaceId}}
+
+        {{^spaceId}}
+            <p>존재하지 않는 스페이스입니다.</p>
+        {{/spaceId}}
+    </div>
+</div>
+</body>
+</html>
+

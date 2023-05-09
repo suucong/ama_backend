@@ -81,6 +81,10 @@ public class QAService {
             throw new RuntimeException("Answer Entity 는 null 이면 안됩니다.");
         }
 
+        //isPublic 이 false 라면
+        if(!answerEntity.getIsPublic()){
+            answerEntity.setAnswerText("🔒질문자만 볼 수 있는 답변입니다.");
+        }
         if (answerEntity.getUserId() == null) {
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
@@ -98,15 +102,6 @@ public class QAService {
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", questionEntity.getId());
         return questionRepository.findBySendingUserId(questionEntity.getSendingUserId());
     }
-
-    // 답변 등록 기능 - 당연히 닉네임으로
-    /*public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
-        // 공개여부를 판단할 필요는 없기 때문에 답변엔티티만 넘겨줌
-        validateAnswer(answerEntity);
-        answerRepository.save(answerEntity);
-        log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
-        return answerRepository.findByUserId(answerEntity.getUserId());
-    }*/
 
 
     // 답변 등록 기능 - 당연히 닉네임으로

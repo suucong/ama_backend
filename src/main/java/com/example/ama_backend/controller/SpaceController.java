@@ -105,10 +105,15 @@ public class SpaceController {
         //현제로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
+        assert user != null;
+        // 로그인한 유저가 받은 질문 엔터티
+        //QuestionEntity receivedQ =  questionRepository.findByReceivingUserId(user.getId());
+
+        // 로그인한 유저가 보낸 질문 엔터티
+        //QuestionEntity sentQ = (QuestionEntity) questionRepository.findBySendingUserId(user.getId());
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
-            assert user != null;
             model.addAttribute("isOwner", true);
             model.addAttribute("picture", user.getPicture());
             model.addAttribute("name", user.getName());
@@ -132,7 +137,6 @@ public class SpaceController {
 
         model.addAttribute("space", space);
 
-        assert user != null;
         model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
         return "space";
@@ -163,58 +167,75 @@ public class SpaceController {
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
-    @PostMapping("/{spaceId}/{questionId}/answer")
-    public String AnswerInput(@PathVariable Long spaceId,@PathVariable Long questionId,Model model){
+    /**
+     * 답변 달 수 있는 조건
+     * 내 스페이스애서
+     * 내가 받은 질문
+     * 내가 보낸 질문
+     */
+    @GetMapping("/{spaceId}/{questionId}/answer")
+    public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
-        // 이동한 스페이스 주인아이디로 유저엔터티 찾기
-        UserEntity spaceUser = userRepository.findById(space.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
-
         // 답변달 질문 엔터티
-        QuestionEntity question=questionRepository.findById(questionId)
-                .orElseThrow(()->  new IllegalArgumentException("Invalid question id"));
+        QuestionEntity question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid question id"));
 
-        SessionUser user = (SessionUser) httpSession.getAttribute("user");
-        if (user != null) {
-            // 현재 로그인한 유저 엔터티
-            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElse(null);
-            if (userEntity != null) {
-                // 현재 로그인한 유저의 스페이스 엔터티
+        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-
-                model.addAttribute("sendingUserId", userEntity.getId());
-                model.addAttribute("sendingUserName", userEntity.getName());
-                model.addAttribute("sendingUserPicture", userEntity.getPicture());
-                model.addAttribute("questionId", question.getId());
-                model.addAttribute("receivingUserSpaceId", space.getId());
-
-            }
-
+        //현재 스페이스가 내 스페이스라면
+        if (space.isOwnedBy(user)) {
+            assert user != null;
+            model.addAttribute("sendingUserId", user.getId());
+            model.addAttribute("sendingUserName", user.getName());
+            model.addAttribute("sendingUserPicture", user.getPicture());
+            model.addAttribute("questionId", question.getId());
+            model.addAttribute("spaceId", space.getId());
         }
-        return "question";
+
+        return "answer";
     }
 
     // 답변 등록 API
-    @PostMapping("{questionId}/answer/create")
-    public ResponseEntity<?> createAnswer(@PathVariable Long questionId,@RequestBody AnswerDTO answerDTO) {
+    @PostMapping("/{spaceId}/{questionId}/answer/create")
+    public ResponseEntity<?> createAnswer(@PathVariable Long questionId, @PathVariable Long spaceId, @RequestBody AnswerDTO answerDTO) {
         try {
+// 이동한 스페이스 엔터티
+            SpaceEntity space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
+            SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+            UserEntity currentUser = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
+            // 답변달 질문 엔터티
+            assert currentUser != null;
+            QuestionEntity question = questionRepository.findById(questionId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid question id"));
+
+            answerDTO.setQuestionId(question.getId());
             // AnswerEntity 로 변환
             AnswerEntity answerEntity = AnswerDTO.toEntity(answerDTO);
+
 
             // id를 null 로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
             answerEntity.setId(null);
 
-            // 현재 구글로 로그인한 유저의 네임
-           // answerEntity.setUserId(name);
+            answerEntity.setQuestion(question);
 
+            // 현재 구글로 로그인한 유저의 네임
+//            answerEntity.setUserId(currentUser.getName());
+//            answerEntity.setSentUserPic(currentUser.getPicture());
+            answerEntity.setCreatedTime(LocalDateTime.now());
 
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
+
+            //질문에 답변 종속시키기
+            question.setAnswers(entities);
 
             // 자바 스트림을 이요해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
             List<AnswerDTO> dtos = entities.stream().map(AnswerDTO::new).collect(Collectors.toList());
