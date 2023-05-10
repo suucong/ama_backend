@@ -15,6 +15,7 @@ import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Base64;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 import java.time.LocalDateTime;
@@ -91,7 +99,7 @@ public class SpaceController {
 
 
     @GetMapping("/{spaceId}")
-    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
+    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) throws IOException {
         //이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -104,6 +112,14 @@ public class SpaceController {
         //현제로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
+        // 이미지 바이트배열로 가져오는거 구현중
+//        if (user.getProfileImgName() != "") {
+//            InputStream inputStream = new FileInputStream(user.getPicture());
+//            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+//            String pictureBase64 = Base64.getEncoder().encodeToString(imageByteArray);
+//            inputStream.close();
+//
+//        }
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
