@@ -276,6 +276,7 @@ public class SpaceController {
         return "space";
     }
 
+    
 
     // UserEntity 수정
     @PutMapping("/user/update/{userId}")
