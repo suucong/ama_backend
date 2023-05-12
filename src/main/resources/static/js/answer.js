@@ -8,13 +8,6 @@ const sendingUserName = document.querySelector('#sendingUserName').textContent;
 const sentUserPics = document.querySelector('#sentUserPic').getAttribute('src');
 
 
-console.log("currentSpaceId: " +currentSpaceId);
-console.log("sendingUserName:" +sendingUserName);
-console.log("sendingUserName.value: "+sendingUserName.value);
-console.log("sendingUserPics: " +sentUserPics);
-console.log("sendingUserPics.value:" +sentUserPics.value);
-console.log(1);
-
 
 updateUserBtn.addEventListener('click', async () => {
   const answerInput = document.querySelector('#answerText');
@@ -23,15 +16,14 @@ updateUserBtn.addEventListener('click', async () => {
     return;
   }
 const isPublic_ = (document.getElementById("isPublic").value == "📢 공개 답변") ? true : false;
-console.log("등록버튼누름");
-
 
 
 const AnswerDTO = {
   answerText: answerInput.value,
   sentUserPic: sentUserPics,
   userId: sendingUserName,
-  isPublic: isPublic_
+  isPublic: isPublic_,
+  questionId:questionId_
 };
 
 console.log(AnswerDTO);
@@ -45,13 +37,13 @@ console.log(AnswerDTO);
       },
       body: JSON.stringify(AnswerDTO)
     });
-console.log(3);
+
     if (!response.ok) {
       const errorMessage = await response.text();
       console.error(errorMessage);
       return;
     }
-console.log(4);
+
     alert('답변이 등록되었습니다.');
     location.href = '/spaces/'+currentSpaceId;
   } catch (error) {

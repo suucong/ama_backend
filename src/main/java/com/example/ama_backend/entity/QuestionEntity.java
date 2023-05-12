@@ -12,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Builder
 @Entity
+@Builder
 @Table(name = "questions")
 public class QuestionEntity {
     @Id     // 이 Entity의 기본 키 필드 ID를 정의
@@ -46,6 +46,7 @@ public class QuestionEntity {
             cascade = CascadeType.REMOVE,
             fetch = FetchType.LAZY)
     @Builder.Default
+    @Column(nullable = true)
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
 
 }

@@ -49,8 +49,8 @@ public class QAService {
     }
 
     // 내가 한 답변을 조회하는 기능
-    public List<AnswerEntity> getMyAnswers(final Long id) {
-        return answerRepository.findByUserId(id);
+    public Optional<AnswerEntity> getMyAnswers(final Long id) {
+        return answerRepository.findById(id);
     }
 
     // 리팩토링한 질문 검증 메소드
@@ -105,7 +105,7 @@ public class QAService {
 
 
     // 답변 등록 기능 - 당연히 닉네임으로
-    public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
+    public Optional<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
         validateAnswer(answerEntity);
         answerRepository.save(answerEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
@@ -149,7 +149,7 @@ public class QAService {
     }
 
     // 답변을 삭제하는 기능
-    public List<AnswerEntity> deleteAnswer(Long answerId) {
+    public Optional<AnswerEntity> deleteAnswer(Long answerId) {
 
         // answerId에 해당하는 답변을 가져옴
         Optional<AnswerEntity> optionalAnswer = answerRepository.findById(answerId);

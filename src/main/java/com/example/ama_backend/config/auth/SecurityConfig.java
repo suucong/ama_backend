@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity //스프링 시큐리티 설정들을 활성화시킴
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 public class SecurityConfig {
     @Autowired
     private final CustomOAuth2UserService customOAuth2UserService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -45,11 +47,12 @@ public class SecurityConfig {
                 // 로그아웃 기능에 대한 여러 설정의 진입점
                 // 로그아웃 성공 시 / 주소로 이동함
                 .logout()
-                    .logoutSuccessUrl("/")
-                    .invalidateHttpSession(true)
-                    .clearAuthentication(true)
-                     .deleteCookies("JSESSIONID")
-                    .permitAll()
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .deleteCookies("JSESSIONID")
+                .permitAll()
                 .and()
                 // OAuth2 로그인 기능에 대한 여러 설정들의 진입점
                 .oauth2Login()
