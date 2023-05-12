@@ -86,7 +86,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     // 사진 넣어주는 부분
     public void updatePicture(UserEntity user, MultipartFile imgFile) throws Exception{
 
-        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\files";
+        String projectPath = System.getProperty("user.dir") + "/src/main/resources/files";
 
         UUID uuid = UUID.randomUUID();
 
@@ -97,10 +97,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         imgFile.transferTo(saveFile);
 
         user.setProfileImgName(fileName);
-        user.setPicture("/files/" + fileName);
+        user.setPicture(projectPath + "/" + fileName);
 
         userRepository.save(user);
-    };
+    }
 
     public void saveUserAccountWithoutProfile(UserEntity user) {
         userRepository.save(user);

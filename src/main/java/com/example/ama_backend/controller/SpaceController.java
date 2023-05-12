@@ -27,8 +27,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
-import javax.validation.Valid;
 
 
 import java.time.LocalDateTime;
@@ -153,7 +153,7 @@ public class SpaceController {
 
 
     @GetMapping("/{spaceId}")
-    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) {
+    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) throws IOException {
         //이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -166,12 +166,23 @@ public class SpaceController {
         //현제로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
+
         assert user != null;
         // 로그인한 유저가 받은 질문 엔터티
         //QuestionEntity receivedQ =  questionRepository.findByReceivingUserId(user.getId());
 
         // 로그인한 유저가 보낸 질문 엔터티
         //QuestionEntity sentQ = (QuestionEntity) questionRepository.findBySendingUserId(user.getId());
+
+        // 이미지 바이트배열로 가져오는거 구현중
+//        if (user.getProfileImgName() != "") {
+//            InputStream inputStream = new FileInputStream(user.getPicture());
+//            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+//            String pictureBase64 = Base64.getEncoder().encodeToString(imageByteArray);
+//            inputStream.close();
+//
+//        }
+
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
