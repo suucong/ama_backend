@@ -304,12 +304,7 @@ public class SpaceController {
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
-    /**
-     * 답변 달 수 있는 조건
-     * 내 스페이스애서
-     * 내가 받은 질문
-     * 내가 보낸 질문
-     */
+    
     @GetMapping("/{spaceId}/{questionId}/answer")
     public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
         // 이동한 스페이스 엔터티
