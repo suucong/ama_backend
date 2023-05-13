@@ -386,6 +386,7 @@ public class SpaceController {
     // 내가 보낸 답변 삭제 API
     // 내 스페이스여야 함
     // 내가 보낸 답변이여야 함
+    //Todo - 내가 보낸 답변만 삭제 가능해야 하는데 지금은 내 스페이스기만 하면 모든 답변 삭제 가능함
     @DeleteMapping("{spaceId}/{answerId}/answer/delete")
     public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId, @PathVariable Long spaceId) {
         try {
