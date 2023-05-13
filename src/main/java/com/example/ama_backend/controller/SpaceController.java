@@ -276,7 +276,7 @@ public class SpaceController {
         return "space";
     }
 
-    
+
 
     // UserEntity 수정
     @PutMapping("/user/update/{userId}")
@@ -321,7 +321,7 @@ public class SpaceController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid question id"));
 
         SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
-        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+        //현재 로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
         //현재 스페이스가 내 스페이스라면
@@ -383,36 +383,36 @@ public class SpaceController {
         }
     }
 
-    // 답변 삭제 API
-    @DeleteMapping("{answerId}/answer/delete")
-    public ResponseEntity<?> deleteAnswer(@RequestParam Long answerId) {
+    // 내가 보낸 답변 삭제 API
+    // 내 스페이스여야 함
+    // 내가 보낸 답변이여야 함
+    @DeleteMapping("{spaceId}/{answerId}/answer/delete")
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId, @PathVariable Long spaceId) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            // 이동한 스페이스 엔터티
+            SpaceEntity space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
-            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-            String provider = oauthToken.getAuthorizedClientRegistrationId(); // provider (google, kakao 등) 정보 가져오기
-            OAuth2User oauthUser = oauthToken.getPrincipal();
-            String name = oauthUser.getAttribute("name");
+            SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+            // 현재 로그인한 세션유저로 찾은 현재 유저 엔터티
+            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-
-            // 서비스를 이용해 질문 엔티티를 생성한다
-            Optional<AnswerEntity> entities = qaService.deleteAnswer(answerId);
-
-            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 QuestionDTO 리스트로 변환한다.
-            List<AnswerDTO> dtos = entities.stream().map(AnswerDTO::new).collect(Collectors.toList());
-
-            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
-            ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().data(dtos).build();
-
-            // ResponseDTO 를 리턴한다.
-            return ResponseEntity.ok().body(responseDTO);
+            // 현재 스페이스가 내 스페이스라면
+            if (space.isOwnedBy(user)) {
+                // 서비스를 이용해 질문 엔티티를 삭제한다
+                qaService.deleteAnswer(answerId);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().body("내 스페이스가 아니어서 삭제 불가능합니다.");
+            }
         } catch (Exception e) {
-            // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+            // 혹시 예외가 있으면 dto 대신 error 에 메시지를 넣어 리턴한다
             String err = e.getMessage();
             ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().error(err).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
+
 
     @GetMapping("/{spaceId}/question")
     public String questionInput(@PathVariable Long spaceId, Model model) {

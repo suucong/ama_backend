@@ -80,9 +80,12 @@
                                         {{#sentAnswers}}
                                             <div class="card answer-card">
                                                 <div class="card-body">
+                                                    <input type="hidden" id="answerId" value="{{id}}"/>
+                                                    <input type="hidden" id="spaceId" value="{{spaceId}}"/>
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
                                                     <p class="card-text">{{userId}}   at  {{createdTime}}</p>
                                                     <h5 class="card-title">{{answerText}}</h5>
+                                                    <button class="btn btn-primary delete-btn">삭제하기</button>
                                                 </div>
                                             </div>
                                         {{/sentAnswers}}
@@ -127,9 +130,12 @@
                                     {{#receivedAnswers}}
                                         <div class="card answer-card">
                                             <div class="card-body">
+                                                <input type="hidden" id="answerId" value="{{id}}"/>
+                                                <input type="hidden" id="spaceId" value="{{spaceId}}"/>
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                                 <p class="card-text">{{userId}}   at  {{createdTime}}</p>
                                                 <h5 class="card-title">{{answerText}}</h5>
+                                                <button class="btn btn-primary delete-btn">삭제하기</button>
                                             </div>
                                         </div>
                                     {{/receivedAnswers}}
