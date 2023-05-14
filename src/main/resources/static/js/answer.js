@@ -3,6 +3,7 @@ const updateUserBtn = document.querySelector('#updateBtn');
 const cancelBtn = document.querySelector('#cancelBtn');
 const currentSpaceId = $('#spaceId').val();
 const questionId_= $('#questionId').val();
+const userId_= $('#userId').val();
 
 const sendingUserName = document.querySelector('#sendingUserName').textContent;
 const sentUserPics = document.querySelector('#sentUserPic').getAttribute('src');
@@ -21,7 +22,8 @@ const isPublic_ = (document.getElementById("isPublic").value == "📢 공개 답
 const AnswerDTO = {
   answerText: answerInput.value,
   sentUserPic: sentUserPics,
-  userId: sendingUserName,
+  userId: userId_,
+  userName: sendingUserName,
   isPublic: isPublic_,
   questionId:questionId_
 };

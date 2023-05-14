@@ -13,4 +13,5 @@ import java.util.List;
  */
 @Repository
 public interface AnswerRepository extends JpaRepository<AnswerEntity,Long> {
+    List<AnswerEntity> findByUserId(Long Id); // 유저의 남긴 답변 조회
 }

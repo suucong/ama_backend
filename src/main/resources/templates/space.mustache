@@ -73,19 +73,23 @@
                             {{#isOwner}}
                                 <div class="card mb-3 question-card">
                                     <div class="card-body">
+                                        <input type="hidden" id="questionId" value="{{id}}"/>
                                         <img width="45" height="45" src="{{sentUserPic}}"/>
                                         <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                         <h5 class="card-title">{{questionText}}</h5>
                                         <p onclick="location.href='/spaces/{{spaceId}}/{{id}}/answer'">답변하기</p>
+                                        <button class="btn btn-primary q-delete-btn">삭제하기</button>
                                         {{#sentAnswers}}
                                             <div class="card answer-card">
                                                 <div class="card-body">
                                                     <input type="hidden" id="answerId" value="{{id}}"/>
                                                     <input type="hidden" id="spaceId" value="{{spaceId}}"/>
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
-                                                    <p class="card-text">{{userId}}   at  {{createdTime}}</p>
+                                                    <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                     <h5 class="card-title">{{answerText}}</h5>
-                                                    <button class="btn btn-primary delete-btn">삭제하기</button>
+                                            {{#answerMap[id]}}
+    <button class="btn btn-primary delete-btn">삭제하기</button>
+{{/answerMap[id]}}
                                                 </div>
                                             </div>
                                         {{/sentAnswers}}
@@ -103,8 +107,11 @@
                                             <div class="card answer-card">
                                                 <div class="card-body">
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
-                                                    <p class="card-text">{{userId}}   at  {{createdTime}}</p>
+                                                    <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                     <h5 class="card-title">{{answerText}}</h5>
+                                                    {{#myAnswer}}
+                                                        <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                    {{/myAnswer}}
                                                 </div>
                                             </div>
                                         {{/sentAnswers}}
@@ -123,19 +130,23 @@
                         {{#isOwner}}
                             <div class="card mb-3 question-card">
                                 <div class="card-body">
+                                    <input type="hidden" id="questionId" value="{{id}}"/>
                                     <img width="45" height="45" src="{{sentUserPic}}"/>
                                     <p class="card-text">{{userId}}   at {{createdTime}}</p>
                                     <h5 class="card-title">{{questionText}}</h5>
                                     <p onclick="location.href='/spaces/{{spaceId}}/{{id}}/answer'">답변하기</p>
+                                    <button class="btn btn-primary q-delete-btn">삭제하기</button>
                                     {{#receivedAnswers}}
                                         <div class="card answer-card">
                                             <div class="card-body">
                                                 <input type="hidden" id="answerId" value="{{id}}"/>
                                                 <input type="hidden" id="spaceId" value="{{spaceId}}"/>
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
-                                                <p class="card-text">{{userId}}   at  {{createdTime}}</p>
+                                                <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                 <h5 class="card-title">{{answerText}}</h5>
-                                                <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                {{#myAnswer}}
+                                                    <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                {{/myAnswer}}
                                             </div>
                                         </div>
                                     {{/receivedAnswers}}
@@ -153,8 +164,11 @@
                                         <div class="card answer-card">
                                             <div class="card-body">
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
-                                                <p class="card-text">{{userId}}   at  {{createdTime}}</p>
+                                                <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                 <h5 class="card-title">{{answerText}}</h5>
+                                                {{#myAnswer}}
+                                                    <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                {{/myAnswer}}
                                             </div>
                                         </div>
                                     {{/receivedAnswers}}

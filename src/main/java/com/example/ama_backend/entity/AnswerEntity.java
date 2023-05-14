@@ -21,6 +21,8 @@ public class AnswerEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //자동 증가
     private Long id; // 이 오브젝트의 아이디
 
+    private Long userId; // 유저 고유 아이디
+
     @Column(nullable = false)
     private String sentUserPic;
 
@@ -29,7 +31,7 @@ public class AnswerEntity {
 
     private LocalDateTime createdTime; //답변이 올라온 시간
 
-    private String userId; // 유저 닉네임
+    private String userName; // 유저 닉네임
 
     private Boolean isPublic; //답변 공개 여부
 

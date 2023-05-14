@@ -53,6 +53,7 @@
         {{#spaceId}}
             <input type="hidden" id="questionId" value="{{questionId}}"/>
             <input type="hidden" id="spaceId" value="{{spaceId}}"/>
+            <input type="hidden" id="userId" value="{{ userId }}"/>
             <img class="photo" id="sentUserPic" width="90" height="90" src="{{ sendingUserPicture }}"/>
             <p id="sendingUserName">{{sendingUserName}}</p>
             <input onclick="change()" type="button" value="📢 공개 답변" id="isPublic"/><br><br>

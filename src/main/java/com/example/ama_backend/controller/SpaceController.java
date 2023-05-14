@@ -19,22 +19,16 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 
 
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -104,12 +98,12 @@ public class SpaceController {
 
             List<QuestionEntity> questionEntities = questionRepository.findBySendingUserId(ownerUserId);
 
-            List<AnswerDTO> answerDTOS=new ArrayList<>();
+            List<AnswerDTO> answerDTOS = new ArrayList<>();
 
             // 각 질문에 대한 답변 리스트 가져오기
-            for(QuestionEntity question: questionEntities){
+            for (QuestionEntity question : questionEntities) {
                 List<AnswerEntity> answerEntities = question.getAnswers();
-                List<AnswerDTO> answers= answerEntities.stream().map(AnswerDTO::new).toList();
+                List<AnswerDTO> answers = answerEntities.stream().map(AnswerDTO::new).toList();
                 answerDTOS.addAll(answers);
             }
 
@@ -132,12 +126,12 @@ public class SpaceController {
 
             List<QuestionEntity> questionEntities = questionRepository.findByReceivingUserId(ownerUserId);
 
-            List<AnswerDTO> answerDTOS=new ArrayList<>();
+            List<AnswerDTO> answerDTOS = new ArrayList<>();
 
             // 각 질문에 대한 답변 리스트 가져오기
-            for(QuestionEntity question: questionEntities){
+            for (QuestionEntity question : questionEntities) {
                 List<AnswerEntity> answerEntities = question.getAnswers();
-                List<AnswerDTO> answers= answerEntities.stream().map(AnswerDTO::new).toList();
+                List<AnswerDTO> answers = answerEntities.stream().map(AnswerDTO::new).toList();
                 answerDTOS.addAll(answers);
             }
 
@@ -166,22 +160,16 @@ public class SpaceController {
         //현제로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-
+        //로그인한 유저가 남긴 답변 리스트
         assert user != null;
-        // 로그인한 유저가 받은 질문 엔터티
-        //QuestionEntity receivedQ =  questionRepository.findByReceivingUserId(user.getId());
+        // 로그인한 유저가 남긴 답변 리스트
+        List<AnswerEntity> myAnswers = answerRepository.findByUserId(user.getId());
 
-        // 로그인한 유저가 보낸 질문 엔터티
-        //QuestionEntity sentQ = (QuestionEntity) questionRepository.findBySendingUserId(user.getId());
+        for (AnswerEntity answer : myAnswers) {
+            model.addAttribute("myAnswer",true);
+        }
 
-        // 이미지 바이트배열로 가져오는거 구현중
-//        if (user.getProfileImgName() != "") {
-//            InputStream inputStream = new FileInputStream(user.getPicture());
-//            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
-//            String pictureBase64 = Base64.getEncoder().encodeToString(imageByteArray);
-//            inputStream.close();
-//
-//        }
+
 
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
@@ -211,71 +199,15 @@ public class SpaceController {
         model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
         model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
 
-        /////
         model.addAttribute("sentAnswers", getMySentAnswer(spaceId).getBody().getData());
-        model.addAttribute("sentAnswersUserId", getMySentAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(AnswerDTO::getUserId)
-                .map(Object::toString)
-                .collect(Collectors.joining(", ")));
-
-        model.addAttribute("sentAnswersText", getMySentAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(AnswerDTO::getAnswerText)
-                .collect(Collectors.joining(", ")));
-
-        model.addAttribute("sentAnswersPic", getMySentAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(AnswerDTO::getSentUserPic)
-                .collect(Collectors.toList()));
-
-        model.addAttribute("sentAnswers_when", getMySentAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(answer -> answer.getCreatedTime().toString())
-                .collect(Collectors.joining(", ")));
-
-
-        /////
         model.addAttribute("receivedAnswers", getMyReceivedAnswer(spaceId).getBody().getData());
-        model.addAttribute("receivedAnswersUserId", getMyReceivedAnswer(spaceId)
-                .getBody().getData()
-                .stream()
-                .map(AnswerDTO::getUserId)
-                .collect(Collectors.joining(", ")));
 
-        model.addAttribute("receivedAnswersText", getMyReceivedAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(AnswerDTO::getAnswerText)
-                .collect(Collectors.joining(", ")));
-
-        model.addAttribute("receivedAnswersPic",getMyReceivedAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(AnswerDTO::getSentUserPic)
-                .collect(Collectors.joining(", ")));
-
-        model.addAttribute("receivedAnswers_when",getMyReceivedAnswer(spaceId)
-                .getBody()
-                .getData()
-                .stream()
-                .map(answer -> answer.getCreatedTime().toString())
-                .collect(Collectors.joining(", ")));
+        // 내가 작성한 답변 리스트를 모델에 추가
+        model.addAttribute("myAnswer", myAnswers);
 
 
         return "space";
     }
-
 
 
     // UserEntity 수정
@@ -304,7 +236,7 @@ public class SpaceController {
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
-    
+
     @GetMapping("/{spaceId}/{questionId}/answer")
     public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
         // 이동한 스페이스 엔터티
@@ -322,9 +254,9 @@ public class SpaceController {
         //현재 스페이스가 내 스페이스라면
         if (space.isOwnedBy(user)) {
             assert user != null;
-            //    model.addAttribute("sendingUserId", user.getId());
             model.addAttribute("sendingUserName", user.getName());
             model.addAttribute("sendingUserPicture", user.getPicture());
+            model.addAttribute("userId", user.getId());
             model.addAttribute("questionId", question.getId());
             model.addAttribute("spaceId", space.getId());
         }
@@ -356,7 +288,7 @@ public class SpaceController {
             Optional<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
 
             // 답변이 존재한다면 질문에 답변 종속시키기
-            if(entities.isPresent()){
+            if (entities.isPresent()) {
                 question.setAnswers(entities.stream().collect(Collectors.toList()));
             }
 
@@ -395,7 +327,7 @@ public class SpaceController {
 
             // 현재 스페이스가 내 스페이스라면
             if (space.isOwnedBy(user)) {
-                // 서비스를 이용해 질문 엔티티를 삭제한다
+                // 서비스를 이용해 답변 엔티티를 삭제한다
                 qaService.deleteAnswer(answerId);
                 return ResponseEntity.ok().build();
             } else {
@@ -502,27 +434,32 @@ public class SpaceController {
     }
 
 
-    // 질문 삭제 API - 남이 보낸 질문이라도 삭제 기능이 있다.
-    @DeleteMapping("{questionId}/question/delete")
-    public ResponseEntity<?> deleteQuestion(@RequestParam Long questionId) {
+    // 질문 삭제 API - 남이 보낸 질문이라도 내 스페이스 내라면 삭제 가능
+    @DeleteMapping("/{spaceId}/{questionId}/question/delete")
+    public ResponseEntity<?> deleteQuestion(@PathVariable Long spaceId, @PathVariable Long questionId) {
         try {
-            // 서비스를 이용해 질문 엔티티를 생성한다
-            List<QuestionEntity> entities = qaService.deleteQuestionAndAnswers(questionId);
+            // 이동한 스페이스 엔터티
+            SpaceEntity space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
-            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 QuestionDTO 리스트로 변환한다.
-            List<QuestionDTO> dtos = entities.stream().map(QuestionDTO::new).collect(Collectors.toList());
+            SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+            // 현재 로그인한 세션유저로 찾은 현재 유저 엔터티
+            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
-
-            // ResponseDTO 를 리턴한다.
-            return ResponseEntity.ok().body(responseDTO);
+            // 현재 스페이스가 내 스페이스라면
+            if (space.isOwnedBy(user)) {
+                // 서비스를 이용해 질문 엔티티를 삭제한다
+                qaService.deleteQuestionAndAnswers(questionId);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().body("내 스페이스가 아니어서 삭제 불가능합니다.");
+            }
         } catch (Exception e) {
-            // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+            // 혹시 예외가 있으면 dto 대신 error 에 메시지를 넣어 리턴한다
             String err = e.getMessage();
             ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
-    }
 
+    }
 }

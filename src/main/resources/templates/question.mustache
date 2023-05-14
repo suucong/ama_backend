@@ -50,6 +50,7 @@
     <div class="col-md-6 col-md-offset-3">
         {{#receivingUserSpaceId}}
             <input type="hidden" id="receivingSpaceId" value="{{receivingUserSpaceId}}"/>
+            <input type="hidden" id="userId" value="{{sendingUserId}}"/>
             <img class="photo" id="sentUserPic" width="90" height="90" src="{{ sendingUserPicture }}"/>
             <p id="sendingUserName">{{sendingUserName}}</p>
             <input onclick="change()" type="button" value="🔒냥이로 녹아들기" id="isPublic"/><br><br>
