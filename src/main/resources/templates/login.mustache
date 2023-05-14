@@ -22,7 +22,12 @@
         <div class="col-md-6">
             <!--userName 이 있으면 -->
             {{#userName}}
-                <img class="photo" width="90" height="90" src="{{ userPicture }}" /><br><br>
+                {{#picturename}}
+                    <img id="imgId" src="/spaces/{{spaceId}}/picture" width="100" height="100" alt="첨부이미지" /><br><br>
+                {{/picturename}}
+                {{^picturename}}
+                    <img class="photo" width="90" height="90" src="{{ userPicture }}" /><br><br>
+                {{/picturename}}
                 Logged in as (name) : <span id="user">{{userName}}</span><br>
                 Logged in as (email) : <span id="user">{{userEmail}}</span><br>
                <!-- Logged in as (picture) : <span id="user">userPicture}}</span>-->

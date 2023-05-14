@@ -28,7 +28,7 @@ public class UserEntity  {
     private String picture;
 
     @Column
-    private String profileImgName;
+    private String profileImgName = null;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
