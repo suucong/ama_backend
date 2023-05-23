@@ -93,7 +93,9 @@
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
                                                     <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                     <h5 class="card-title">{{answerText}}</h5>
-                                                    <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                    {{#isMyAnswer}}
+                                                        <button class="btn btn-primary delete-btn">삭제하기</button>
+                                                    {{/isMyAnswer}}
 }
                                                 </div>
                                             </div>
@@ -114,9 +116,9 @@
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
                                                     <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                     <h5 class="card-title">{{answerText}}</h5>
-                                                    {{#myAnswer}}
+                                                    {{#isMyAnswer}}
                                                         <button class="btn btn-primary delete-btn">삭제하기</button>
-                                                    {{/myAnswer}}
+                                                    {{/isMyAnswer}}
                                                 </div>
                                             </div>
                                         {{/sentAnswers}}
@@ -149,9 +151,9 @@
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                                 <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                 <h5 class="card-title">{{answerText}}</h5>
-                                                {{#myAnswer}}
+                                                {{#isMyAnswer}}
                                                     <button class="btn btn-primary delete-btn">삭제하기</button>
-                                                {{/myAnswer}}
+                                                {{/isMyAnswer}}
                                             </div>
                                         </div>
                                     {{/receivedAnswers}}
@@ -171,9 +173,9 @@
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                                 <p class="card-text">{{userName}}   at  {{createdTime}}</p>
                                                 <h5 class="card-title">{{answerText}}</h5>
-                                                {{#myAnswer}}
+                                                {{#isMyAnswer}}
                                                     <button class="btn btn-primary delete-btn">삭제하기</button>
-                                                {{/myAnswer}}
+                                                {{/isMyAnswer}}
                                             </div>
                                         </div>
                                     {{/receivedAnswers}}

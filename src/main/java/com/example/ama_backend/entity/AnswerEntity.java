@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -27,7 +28,10 @@ public class AnswerEntity {
     private String sentUserPic;
 
     @Column(length = 500, nullable = false)
-    private String answerText; // 답변 내용
+    private String answerText; // 원본 답변 내용
+
+    @Column(name = "alternative_answer_text")
+    private String alternativeAnswerText; // "질문자만 볼 수 있는 답변입니다." 텍스트
 
     private LocalDateTime createdTime; //답변이 올라온 시간
 
@@ -39,4 +43,10 @@ public class AnswerEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private QuestionEntity question; // QuestionEntity 객체를 참조
+
+
+    //내가 작성한 답변인지 판별하는 메소드
+    public boolean isMyAnswer(UserEntity currentUser) {
+        return Objects.equals(this.userId, currentUser.getId());
+    }
 }

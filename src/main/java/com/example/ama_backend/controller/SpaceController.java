@@ -163,13 +163,19 @@ public class SpaceController {
         //로그인한 유저가 남긴 답변 리스트
         assert user != null;
         // 로그인한 유저가 남긴 답변 리스트
-        List<AnswerEntity> myAnswers = answerRepository.findByUserId(user.getId());
 
-        for (AnswerEntity answer : myAnswers) {
-            model.addAttribute("myAnswer",true);
+        //Todo - 로그인한 유저가 답변의 isPublic의 답변자거나 부모 질문 작성자라면 원본 텍스트를 보지만 다른 유저라면 대체 텍스트 보임
+        List<AnswerEntity> allAnswers = answerRepository.findAll();
+        boolean hasMyAnswer = false;
+
+        for (AnswerEntity answer : allAnswers) {
+            if (answer.isMyAnswer(user)) {
+                hasMyAnswer = true;
+                break;
+            }
         }
 
-
+        model.addAttribute("hasMyAnswer", hasMyAnswer);
 
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
@@ -201,9 +207,6 @@ public class SpaceController {
 
         model.addAttribute("sentAnswers", getMySentAnswer(spaceId).getBody().getData());
         model.addAttribute("receivedAnswers", getMyReceivedAnswer(spaceId).getBody().getData());
-
-        // 내가 작성한 답변 리스트를 모델에 추가
-        model.addAttribute("myAnswer", myAnswers);
 
 
         return "space";

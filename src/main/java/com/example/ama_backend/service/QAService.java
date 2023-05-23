@@ -60,7 +60,7 @@ public class QAService {
             throw new RuntimeException("Question Entity 는 null 이면 안됩니다.");
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
-        if (questionEntity.getIsAnonymous()==true) {
+        if (questionEntity.getIsAnonymous() == true) {
             questionEntity.setUserId("😼익명의 냥이");
         }
 
@@ -81,14 +81,16 @@ public class QAService {
             throw new RuntimeException("Answer Entity 는 null 이면 안됩니다.");
         }
 
-        //isPublic 이 false 라면
-        if(!answerEntity.getIsPublic()){
-            answerEntity.setAnswerText("🔒질문자만 볼 수 있는 답변입니다.");
+        // 질문자나 답변자가 아니라면
+        if (!answerEntity.getIsPublic()) {
+            answerEntity.setAlternativeAnswerText("🔒질문자만 볼 수 있는 답변입니다.");
         }
+
         if (answerEntity.getUserId() == null) {
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
+
 
         if (answerEntity.getAnswerText() == null || answerEntity.getAnswerText().isEmpty()) {
             throw new IllegalArgumentException("답변 내용을 입력하세요.");
