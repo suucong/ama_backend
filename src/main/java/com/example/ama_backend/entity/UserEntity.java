@@ -8,6 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,10 +27,10 @@ public class UserEntity  {
     @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String picture;
 
-    @Column
+    @Column(nullable = true)
     private String profileImgName = null;
 
     @Enumerated(EnumType.STRING)

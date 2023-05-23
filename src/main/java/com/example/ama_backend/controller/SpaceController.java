@@ -6,27 +6,25 @@ import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
 import com.example.ama_backend.dto.UserUpdateRequestDto;
-import com.example.ama_backend.entity.AnswerEntity;
-import com.example.ama_backend.entity.QuestionEntity;
-import com.example.ama_backend.entity.SpaceEntity;
-import com.example.ama_backend.entity.UserEntity;
-import com.example.ama_backend.persistence.AnswerRepository;
-import com.example.ama_backend.persistence.QuestionRepository;
-import com.example.ama_backend.persistence.SpaceRepository;
-import com.example.ama_backend.persistence.UserRepository;
+import com.example.ama_backend.entity.*;
+import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,6 +47,8 @@ public class SpaceController {
     private AnswerRepository answerRepository;
     @Autowired
     private CustomOAuth2UserService customOAuth2UserService;
+    @Autowired
+    private FollowRepository followRepository;
 
 
     // 내가 보낸 질문 조회
@@ -169,29 +169,32 @@ public class SpaceController {
             model.addAttribute("myAnswer",true);
         }
 
-
-
+        int followCheck = followRepository.findByFromUserIdAndToUserId(user.getId(), spaceId);
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
             model.addAttribute("isOwner", true);
             model.addAttribute("picture", user.getPicture());
+            model.addAttribute("pictureName", user.getProfileImgName());
             model.addAttribute("name", user.getName());
             model.addAttribute("email", user.getEmail());
             model.addAttribute("introduce", user.getIntroduce());
             model.addAttribute("instaId", user.getInstaId());
             model.addAttribute("role", user.getRole());
+            model.addAttribute("check", followCheck);
         }
         // 현재 스페이스가 현재 로그인한 소유한 스페이스가 아니라면
         else {
             model.addAttribute("isOwner", false);
             model.addAttribute("picture", ownerUser.getPicture());
+            model.addAttribute("pictureName", user.getProfileImgName());
             model.addAttribute("name", ownerUser.getName());
             model.addAttribute("email", ownerUser.getEmail());
             model.addAttribute("introduce", ownerUser.getIntroduce());
             model.addAttribute("instaId", ownerUser.getInstaId());
             model.addAttribute("role", ownerUser.getRole());
             model.addAttribute("spaceId", space.getId());
+            model.addAttribute("check", followCheck);
         }
 
 
@@ -209,6 +212,69 @@ public class SpaceController {
         return "space";
     }
 
+    @GetMapping(value = "/{spaceId}/picture", produces={MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException{
+        UserEntity user = userRepository.findById(spaceId).orElse(null);
+
+        if (user != null && user.getProfileImgName() == "") {
+            return new ResponseEntity<>(user.getPicture(), HttpStatus.OK);
+        } else {
+            InputStream inputStream = new FileInputStream(user.getPicture());
+            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+            inputStream.close();
+            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/{spaceId}/follow")
+    public String follow(@PathVariable Long spaceId, HttpSession session) {
+        //이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+        // 이동한 스페이스의 주인유저 엔터티
+        UserEntity ownerUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+
+        // 현재 로그인한 세션유저
+        SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+
+        UserEntity fromUser = user;
+        UserEntity toUser = ownerUser;
+
+        Follow follow = new Follow();
+        follow.setFromUser(fromUser);
+        follow.setToUser(toUser);
+
+        followRepository.save(follow);
+        //세션에서 현재 유저정보 가져오기
+
+        System.out.println("팔로우 완료");
+        return "ok";
+    }
+
+    @PostMapping("/{spaceId}/unFollow")
+    public String unFollow(@PathVariable Long spaceId, HttpSession session) {
+        //이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+        // 이동한 스페이스의 주인유저 엔터티
+        UserEntity ownerUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+
+        // 현재 로그인한 세션유저
+        SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+
+        UserEntity fromUser = user;
+        UserEntity toUser = ownerUser;
+
+        followRepository.deleteByFromUserIdAndToUserId(fromUser.getId(), toUser.getId());
+        //세션에서 현재 유저정보 가져오기
+        return "ok";
+    }
 
     // UserEntity 수정
     @PutMapping("/user/update/{userId}")
@@ -313,7 +379,7 @@ public class SpaceController {
     // 내가 보낸 답변 삭제 API
     // 내 스페이스여야 함
     // 내가 보낸 답변이여야 함
-    //Todo - 내가 보낸 답변만 삭제 가능해야 하는데 지금은 내 스페이스기만 하면 모든 답변 삭제 가능함
+    // Todo - 내가 보낸 답변만 삭제 가능해야 하는데 지금은 내 스페이스기만 하면 모든 답변 삭제 가능함
     @DeleteMapping("{spaceId}/{answerId}/answer/delete")
     public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId, @PathVariable Long spaceId) {
         try {
