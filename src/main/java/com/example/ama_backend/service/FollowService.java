@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Service
 public class FollowService {
-
     @Autowired
     private FollowRepository followRepository;
 
@@ -20,16 +19,17 @@ public class FollowService {
         return followRepository.findByFromUser(fromUser);
     }
 
-
     //2. 해당 스페이스의 팔로우 여부
     public Optional<Follow> followOrNot(final UserEntity fromUser, final UserEntity toUser){
        return followRepository.findByFromUserAndToUser(fromUser,toUser);
     }
 
-
     //3. 팔로우하기
     public void follow(final UserEntity fromUser,final UserEntity toUser){
         Follow follow=new Follow(null,fromUser,toUser);
         followRepository.save(follow);
+    }
+    public void deleteFollow(final UserEntity fromUser, final UserEntity toUser) {
+        followRepository.deleteByFromUserAndToUser(fromUser, toUser);
     }
 }
