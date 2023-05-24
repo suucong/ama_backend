@@ -31,50 +31,55 @@ const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
   followBtn.addEventListener('click', async () => {
     console.log("팔로우버튼 누름");
 
-    if (confirm("팔로우 하시겠습니까?")) {
-        let url = `/spaces/${spaceId}/follow`;
-                   fetch(url,{
-                     method:'POST'
-                   }).then(function(res){
-                    return res.text().then(function(result) {
+    if(followBtn.innerText === "팔로우"){
+        if (confirm("팔로우 하시겠습니까?")) {
+            let url = `/spaces/${spaceId}/follow`;
+                       fetch(url,{
+                         method:'POST'
+                       }).then(function(res){
+                        return res.text().then(function(result) {
 
-                       console.log("팔로우 api 결과문: " + result);
+                           console.log("팔로우 api 결과문: " + result);
 
-               if(result === "ok"){
-                    followBtn.innerHTML = "팔로잉";
-                 }
+                   if(result === "ok"){
+                        followBtn.innerHTML = "팔로잉";
+                     }
 
-                   }).catch(function(error){
-                       console.log("3")
-                     console.log(error);
-                   });
-                   })
+                       }).catch(function(error){
+                           console.log("3")
+                         console.log(error);
+                       });
+                       })
 
 
-    }else {
-         let url = `/spaces/${spaceId}/unFollow`;
-         fetch(url, {
-           method: 'POST'
-         }).then(function (res) {
-           return res.text().then(function (result) {
+        }
+    }else{
 
-             console.log("언팔로우 api 결과문: " + result);
 
-             if (result === "ok") {
-               followBtn.innerHTML = "팔로우";
-               followBtn.setAttribute("onclick", "follow()");
-             }
+         if (confirm("언팔로우 하시겠습니까?")) {
+                  let url = `/spaces/${spaceId}/unFollow`;
+                  fetch(url, {
+                    method: 'POST'
+                  }).then(function (res) {
+                    return res.text().then(function (result) {
 
-           }).catch(function (error) {
-             console.log("3")
-             console.log(error);
-           });
-         })
-       }
+                      console.log("언팔로우 api 결과문: " + result);
 
+                      if (result === "ok") {
+                        followBtn.innerHTML = "팔로우";
+                        followBtn.setAttribute("onclick", "follow()");
+                      }
+
+                    }).catch(function (error) {
+                      console.log("3")
+                      console.log(error);
+                    });
+                  })
+         }
     }
 
-  });
+
+    });
 
 q_deleteBtns.forEach(deleteBtn => {
  deleteBtn.addEventListener('click', async () => {
