@@ -31,25 +31,18 @@ const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
   followBtn.addEventListener('click', async () => {
     console.log("팔로우버튼 누름");
 
-
-
     if (confirm("팔로우 하시겠습니까?")) {
-
         let url = `/spaces/${spaceId}/follow`;
                    fetch(url,{
                      method:'POST'
                    }).then(function(res){
-                     console.log("0")
                     return res.text().then(function(result) {
-                       console.log("1");
+
                        console.log("팔로우 api 결과문: " + result);
 
                if(result === "ok"){
                     followBtn.innerHTML = "팔로잉";
-                   followBtn.setAttribute("onclick", "follow(false)");
                  }
-//                       let follow_el = document.querySelector('#followCheck');
-
 
                    }).catch(function(error){
                        console.log("3")
@@ -58,23 +51,26 @@ const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
                    })
 
 
-      // AJAX 요청 보내기
-//      $.ajax({
-//        type: 'POST',
-//        url: `/spaces/${spaceId}/follow`,
-//        success: function() {
-////       followBtn.textContent = '팔로잉';
-////                followBtn.setAttribute("onclick", "follow(true)");
-//                console.log("팔로우 성공");
-//        },
-//        error: function(response) {
-//          // 에러 발생 시 메시지 표시
-//          alert(response.responseText);
-//          console.log("팔로우 실패");
-//        }
-//      });
+    }else {
+         let url = `/spaces/${spaceId}/unFollow`;
+         fetch(url, {
+           method: 'POST'
+         }).then(function (res) {
+           return res.text().then(function (result) {
 
-    }
+             console.log("언팔로우 api 결과문: " + result);
+
+             if (result === "ok") {
+               followBtn.innerHTML = "팔로우";
+               followBtn.setAttribute("onclick", "follow()");
+             }
+
+           }).catch(function (error) {
+             console.log("3")
+             console.log(error);
+           });
+         })
+       }
   });
 
 q_deleteBtns.forEach(deleteBtn => {

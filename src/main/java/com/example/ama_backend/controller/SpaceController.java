@@ -272,25 +272,28 @@ public class SpaceController {
     }
 
     @PostMapping("/{spaceId}/unFollow")
-    public String unFollow(@PathVariable Long spaceId, HttpSession session) {
-        //이동한 스페이스 엔터티
-        SpaceEntity space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-        // 이동한 스페이스의 주인유저 엔터티
-        UserEntity ownerUser = userRepository.findById(space.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+    public ResponseEntity<String> unFollow(@PathVariable Long spaceId, HttpSession session) {
+        try{
+            //이동한 스페이스 엔터티
+            SpaceEntity space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+            // 이동한 스페이스의 주인유저 엔터티
+            UserEntity ownerUser = userRepository.findById(space.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-        // 현재 로그인한 세션유저
-        SessionUser sessionUser = (SessionUser) session.getAttribute("user");
-        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
-        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+            // 현재 로그인한 세션유저
+            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+            //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-        UserEntity fromUser = user;
-        UserEntity toUser = ownerUser;
+            followRepository.deleteByFromUserAndToUser(user, ownerUser);
+            //세션에서 현재 유저정보 가져오기
+            return ResponseEntity.ok().body("ok");
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("bad");
+        }
 
-        followRepository.deleteByFromUserAndToUser(fromUser, toUser);
-        //세션에서 현재 유저정보 가져오기
-        return "ok";
     }
 
     // UserEntity 수정
