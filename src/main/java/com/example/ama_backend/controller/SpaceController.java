@@ -238,9 +238,9 @@ public class SpaceController {
     }
 
     @PostMapping("/{spaceId}/follow")
-    public String follow(@PathVariable Long spaceId, HttpSession session) {
+    public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {
 
-
+        try{
 
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -262,7 +262,12 @@ public class SpaceController {
             followService.follow(user, ownerUser);
 
             System.out.println("success following from :" + user.getName()+" to : " +ownerUser.getName());
-            return "ok";
+            return ResponseEntity.ok().body("ok");
+        }catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("bad");
+        }
+
 
     }
 
