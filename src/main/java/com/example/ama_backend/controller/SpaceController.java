@@ -286,7 +286,8 @@ public class SpaceController {
             //현제로그인한 세션유저로 찾은 현재 유저 엔터티
             UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-            followRepository.deleteByFromUserAndToUser(user, ownerUser);
+            followService.deleteFollow(user, ownerUser);
+
             //세션에서 현재 유저정보 가져오기
             return ResponseEntity.ok().body("ok");
         }catch(Exception e){
