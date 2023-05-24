@@ -22,6 +22,35 @@ const deleteBtns = document.querySelectorAll('.delete-btn');
 const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
 
 
+// <!--onclick="follow({{isFollowing}}, '{{spaceId}}')"   -->
+ const followBtn = document.querySelector('#followCheck');
+  const spaceIdInput = document.getElementById('spaceId');
+  const spaceId = spaceIdInput.value;
+  console.log("스페이스아이디: "+spaceId)
+
+  followBtn.addEventListener('click', async () => {
+    console.log("팔로우버튼 누름");
+
+    if (confirm("팔로우 하시겠습니까?")) {
+      // AJAX 요청 보내기
+      $.ajax({
+        type: 'POST',
+        url: `/spaces/${spaceId}/follow`,
+        success: function() {
+          let follow_el = document.querySelector('#followCheck');
+          follow_el.innerHTML = "팔로잉";
+          follow_el.setAttribute("onclick", "follow(true)");
+          console.log("팔로우 성공");
+        },
+        error: function(response) {
+          // 에러 발생 시 메시지 표시
+          alert(response.responseText);
+          console.log("팔로우 실패");
+        }
+      });
+    }
+  });
+
 q_deleteBtns.forEach(deleteBtn => {
  deleteBtn.addEventListener('click', async () => {
     console.log("삭제버튼 누름");
@@ -83,6 +112,51 @@ deleteBtns.forEach(deleteBtn => {
 });
 
 
-
   });
 
+//
+//      function follow(check, spaceId){
+//          //true -> unfollow 하기
+//          if(check){
+//            let url = `/spaces/${spaceId}/unFollow`;
+//               fetch(url,{
+//                 method:'POST'
+//               }).then(function(res){
+//                 return res.text();
+//               }).then(function(result){
+//                 console.log(result);
+//                 if(result === "ok"){
+//                   let follow_el = document.querySelector('#followCheck');
+//                   follow_el.innerHTML = "팔로우";
+//                   follow_el.setAttribute("onclick", "follow(false)");
+//                 }
+//               }).catch(function(error){
+//                 console.log(error);
+//               });
+//          }
+//           //false -> Follow 하기
+//          else{
+//
+//    console.log("spaceId: " + spaceId);
+//
+//    if (confirm("팔로우 하시겠습니까?")) {
+//      // AJAX 요청 보내기
+//      $.ajax({
+//        type: 'POST',
+//        url: `/spaces/${spaceId}/follow`,
+//        success: function() {
+//         let follow_el = document.querySelector('#followCheck');
+//          follow_el.innerHTML = "팔로잉";
+//            follow_el.setAttribute("onclick", "follow(true)");
+//          console.log("팔로우 성공");
+//        },
+//        error: function(response) {
+//          // 에러 발생 시 메시지 표시
+//          alert(response.responseText);
+//          console.log("팔로우 실패");
+//        }
+//      });
+//    }
+//
+//          }
+//        }

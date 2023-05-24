@@ -23,15 +23,6 @@ public class QAService {
     @Autowired
     private AnswerRepository answerRepository;
 
-    // 의존성 주입(Dependency Injection)
-    // 빈을 주입받은 각 repository 를 매개변수로 QAService 객체 생성
-    // repository 인스턴스 생성 및 초기화없이 스프링 프레임워크가 생성한 인스턴스를 사용 가능
-    // -> 코드의 유지보수성과 테스트 용이성 증가
-//    @Autowired
-//    public QAService(QuestionRepository questionRepository, AnswerRepository answerRepository) {
-//        this.questionRepository = questionRepository;
-//        this.answerRepository = answerRepository;
-//    }
 
     //모든 질문과 답변을 조회하는 기능
     public List<QuestionEntity> getAllQuestions() {
