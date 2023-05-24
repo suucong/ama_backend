@@ -32,6 +32,4 @@ public class FollowService {
         Follow follow=new Follow(null,fromUser,toUser);
         followRepository.save(follow);
     }
-
-
 }

@@ -239,9 +239,6 @@ public class SpaceController {
 
     @PostMapping("/{spaceId}/follow")
     public String follow(@PathVariable Long spaceId, HttpSession session) {
-
-
-
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -256,12 +253,10 @@ public class SpaceController {
             //현재 로그인한 세션유저로 찾은 현재 유저 엔터티(fromUser)
             UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-
             //팔로우하기
             assert user != null;
             followService.follow(user, ownerUser);
 
-            System.out.println("success following from :" + user.getName()+" to : " +ownerUser.getName());
             return "ok";
 
     }
