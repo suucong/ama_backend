@@ -20,6 +20,44 @@ $("#received-tab").removeClass("active");
 
 const deleteBtns = document.querySelectorAll('.delete-btn');
 const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
+const followBtn = document.querySelectorAll('.followBtn');
+
+followBtn.addEventListener('click', async () => {
+    const spaceId = followBtn.parentElement.querySelector('#spaceId').value;
+    const check = followBtn.parentElement.querySelector('#check').value;
+
+    if (check) {
+      let url = `/spaces/${spaceId}/follow`;
+      fetch(url, {
+        method: 'POST'
+      }).then(function(res) {
+        return res.text();
+      }).then(function(result) {
+        console.log(result);
+        if (result === "ok") {
+          followBtn.innerHTML = "팔로잉";
+          followBtn.setAttribute("check", "false");
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
+    } else {
+      let url = `/spaces/${spaceId}/unFollow`;
+      fetch(url, {
+        method: 'POST'
+      }).then(function(res) {
+        return res.text();
+      }).then(function(result) {
+        console.log(result);
+        if (result === "ok") {
+          followBtn.innerHTML = "팔로우";
+          followBtn.setAttribute("check", "true");
+        }
+      }).catch(function(error) {
+        console.log(error);
+      });
+    }
+  });
 
 
 // <!--onclick="follow({{isFollowing}}, '{{spaceId}}')"   -->

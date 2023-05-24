@@ -14,11 +14,11 @@ public class Follow {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name="fromUser")
+    @JoinColumn(name="from_user")
     private UserEntity fromUser;
 
     @ManyToOne
-    @JoinColumn(name="toUser")
+    @JoinColumn(name="to_user")
     private UserEntity toUser;
 
     @Builder
