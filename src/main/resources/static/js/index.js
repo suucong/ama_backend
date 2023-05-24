@@ -21,23 +21,51 @@ $("#received-tab").removeClass("active");
 const deleteBtns = document.querySelectorAll('.delete-btn');
 const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
 
-  const followBtn = document.querySelector('#followCheck');
+
+// <!--onclick="follow({{isFollowing}}, '{{spaceId}}')"   -->
+ const followBtn = document.querySelector('#followCheck');
   const spaceIdInput = document.getElementById('spaceId');
   const spaceId = spaceIdInput.value;
   console.log("스페이스아이디: "+spaceId)
 
-//  followBtn.addEventListener('click', async () => {
-//    console.log("팔로우버튼 누름");
-//
-//    if (confirm("팔로우 하시겠습니까?")) {
-//      // AJAX 요청 보내기
+  followBtn.addEventListener('click', async () => {
+    console.log("팔로우버튼 누름");
+
+
+
+    if (confirm("팔로우 하시겠습니까?")) {
+
+        let url = `/spaces/${spaceId}/follow`;
+                   fetch(url,{
+                     method:'POST'
+                   }).then(function(res){
+                     console.log("0")
+                    return res.text().then(function(result) {
+                       console.log("1");
+                       console.log("팔로우 api 결과문: " + result);
+
+               if(result === "ok"){
+                    followBtn.innerHTML = "팔로잉";
+                   followBtn.setAttribute("onclick", "follow(false)");
+                 }
+//                       let follow_el = document.querySelector('#followCheck');
+
+
+                   }).catch(function(error){
+                       console.log("3")
+                     console.log(error);
+                   });
+                   })
+
+
+      // AJAX 요청 보내기
 //      $.ajax({
 //        type: 'POST',
 //        url: `/spaces/${spaceId}/follow`,
 //        success: function() {
-//           location.href='/';
-//           followBtn.innerHTML = "팔로잉"; // 버튼 텍스트 변경
-//           console.log("팔로우 성공");
+////       followBtn.textContent = '팔로잉';
+////                followBtn.setAttribute("onclick", "follow(true)");
+//                console.log("팔로우 성공");
 //        },
 //        error: function(response) {
 //          // 에러 발생 시 메시지 표시
@@ -45,57 +73,9 @@ const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
 //          console.log("팔로우 실패");
 //        }
 //      });
-//    }
-//  });
 
-//followBtn.addEventListener('click', async () => {
-//  console.log("팔로우버튼 누름");
-//
-//  if (confirm("팔로우 하시겠습니까?")) {
-//    try {
-//      const response = await fetch(`/spaces/${spaceId}/follow`, {
-//        method: 'POST'
-//      });
-//
-//      if (response.ok) {
-//        followBtn.innerHTML = "팔로잉"; // 버튼 텍스트 변경
-//        console.log("팔로우 성공");
-//      } else {
-//        const errorText = await response.text();
-//        alert(errorText); // 에러 메시지 표시
-//        console.log("팔로우 실패");
-//      }
-//    } catch (error) {
-//      console.error("팔로우 요청 실패:", error);
-//    }
-//  }
-//});
-
-followBtn.addEventListener('click', async () => {
-  console.log("팔로우버튼 누름");
-
-  if (confirm("팔로우 하시겠습니까?")) {
-    try {
-      const url = `spaces/${spaceId}/follow`;
-      const response = await fetch(url, {
-        method: 'POST'
-      });
-
-      if (response.ok) {
-        const follow_el = document.querySelector('.followCheck');
-        follow_el.innerHTML = "<button id='followCheck'>팔로잉</button>";
-        console.log("팔로우 성공");
-      } else {
-        const errorText = await response.text();
-        alert(errorText); // 에러 메시지 표시
-        console.log("팔로우 실패");
-      }
-    } catch (error) {
-      console.error("팔로우 요청 실패:", error);
     }
-  }
-});
-
+  });
 
 q_deleteBtns.forEach(deleteBtn => {
  deleteBtn.addEventListener('click', async () => {
@@ -108,6 +88,8 @@ q_deleteBtns.forEach(deleteBtn => {
     console.log("spaceId: " + spaceId);
 
     if (confirm("정말로 질문을 삭제하시겠습니까?")) {
+
+
       // AJAX 요청 보내기
       $.ajax({
         type: 'DELETE',
