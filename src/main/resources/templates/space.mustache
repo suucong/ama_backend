@@ -23,7 +23,28 @@
   margin: 10px;
 }
 
+.follow-li {
+    display: inline-block;
+    margin-right: 10px;
+}
 
+.following {
+  background-color: #C7C7C7;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.follower {
+  background-color: #F2F2F2;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px;
+}
+
+.profile-id {
+    text-align: center;
+}
 
     </style>
 </head>
@@ -197,6 +218,31 @@
     </div>
 </div>
 
+{{#followingUserEntityList}}
+    <p>팔로잉 목록</p>
+    <li class="follow-li">
+        <div class="following">
+        <img class="photo" width="90" height="90" src="{{picture}}" />
+        <p class="profile-id">{{name}}</p>
+        </div>
+    </li>
+{{/followingUserEntityList}}
+{{^followingUserEntityList}}
+    <p>팔로잉한 회원이 없습니다.</p>
+{{/followingUserEntityList}}
+
+{{#followerUserEntityList}}
+<p>팔로워 목록</p>
+<li class="follow-li">
+    <div class="follower">
+        <img class="photo" width="90" height="90" src="{{picture}}" />
+        <p class="profile-id">{{name}}</p>
+    </div>
+</li>
+{{/followerUserEntityList}}
+{{^followerUserEntityList}}
+    <p>팔로워가 없습니다. </p>
+{{/followerUserEntityList}}
 
 </body>
 </html>

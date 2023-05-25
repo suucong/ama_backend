@@ -160,7 +160,7 @@ public class SpaceController {
 
         // 현재 로그인한 세션유저
         SessionUser sessionUser = (SessionUser) session.getAttribute("user");
-        //현제로그인한 세션유저로 찾은 현재 유저 엔터티
+        // 현재 로그인한 세션유저로 찾은 현재 유저 엔터티
         UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
         //로그인한 유저가 남긴 답변 리스트
@@ -172,7 +172,23 @@ public class SpaceController {
         Optional<Follow> followCheck = followRepository.findByFromUserAndToUser(user, ownerUser);
         boolean isFollowing = followCheck.isPresent();
 
+        // 스페이스의 주인 엔타티의 팔로잉 리스트 가져오기
+        List<Follow> followingList = followService.getAllFollowings(ownerUser);
 
+        List<UserEntity> followingUserEntityList = new ArrayList<UserEntity>();
+
+        for(Follow f : followingList) {
+            followingUserEntityList.add(f.getToUser());
+        }
+
+        // 스페이스의 주인 엔타티의 팔로워 리스트 가져오기
+        List<Follow> followerList = followService.getAllFollowers(ownerUser);
+
+        List<UserEntity> followerUserEntityList = new ArrayList<UserEntity>();
+
+        for(Follow f : followerList) {
+            followerUserEntityList.add(f.getFromUser());
+        }
 
         // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
         if (space.isOwnedBy(user)) {
@@ -206,6 +222,9 @@ public class SpaceController {
         model.addAttribute("sentAnswers", getMySentAnswer(spaceId).getBody().getData());
         model.addAttribute("receivedAnswers", getMyReceivedAnswer(spaceId).getBody().getData());
 
+        // 팔로잉, 팔로워 리스트
+        model.addAttribute("followingUserEntityList", followingUserEntityList);
+        model.addAttribute("followerUserEntityList", followerUserEntityList);
 
         return "space";
     }
@@ -227,9 +246,7 @@ public class SpaceController {
 
     @PostMapping("/{spaceId}/follow")
     public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {
-
         try{
-
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -244,19 +261,16 @@ public class SpaceController {
             //현재 로그인한 세션유저로 찾은 현재 유저 엔터티(fromUser)
             UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
-
             //팔로우하기
             assert user != null;
             followService.follow(user, ownerUser);
 
-            System.out.println("success following from :" + user.getName()+" to : " +ownerUser.getName());
             return ResponseEntity.ok().body("ok");
         }catch(Exception e){
             e.printStackTrace();
+
             return ResponseEntity.badRequest().body("bad");
         }
-
-
     }
 
     @PostMapping("/{spaceId}/unFollow")
@@ -265,12 +279,14 @@ public class SpaceController {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+
             // 이동한 스페이스의 주인유저 엔터티
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
             // 현재 로그인한 세션유저
             SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+
             //현제로그인한 세션유저로 찾은 현재 유저 엔터티
             UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
 
@@ -280,9 +296,9 @@ public class SpaceController {
             return ResponseEntity.ok().body("ok");
         }catch(Exception e){
             e.printStackTrace();
+
             return ResponseEntity.badRequest().body("bad");
         }
-
     }
 
     // UserEntity 수정
@@ -308,6 +324,7 @@ public class SpaceController {
         } else {
             customOAuth2UserService.updatePicture(currentUser, imgFile);
         }
+
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
