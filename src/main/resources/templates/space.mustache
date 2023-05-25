@@ -60,7 +60,33 @@
 <p>{{email}}</p>
 <p>{{introduce}}</p>
 <p>{{instaId}}</p>
-<p>{{role}}</p>
+
+{{#followingUserEntityList}}
+    <p>팔로잉 목록</p>
+    <li class="follow-li">
+        <div class="following">
+            <img class="photo" width="90" height="90" src="{{picture}}" />
+            <p class="profile-id">{{name}}</p>
+        </div>
+    </li>
+{{/followingUserEntityList}}
+{{^followingUserEntityList}}
+    <p>팔로잉한 회원이 없습니다.</p>
+{{/followingUserEntityList}}
+
+{{#followerUserEntityList}}
+    <p>팔로워 목록</p>
+    <li class="follow-li">
+        <div class="follower">
+            <img class="photo" width="90" height="90" src="{{picture}}" />
+            <p class="profile-id">{{name}}</p>
+        </div>
+    </li>
+{{/followerUserEntityList}}
+{{^followerUserEntityList}}
+    <p>팔로워가 없습니다. </p>
+{{/followerUserEntityList}}
+
 
 <div class="col-md-12">
     <div class="row">
@@ -231,32 +257,6 @@
         </div>
     </div>
 </div>
-
-{{#followingUserEntityList}}
-    <p>팔로잉 목록</p>
-    <li class="follow-li">
-        <div class="following">
-        <img class="photo" width="90" height="90" src="{{picture}}" />
-        <p class="profile-id">{{name}}</p>
-        </div>
-    </li>
-{{/followingUserEntityList}}
-{{^followingUserEntityList}}
-    <p>팔로잉한 회원이 없습니다.</p>
-{{/followingUserEntityList}}
-
-{{#followerUserEntityList}}
-<p>팔로워 목록</p>
-<li class="follow-li">
-    <div class="follower">
-        <img class="photo" width="90" height="90" src="{{picture}}" />
-        <p class="profile-id">{{name}}</p>
-    </div>
-</li>
-{{/followerUserEntityList}}
-{{^followerUserEntityList}}
-    <p>팔로워가 없습니다. </p>
-{{/followerUserEntityList}}
 
 </body>
 </html>
