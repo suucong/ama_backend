@@ -61,11 +61,14 @@
 <p>{{introduce}}</p>
 <p>{{instaId}}</p>
 
+
 {{#followingUserEntityList}}
     <p>팔로잉 목록</p>
     <li class="follow-li">
         <div class="following">
-            <img class="photo" width="90" height="90" src="{{picture}}" />
+            <a href="/spaces/{{id}}">
+                <img class="photo" width="90" height="90" src="{{picture}}"/>
+            </a>
             <p class="profile-id">{{name}}</p>
         </div>
     </li>
@@ -78,7 +81,9 @@
     <p>팔로워 목록</p>
     <li class="follow-li">
         <div class="follower">
-            <img class="photo" width="90" height="90" src="{{picture}}" />
+            <a href="/spaces/{{id}}">
+                <img class="photo" width="90" height="90" src="{{picture}}"/>
+            </a>
             <p class="profile-id">{{name}}</p>
         </div>
     </li>
