@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -48,5 +50,10 @@ public class QuestionEntity {
     @Builder.Default
     @Column(nullable = true)
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
+
+    //내가 작성한 질문인지 판별하는 메소드
+    public boolean isMyQuestion(final Long userId) {
+        return Objects.equals(this.sendingUserId, userId);
+    }
 
 }

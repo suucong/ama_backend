@@ -28,64 +28,66 @@ const q_deleteBtns = document.querySelectorAll('.q-delete-btn');
   const spaceId = spaceIdInput.value;
   console.log("스페이스아이디: "+spaceId)
 
-  followBtn.addEventListener('click', async () => {
-    console.log("팔로우버튼 누름");
+if (followBtn !== null){
+     followBtn.addEventListener('click', async () => {
+       console.log("팔로우버튼 누름");
 
-    if(followBtn.innerText === "팔로우"){
-        if (confirm("팔로우 하시겠습니까?")) {
-            let url = `/spaces/${spaceId}/follow`;
-                       fetch(url,{
-                         method:'POST'
-                       }).then(function(res){
-                        return res.text().then(function(result) {
+       if(followBtn.innerText === "팔로우"){
+           if (confirm("팔로우 하시겠습니까?")) {
+               let url = `/spaces/${spaceId}/follow`;
+                          fetch(url,{
+                            method:'POST'
+                          }).then(function(res){
+                           return res.text().then(function(result) {
 
-                           console.log("팔로우 api 결과문: " + result);
+                              console.log("팔로우 api 결과문: " + result);
 
-                   if(result === "ok"){
-                        followBtn.innerHTML = "팔로잉";
-                     }
+                      if(result === "ok"){
+                           followBtn.innerHTML = "팔로잉";
+                        }
 
-                       }).catch(function(error){
-                           console.log("3")
+                          }).catch(function(error){
+                              console.log("3")
+                            console.log(error);
+                          });
+                          })
+
+
+           }
+       }else{
+
+
+            if (confirm("언팔로우 하시겠습니까?")) {
+                     let url = `/spaces/${spaceId}/unFollow`;
+                     fetch(url, {
+                       method: 'POST'
+                     }).then(function (res) {
+                       return res.text().then(function (result) {
+
+                         console.log("언팔로우 api 결과문: " + result);
+
+                         if (result === "ok") {
+                           followBtn.innerHTML = "팔로우";
+                           followBtn.setAttribute("onclick", "follow()");
+                         }
+
+                       }).catch(function (error) {
+                         console.log("3")
                          console.log(error);
                        });
-                       })
+                     })
+            }
+       }
 
 
-        }
-    }else{
+       });
+}
 
-
-         if (confirm("언팔로우 하시겠습니까?")) {
-                  let url = `/spaces/${spaceId}/unFollow`;
-                  fetch(url, {
-                    method: 'POST'
-                  }).then(function (res) {
-                    return res.text().then(function (result) {
-
-                      console.log("언팔로우 api 결과문: " + result);
-
-                      if (result === "ok") {
-                        followBtn.innerHTML = "팔로우";
-                        followBtn.setAttribute("onclick", "follow()");
-                      }
-
-                    }).catch(function (error) {
-                      console.log("3")
-                      console.log(error);
-                    });
-                  })
-         }
-    }
-
-
-    });
 
 q_deleteBtns.forEach(deleteBtn => {
  deleteBtn.addEventListener('click', async () => {
-    console.log("삭제버튼 누름");
+    console.log("질문 삭제 버튼 누름");
 
-    const spaceId = deleteBtn.parentElement.querySelector('#spaceId').value;
     const questionId = deleteBtn.parentElement.querySelector('#questionId').value;
 
     console.log("questionId: " + questionId);
@@ -115,9 +117,9 @@ q_deleteBtns.forEach(deleteBtn => {
 
 deleteBtns.forEach(deleteBtn => {
   deleteBtn.addEventListener('click', async () => {
-    console.log("삭제버튼 누름");
+    console.log("답변 삭제 버튼 누름");
 
-    const spaceId = deleteBtn.parentElement.querySelector('#spaceId').value;
+
     const answerId = deleteBtn.parentElement.querySelector('#answerId').value;
 
     console.log("answerId: " + answerId);

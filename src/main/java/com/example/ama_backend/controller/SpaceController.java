@@ -168,18 +168,6 @@ public class SpaceController {
         // 로그인한 유저가 남긴 답변 리스트
 
         //Todo - 로그인한 유저가 답변의 isPublic의 답변자거나 부모 질문 작성자라면 원본 텍스트를 보지만 다른 유저라면 대체 텍스트 보임
-        List<AnswerEntity> allAnswers = answerRepository.findAll();
-        boolean hasMyAnswer = false;
-
-        for (AnswerEntity answer : allAnswers) {
-            if (answer.isMyAnswer(user)) {
-                hasMyAnswer = true;
-                break;
-            }
-        }
-
-        model.addAttribute("hasMyAnswer", hasMyAnswer);
-
 
         Optional<Follow> followCheck = followRepository.findByFromUserAndToUser(user, ownerUser);
         boolean isFollowing = followCheck.isPresent();
@@ -415,7 +403,8 @@ public class SpaceController {
             // 현재 스페이스가 내 스페이스라면
             if (space.isOwnedBy(user)) {
                 // 서비스를 이용해 답변 엔티티를 삭제한다
-                qaService.deleteAnswer(answerId);
+                assert user != null;
+                qaService.deleteAnswer(answerId,user.getId());
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.badRequest().body("내 스페이스가 아니어서 삭제 불가능합니다.");

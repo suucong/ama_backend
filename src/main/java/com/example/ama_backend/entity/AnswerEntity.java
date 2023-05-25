@@ -46,7 +46,7 @@ public class AnswerEntity {
 
 
     //내가 작성한 답변인지 판별하는 메소드
-    public boolean isMyAnswer(UserEntity currentUser) {
-        return Objects.equals(this.userId, currentUser.getId());
+    public boolean isMyAnswer(final Long userId) {
+        return Objects.equals(this.userId, userId);
     }
 }

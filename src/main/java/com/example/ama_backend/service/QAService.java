@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -142,20 +143,27 @@ public class QAService {
     }
 
     // 답변을 삭제하는 기능
-    public Optional<AnswerEntity> deleteAnswer(Long answerId) {
+    public Optional<AnswerEntity> deleteAnswer(Long answerId,Long userId) {
 
         // answerId에 해당하는 답변을 가져옴
         Optional<AnswerEntity> optionalAnswer = answerRepository.findById(answerId);
+        //존재하는 답변인지 조회하기
         if (optionalAnswer.isPresent()) {
-            AnswerEntity answer = optionalAnswer.get();
-            try {
-                // 가져온 답변을 삭제
-                answerRepository.delete(answer);
-            } catch (Exception e) {
-                log.error("답변 엔터티 삭제 중 에러 발생", answerId, e);
-                // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
-                throw new RuntimeException("답변 엔터티 삭제 중 에러 발생", e);
+            //내가 작성한 답변인지 조회하기
+            if(optionalAnswer.get().isMyAnswer(userId)){
+                AnswerEntity answer = optionalAnswer.get();
+                try {
+                    // 가져온 답변을 삭제
+                    answerRepository.delete(answer);
+                } catch (Exception e) {
+                    log.error("답변 엔터티 삭제 중 에러 발생", answerId, e);
+                    // 컨트롤러로 exception 을 보낸다. 데이터베이스 내부 로직을 캡슐화하려면 e를 리턴하지 않고 새 exception 오브젝트를 리턴한다
+                    throw new RuntimeException("답변 엔터티 삭제 중 에러 발생", e);
+                }
+            }else{
+                throw new IllegalArgumentException("내 답변이 아닙니다.");
             }
+
 
         } else {
             throw new IllegalArgumentException("답변을 찾을 수 없습니다.");
