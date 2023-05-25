@@ -124,7 +124,13 @@
                                                 <div class="card-body">
                                                     <img width="45" height="45" src="{{sentUserPic}}"/>
                                                     <p class="card-text">{{userName}}   at  {{createdTime}}</p>
-                                                    <h5 class="card-title">{{answerText}}</h5>
+                                                    {{#isPublic}}
+                                                        <h5 class="card-title">{{answerText}}</h5>
+                                                    {{/isPublic}}
+                                                    {{^isPublic}}
+                                                        <h5 class="card-title">{{alternativeAnswerText}}</h5>
+                                                    {{/isPublic}}
+
                                                     <button class="btn btn-primary delete-btn">삭제하기</button>
                                                 </div>
                                             </div>
@@ -178,7 +184,15 @@
                                             <div class="card-body">
                                                 <img width="45" height="45" src="{{sentUserPic}}"/>
                                                 <p class="card-text">{{userName}}   at  {{createdTime}}</p>
-                                                <h5 class="card-title">{{answerText}}</h5>
+
+                                                {{#isPublic}}
+                                                    <h5 class="card-title">{{answerText}}</h5>
+                                                {{/isPublic}}
+                                                {{^isPublic}}
+                                                    <h5 class="card-title">{{alternativeAnswerText}}</h5>
+                                                {{/isPublic}}
+
+
                                                 <button class="btn btn-primary delete-btn">삭제하기</button>
 
                                             </div>

@@ -25,7 +25,8 @@ const AnswerDTO = {
   userId: userId_,
   userName: sendingUserName,
   isPublic: isPublic_,
-  questionId:questionId_
+  questionId:questionId_,
+  alternativeAnswerText: "🔒질문자만 볼 수 있는 답변입니다."
 };
 
 console.log(AnswerDTO);

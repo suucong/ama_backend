@@ -49,4 +49,5 @@ public class AnswerEntity {
     public boolean isMyAnswer(final Long userId) {
         return Objects.equals(this.userId, userId);
     }
+
 }
