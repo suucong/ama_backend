@@ -41,8 +41,8 @@ public class QAService {
     }
 
     // 내가 한 답변을 조회하는 기능
-    public Optional<AnswerEntity> getMyAnswers(final Long id) {
-        return answerRepository.findById(id);
+    public List<AnswerEntity> getMyAnswers(final Long userId) {
+        return answerRepository.findByUserId(userId);
     }
 
     // 리팩토링한 질문 검증 메소드
@@ -73,17 +73,18 @@ public class QAService {
             throw new RuntimeException("Answer Entity 는 null 이면 안됩니다.");
         }
 
-        // 질문자나 답변자가 아니라면
+        // 질문자에게만 공개하는 답변을 등록한다면
         if (!answerEntity.getIsPublic()) {
             answerEntity.setAlternativeAnswerText("🔒질문자만 볼 수 있는 답변입니다.");
         }
 
+        // 답변의 유저 아이디가 null 이라면
         if (answerEntity.getUserId() == null) {
             log.warn("등록되지 않은 유저입니다.");
             throw new RuntimeException("등록되지 않은 유저입니다.");
         }
 
-
+        // 답변의 텍스트가 null 이라면
         if (answerEntity.getAnswerText() == null || answerEntity.getAnswerText().isEmpty()) {
             throw new IllegalArgumentException("답변 내용을 입력하세요.");
         }
@@ -99,11 +100,11 @@ public class QAService {
 
 
     // 답변 등록 기능 - 당연히 닉네임으로
-    public Optional<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
+    public List<AnswerEntity> saveAnswer(final AnswerEntity answerEntity) {
         validateAnswer(answerEntity);
         answerRepository.save(answerEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", answerEntity.getId());
-        return getMyAnswers(answerEntity.getId());
+        return answerRepository.findByUserId(answerEntity.getUserId());
     }
 
 
@@ -143,7 +144,7 @@ public class QAService {
     }
 
     // 답변을 삭제하는 기능
-    public Optional<AnswerEntity> deleteAnswer(Long answerId,Long userId) {
+    public List<AnswerEntity> deleteAnswer(Long answerId,Long userId) {
 
         // answerId에 해당하는 답변을 가져옴
         Optional<AnswerEntity> optionalAnswer = answerRepository.findById(answerId);

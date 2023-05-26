@@ -141,6 +141,7 @@ public class SpaceController {
             ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().data(answerDTOS).build();
 
             return ResponseEntity.ok().body(responseDTO);
+
         } catch (Exception e) {
             String err = e.getMessage();
             ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().error(err).build();
@@ -167,7 +168,6 @@ public class SpaceController {
         assert user != null;
         // 로그인한 유저가 남긴 답변 리스트
 
-        //Todo - 로그인한 유저가 답변의 isPublic의 답변자거나 부모 질문 작성자라면 원본 텍스트를 보지만 다른 유저라면 대체 텍스트 보임
 
         Optional<Follow> followCheck = followRepository.findByFromUserAndToUser(user, ownerUser);
         boolean isFollowing = followCheck.isPresent();
@@ -229,6 +229,7 @@ public class SpaceController {
         return "space";
     }
 
+    // TODO: 프로필이미지 가져오기
     @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
         UserEntity user = userRepository.findById(spaceId).orElse(null);
@@ -377,12 +378,9 @@ public class SpaceController {
             answerEntity.setCreatedTime(LocalDateTime.now());
 
             // 서비스를 이용해 질문 엔티티를 생성한다
-            Optional<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
+           List<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
 
-            // 답변이 존재한다면 질문에 답변 종속시키기
-            if (entities.isPresent()) {
-                question.setAnswers(entities.stream().collect(Collectors.toList()));
-            }
+           question.setAnswers(entities);
 
 
             // 자바 스트림을 이요해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
