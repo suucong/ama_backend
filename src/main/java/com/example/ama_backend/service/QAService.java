@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class QAService {
     // 질문 등록 가능 - 익명/닉네임 질문 둘 다 가능하도록
     public List<QuestionEntity> saveQuestion(final QuestionEntity questionEntity) {
         validateQuestion(questionEntity);
+        questionEntity.setAnswers(null);
         questionRepository.save(questionEntity);
         log.info("엔터티 아이디 : {} 가 저장되었습니다.", questionEntity.getId());
         return questionRepository.findBySendingUserId(questionEntity.getSendingUserId());

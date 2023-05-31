@@ -48,7 +48,7 @@ public class QuestionEntity {
             cascade = CascadeType.REMOVE,
             fetch = FetchType.LAZY)
     @Builder.Default
-    @Column(nullable = true)
+    @Column(nullable = false, name="answers")
     private List<AnswerEntity> answers=new ArrayList<>();//종속된 답변 리스트
 
     //내가 작성한 질문인지 판별하는 메소드

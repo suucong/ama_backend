@@ -1,17 +1,16 @@
 package com.example.ama_backend.controller;
 
-import com.example.ama_backend.config.auth.CustomOAuth2UserService;
+
 import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
-import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
 import jakarta.servlet.http.HttpSession;
-import org.apache.commons.io.IOUtils;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,15 +18,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-
-
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -46,8 +45,6 @@ public class SpaceController {
     private QuestionRepository questionRepository;
     @Autowired
     private AnswerRepository answerRepository;
-    @Autowired
-    private CustomOAuth2UserService customOAuth2UserService;
     @Autowired
     private FollowRepository followRepository;
     @Autowired
@@ -229,21 +226,21 @@ public class SpaceController {
         return "space";
     }
 
-    // TODO: 프로필이미지 가져오기
-    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
-    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
-        UserEntity user = userRepository.findById(spaceId).orElse(null);
-
-        if (user != null && Objects.equals(user.getProfileImgName(), "")) {
-            return new ResponseEntity<>(user.getPicture(), HttpStatus.OK);
-        } else {
-            assert user != null;
-            InputStream inputStream = new FileInputStream(user.getPicture());
-            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
-            inputStream.close();
-            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
-        }
-    }
+//    // TODO: 프로필이미지 가져오기
+//    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+//    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
+//        UserEntity user = userRepository.findById(spaceId).orElse(null);
+//
+//        if (user != null && Objects.equals(user.getProfileImgName(), "")) {
+//            return new ResponseEntity<>(user.getPicture(), HttpStatus.OK);
+//        } else {
+//            assert user != null;
+//            InputStream inputStream = new FileInputStream(user.getPicture());
+//            //byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+//            inputStream.close();
+//            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
+//        }
+//    }
 
     @PostMapping("/{spaceId}/follow")
     public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {
@@ -302,6 +299,8 @@ public class SpaceController {
         }
     }
 
+
+    /*
     // UserEntity 수정
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
@@ -329,6 +328,8 @@ public class SpaceController {
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
 
+
+     */
 
     @GetMapping("/{spaceId}/{questionId}/answer")
     public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {

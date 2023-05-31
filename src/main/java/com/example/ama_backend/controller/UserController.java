@@ -1,26 +1,24 @@
-package com.example.ama_backend.config;
+package com.example.ama_backend.controller;
 
-import com.example.ama_backend.config.auth.CustomOAuth2UserService;
-import com.example.ama_backend.config.auth.dto.SessionUser;
-import com.example.ama_backend.entity.SpaceEntity;
+import com.example.ama_backend.dto.IdTokenRequestDto;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
+import java.security.Principal;
 
-@Controller
+import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
+
+@RestController
+@RequestMapping("/v1/oauth")
 public class UserController {
 
     @Autowired
@@ -32,34 +30,39 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CustomOAuth2UserService userService;
+    private UserService userService;
 
-    @GetMapping("/")
-    public String main(Model model){
-        return "main";
+    // Google OAuth를 통해 받은 ID 토큰으로 로그인을 처리하는 메소드이다.
+    @PostMapping("/login")
+    public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) {
+        // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
+        String authToken = userService.loginOAuthGoogle(requestBody);
+
+        // 응답에 인증 토큰을 쿠키로 첨부한다
+        final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", authToken)
+                .httpOnly(true)
+                .maxAge(7 * 24 * 3600)
+                .path("/")
+                .secure(false)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/signin")
-    public String login(Model model) {
-        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
-        if (sessionUser != null) {
-            UserEntity userEntity = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
-            if (userEntity != null) {
-                SpaceEntity space = spaceRepository.findByUserId(userEntity.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+    // 현재 인증된 사용자의 정보를 조회하는 메소드이다
+    @GetMapping("/user/info")
+    public ResponseEntity getUserInfo(Principal principal) {
+        // Principal 객체를 파라미터로 받아와서 사용자의 식별자로 사용한다
+        // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
+        UserEntity user = userService.getUser(Long.valueOf(principal.getName()));
 
-                model.addAttribute("space", space);
-                model.addAttribute("userName", userEntity.getName());
-                model.addAttribute("userEmail", userEntity.getEmail());
-                model.addAttribute("userPicture", userEntity.getPicture());
-                model.addAttribute("spaceId", space.getId());
-
-            }
-        }
-
-        return "login";
+        // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
+        // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
+         return ResponseEntity.ok().body(convertToDto(user));
     }
 
+    /*
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
@@ -81,6 +84,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+/*
     @GetMapping("/spaces/{spaceId}/update")
     public String modify(@PathVariable Long spaceId, Model model, MultipartFile imgFile) throws Exception {
         //이동한 스페이스 엔터티
@@ -101,4 +105,6 @@ public class UserController {
         }
         return "profile-edit";
     }
+    */
+
 }
