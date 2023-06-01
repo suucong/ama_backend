@@ -24,31 +24,29 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // CORS 활성화한다
+// CORS 활성화
         http.cors()
                 .and()
-                // CSRF(Cross-Site Request Forgery) 보호를 설정한다
+// CSRF(Cross-Site Request Forgery) 보호를 설정한다
                 .csrf()
-                // CSRF 토큰을 쿠키에 저장하고,  "/v1/oauth/login" 엔드포인트를 CSRF 보호를 예외로 처리한다
+// CSRF 토큰을 쿠키에 저장하고, "/v1/oauth/login" 엔드포인트를 CSRF 보호를 예외로 처리한다
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/v1/oauth/login")
-
-                // 세션 관리를 STATELESS로 설정한다. 즉, 서버에 세션을 유지하지 않는다.
+                .ignoringRequestMatchers("/v1/oauth/login", "/h2-console/") // "/v1/oauth/login"과 "/h2-console/"는 CSRF 보호 예외로 처리한다
                 .and()
+// 세션 관리를 STATELESS로 설정한다. 즉, 서버에 세션을 유지하지 않는다.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                // JWTRequestFilter 를 UsernamePasswordAuthenticationFilter 앞에 추가한다.
-                // 즉, 요청을 처리하기 전에 JWT 토큰 필터가 먼저 실행된다
                 .and()
+// JWTRequestFilter를 UsernamePasswordAuthenticationFilter 앞에 추가한다.
+// 즉, 요청을 처리하기 전에 JWT 토큰 필터가 먼저 실행된다
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-
-                // 인증에 필요한 모든 요청에 대한 접근 제한을 설정한다.
-                .authorizeHttpRequests()
+                .authorizeRequests()
                 .requestMatchers("/v1/oauth/login").permitAll() // "/v1/oauth/login" 엔드포인트는 모든 사용자에게 허용한다
+                .requestMatchers("/h2-console/").permitAll() // "/h2-console/" 엔드포인트도 모든 사용자에게 허용한다
                 .anyRequest().authenticated(); // 그 외의 모든 요청은 인증된 사용자만 접근 가능하다.
+        // H2 Console 접근 설정
+        http.headers().frameOptions().sameOrigin();
 
         return http.build();
-
     }
 
 }

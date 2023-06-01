@@ -44,10 +44,10 @@ public class UserService {
     }
 
     // Google OAuth 로부터 받은 ID 토큰을 검증하여 UserEntity 를 인증하고 JWT 토큰을 생성하여 반환한다
-    public String loginOAuthGoogle(IdTokenRequestDto requestBody){
+    public String loginOAuthGoogle(IdTokenRequestDto requestBody) throws GeneralSecurityException, IOException {
         UserEntity userEntity=verifyIDToken(requestBody.getIdToken());
         if(userEntity ==null){
-            throw new IllegalArgumentException("유저가 NULL 입니다.");
+            throw new IllegalArgumentException("null user");
         }
         userEntity=createOrUpdateUser(userEntity);
         return jwtUtils.createToken(userEntity, false);
@@ -78,20 +78,18 @@ public class UserService {
     }
 
     // 주어진 ID 토큰을 검증하고 토큰에 포함된 정보를 사용하여 유저 객체를 생성한다
-    private UserEntity verifyIDToken(String idToken) {
-        try{
-            GoogleIdToken idTokenObj=verifier.verify(idToken);
-            if(idTokenObj==null){
-                return null;
-            }
-
-            GoogleIdToken.Payload payload=idTokenObj.getPayload();
-            String name=(String) payload.get("name");
-            String email= payload.getEmail();
-            String picture=(String) payload.get("picture");
-            return new UserEntity(null, name, email, picture, null, null, null, Role.USER);
-        }catch(GeneralSecurityException | IOException e){
-            return null;
+    private UserEntity verifyIDToken(String idToken) throws GeneralSecurityException, IOException {
+        GoogleIdToken idTokenObj = verifier.verify(idToken);
+        if (idTokenObj == null) {
+            throw new IllegalArgumentException("Invalid ID token");
         }
+
+        GoogleIdToken.Payload payload = idTokenObj.getPayload();
+        String name = (String) payload.get("name");
+        String email = payload.getEmail();
+        String picture = (String) payload.get("picture");
+
+        return new UserEntity(null, name, email, picture, null, null, null, Role.USER);
     }
+
 }
