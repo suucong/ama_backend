@@ -40,7 +40,14 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) throws GeneralSecurityException, IOException {
         // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
+//        String idToken = requestBody.getIdToken();
+//        idToken = idToken.replace("\"", "");
+//        IdTokenRequestDto idTokenRequestDto = new IdTokenRequestDto();
+//        idTokenRequestDto.setIdToken(idToken); // idToken은 실제 값을 할당해야 합니다.
+
         String authToken = userService.loginOAuthGoogle(requestBody);
+
+//        String authToken = userService.loginOAuthGoogle(requestBody);
 
         // 응답에 인증 토큰을 쿠키로 첨부한다
         final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN", authToken)
