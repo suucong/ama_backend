@@ -6,15 +6,24 @@ import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
+import com.google.common.base.Optional;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -61,22 +70,52 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-
     @GetMapping("/user/info")
-    public ResponseEntity getUserInfo(Principal principal) {
-        if (principal == null) {
+    public ResponseEntity getUserInfo(Principal principal, Authentication authentication) {
+        if (authentication == null) {
             // principal이 null인 경우에 대한 처리 로직
             // 예를 들어, 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
+            System.out.println("principal null");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // Principal 객체를 파라미터로 받아와서 사용자의 식별자로 사용한다
         // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
         UserEntity user = userService.getUser(Long.valueOf(principal.getName()));
+        System.out.println(principal.getName());
 
         // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
         // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
         return ResponseEntity.ok().body(convertToDto(user));
+    }
+
+//    @GetMapping("/user/info")
+//    public ResponseEntity getUserInfo(Authentication authentication) {
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            // 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//
+//        // 인증된 사용자의 정보를 가져옵니다.
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//        String username = userDetails.getUsername();
+//
+//        // 추가적인 처리를 수행하거나 응답을 반환할 수 있습니다.
+//        return ResponseEntity.ok().body("Authenticated User: " + username);
+//    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        // 인증 토큰을 담은 쿠키를 삭제합니다.
+        final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN","")
+                .httpOnly(true)
+                .maxAge(0)
+                .path("/")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return ResponseEntity.ok().build();
     }
 
     /*
