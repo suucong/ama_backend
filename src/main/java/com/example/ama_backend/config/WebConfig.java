@@ -15,6 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
+                .exposedHeaders("Authorization")                // <----- 추가함 2023.06.06
                 .exposedHeaders("Access-Control-Allow-Origin"); // "Access-Control-Allow-Origin" 헤더를 노출합니다.
     }
 

@@ -64,8 +64,11 @@ public class UserController {
                 .maxAge(7 * 24 * 3600)
                 .path("/")
                 .secure(false)
+                .sameSite("None")
                 .build();
+
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader("Authorization", cookie.toString());     // 2023.06.06 추가
 
         return ResponseEntity.ok().build();
     }

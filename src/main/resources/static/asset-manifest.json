@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0c34167a.css",
+    "main.js": "/static/js/main.89df2c1d.js",
+    "static/media/Group 12.png": "/static/media/Group 12.ad65308d0840542476b5.png",
+    "static/media/Ellipse 110.png": "/static/media/Ellipse 110.1dab1978d4895559f24a.png",
+    "static/media/Ellipse 107.png": "/static/media/Ellipse 107.84a0a4a4f8969070ac9d.png",
+    "static/media/Ellipse 109.png": "/static/media/Ellipse 109.169afe410914cd73ad2d.png",
+    "static/media/Ellipse 108.png": "/static/media/Ellipse 108.b319ebfabe9b07d60ae8.png",
+    "static/media/Ellipse 103.png": "/static/media/Ellipse 103.fe9168e28a91490b20e1.png",
+    "static/media/Ellipse 104.png": "/static/media/Ellipse 104.1e4f17f647567bf3f154.png",
+    "static/media/Ellipse 105.png": "/static/media/Ellipse 105.63b55429a64cf00bdab4.png",
+    "static/media/Ellipse 106.png": "/static/media/Ellipse 106.cd99316a26866b598425.png",
+    "static/media/Ellipse 111.png": "/static/media/Ellipse 111.1bdcfd342f12134533dd.png",
+    "static/media/Ellipse 102.png": "/static/media/Ellipse 102.6565fb7bae9695d7ce63.png",
+    "index.html": "/index.html",
+    "main.0c34167a.css.map": "/static/css/main.0c34167a.css.map",
+    "main.89df2c1d.js.map": "/static/js/main.89df2c1d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0c34167a.css",
+    "static/js/main.89df2c1d.js"
+  ]
+}

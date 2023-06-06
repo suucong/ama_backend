@@ -70,7 +70,7 @@ public class UserService {
         existingUser.setEmail(user.getEmail());
         existingUser.setPicture(user.getPicture());
         existingUser.setRole(user.getRole());
-        existingUser.setId(user.getId());
+        // existingUser.setId(user.getId());                // 2023.06.06 로그인후 다시 로그인하면 id가 null로 넘어온 상태라 에러남... 확인해볼것~~~~
         existingUser.setIntroduce(user.getIntroduce());
         existingUser.setInstaId(user.getInstaId());
         existingUser.setProfileImgName(user.getProfileImgName());
