@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .requestMatchers("/v1/oauth/login").permitAll() // "/v1/oauth/login" 엔드포인트는 모든 사용자에게 허용한다
-                .requestMatchers("index.html", "google-logo.svg", "manifest.json", "asset-manifest.json", "/static/**","favicon.ico").permitAll()
+                .requestMatchers("/static/**", "asset-manifest.json", "favicon.ico", "google-logo.svg", "index.html", "manifest.json", "robots.txt").permitAll()
                 .requestMatchers("/h2-console").permitAll() // "/h2-console/" 엔드포인트도 모든 사용자에게 허용한다
                 .anyRequest().authenticated(); // 그 외의 모든 요청은 인증된 사용자만 접근 가능하다.
         // H2 Console 접근 설정
