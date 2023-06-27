@@ -7,6 +7,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.Header;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,6 +42,7 @@ public class JWTUtils {
         claims.put("role", user.getRole()); // 토큰에 저장할 클레임을 추가한다.
 
         return Jwts.builder()
+                .setHeaderParam("typ", Header.JWT_TYPE)     ////// 2023.06.27 추가
                 .setSubject(user.getId().toString()) // 토큰의 주체(Subject) 설정
                 .setIssuedAt(new Date()) // 토큰이 발급된 시간을 설정
                 .setExpiration(validity) // 토큰의 만료 시간을 설정

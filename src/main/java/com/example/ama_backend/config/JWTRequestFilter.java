@@ -12,50 +12,82 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 @Component
 public class JWTRequestFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
 
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String BEARER_PREFIX = "Bearer ";
+
     // 토큰 검증에 사용된다.
     public JWTRequestFilter(JWTUtils jwtUtils) {
         this.jwtUtils = jwtUtils;
     }
 
-    private Cookie[] parseCookies(String cookieHeader) {
-        String[] cookiePairs = cookieHeader.split("; ");
-        Cookie[] cookies = new Cookie[cookiePairs.length];
+//    private Cookie[] parseCookies(String cookieHeader) {
+//        String[] cookiePairs = cookieHeader.split("; ");
+//        Cookie[] cookies = new Cookie[cookiePairs.length];
+//
+//        for (int i = 0; i < cookiePairs.length; i++) {
+//            String[] pair = cookiePairs[i].split("=", 2);
+//            String name = pair[0].trim();
+//            String value = pair[1].trim();
+//            cookies[i] = new Cookie(name, value);
+//        }
+//
+//        return cookies;
+//    }
 
-        for (int i = 0; i < cookiePairs.length; i++) {
-            String[] pair = cookiePairs[i].split("=", 2);
-            String name = pair[0].trim();
-            String value = pair[1].trim();
-            cookies[i] = new Cookie(name, value);
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
         }
-
-        return cookies;
+        return null;
     }
 
     // 이 필터는 들어오는 요청을 가로채고, "AUTH-TOKEN" 쿠키에서 JWT 토큰을 확인한다.
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String cookieHeader = request.getHeader("Cookie");
-        Cookie[] cookies = null;
 
-        if (cookieHeader != null) {
-            cookies = parseCookies(cookieHeader);
-        }
+        /**
+         System.out.println("=======================doFilterInternal===========================");
+         String cookieHeader = request.getHeader("Cookie");
+         Cookie[] cookies = null;
 
-        // "AUTH-TOKEN" 쿠키를 찾는다. 존재하지 않을 경우 null 반환한다
-        Cookie authCookie = cookies == null ? null : Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("AUTH-TOKEN"))
-                .findAny().orElse(null);
+         if (cookieHeader != null) {
+         cookies = parseCookies(cookieHeader);
+         }
+
+         // "AUTH-TOKEN" 쿠키를 찾는다. 존재하지 않을 경우 null 반환한다
+         Cookie authCookie = cookies == null ? null : Arrays.stream(cookies)
+         .filter(cookie -> cookie.getName().equals("AUTH-TOKEN"))
+         .findAny().orElse(null);
+
+         Authentication authentication;
+
+         // "AUTH-TOKEN" 쿠키가 존재하고 토큰이 유효할 경우, 인증 정보를 SecurityContextHolder 에 설정한다
+         if (authCookie != null && (authentication = jwtUtils.verifyAndGetAuthentication(authCookie.getValue().split(";")[0])) != null) {
+         // 애플리케이션에서 이후의 인가 확인에 사용할 수 있도록 한다.
+         SecurityContextHolder.getContext().setAuthentication(authentication);
+         }
+
+         // 필터 체인을 계속 진행하고 요청이 다음 필터나 대상 컨트롤러로 전달될 수 있도록 한다.
+         // JWT 토큰을 확인하고, 인증된 사용자를 보다시피 보안 텍스트에 설정하여 애플리케이션에 추가적인 인가 확인을 수행하는 역할을 담당한다.
+         filterChain.doFilter(request, response);
+         */
+
+        System.out.println("=======================doFilterInternal===========================");
+        String token = resolveToken(request);
 
         Authentication authentication;
 
         // "AUTH-TOKEN" 쿠키가 존재하고 토큰이 유효할 경우, 인증 정보를 SecurityContextHolder 에 설정한다
-        if (authCookie != null && (authentication = jwtUtils.verifyAndGetAuthentication(authCookie.getValue().split(";")[0])) != null) {
+        if (token != null && (authentication = jwtUtils.verifyAndGetAuthentication(token)) != null) {
             // 애플리케이션에서 이후의 인가 확인에 사용할 수 있도록 한다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -64,4 +96,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         // JWT 토큰을 확인하고, 인증된 사용자를 보다시피 보안 텍스트에 설정하여 애플리케이션에 추가적인 인가 확인을 수행하는 역할을 담당한다.
         filterChain.doFilter(request, response);
     }
+
+
 }
