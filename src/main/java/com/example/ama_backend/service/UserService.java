@@ -4,6 +4,7 @@ import com.example.ama_backend.config.JWTUtils;
 import com.example.ama_backend.dto.IdTokenRequestDto;
 import com.example.ama_backend.entity.Role;
 import com.example.ama_backend.entity.UserEntity;
+import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.json.JsonFactory;
@@ -63,6 +64,7 @@ public class UserService {
         if(existingUser==null){
             user.setRole(Role.USER);
             userRepository.save(user);
+
             return user;
         }
         // 존재하는 경우
