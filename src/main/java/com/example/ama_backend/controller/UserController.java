@@ -29,11 +29,10 @@ import java.security.GeneralSecurityException;
 import java.security.Principal;
 
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
-
+@CrossOrigin(originPatterns = "http://localhost:8080")
 @RestController
 @RequestMapping("/v1/oauth")
 public class UserController {
-
     @Autowired
     private QAService qaService;
     @Autowired
@@ -66,7 +65,7 @@ public class UserController {
                 .sameSite("None")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+//        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader("Authorization", cookie.toString());     // 2023.06.06 추가
 
         return ResponseEntity.ok().build();

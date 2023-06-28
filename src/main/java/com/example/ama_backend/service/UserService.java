@@ -12,18 +12,25 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.example.ama_backend.entity.SpaceEntity;
+import com.example.ama_backend.persistence.SpaceRepository;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final JWTUtils jwtUtils;
     private final GoogleIdTokenVerifier verifier;
+    @Autowired
+    private SpaceRepository spaceRepository;
+
     private static final String CLIENT_ID = "666974459730-6bv37t0c044nns1tnhd8rrosnspbq613.apps.googleusercontent.com";
 
 
@@ -52,6 +59,7 @@ public class UserService {
             throw new IllegalArgumentException("null user");
         }
         userEntity=createOrUpdateUser(userEntity);
+        saveOrGet(userEntity.getId());
         return jwtUtils.createToken(userEntity, false);
 
     }
@@ -99,6 +107,21 @@ public class UserService {
         String picture = (String) payload.get("picture");
 
         return new UserEntity(null, name, email, picture, null, null, null, Role.USER);
+    }
+
+    public SpaceEntity saveOrGet(Long userId) {
+        Optional<SpaceEntity> optionalSpaceEntity = spaceRepository.findByUserId(userId);
+        if (optionalSpaceEntity.isPresent()) {
+            // 이전에 생성한 스페이스가 있다면 그 스페이스를 반환
+            return optionalSpaceEntity.get();
+        } else if (userId != null) { // userId가 null이 아닌 경우에만 새로운 SpaceEntity를 생성합니다.
+            // 이전에 생성한 스페이스가 없다면 새로 생성하여 반환
+            SpaceEntity space = new SpaceEntity();
+            space.setUserId(userId);
+            return spaceRepository.save(space);
+        } else {
+            return null;
+        }
     }
 
     // 주어진 ID 토큰을 검증하고 토큰에 포함된 정보를 사용하여 유저 객체를 생성한다
