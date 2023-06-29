@@ -164,12 +164,16 @@ public class SpaceController {
 
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        // 현재 로그인한 유저 아이디
-        long currentUserId = Long.valueOf((String)testAuthentication.getPrincipal());
-        // 현재 로그인한 유저 아이디로 찾은 현재 유저 엔터티
-        UserEntity user = userService.getUser(currentUserId);
+        if(testAuthentication!=null){
+            // 현재 로그인한 유저 아이디
+            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
+            // 현재 로그인한 유저 아이디로 찾은 현재 유저 엔터티
+            UserEntity user = userService.getUser(ownerUser.getId());
 
-        return ResponseEntity.ok().body(convertToDto(user));
+            return ResponseEntity.ok().body(convertToDto(user));
+        }else{
+            return ResponseEntity.ok().body(convertToDto(ownerUser));
+        }
     }
 
 //    // TODO: 프로필이미지 가져오기
