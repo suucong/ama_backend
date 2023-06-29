@@ -104,20 +104,20 @@ public class UserController {
             // 예를 들어, 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
             System.out.println("principal null");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        // Principal 객체를 파라미터로 받아와서 사용자의 식별자로 사용한다
-        // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
-        long luser = Long.valueOf((String)testAuthentication.getPrincipal());
-        UserEntity user = userService.getUser(luser);
+        } else {
+            // Principal 객체를 파라미터로 받아와서 사용자의 식별자로 사용한다
+            // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
+            long luser = Long.valueOf((String)testAuthentication.getPrincipal());
+            UserEntity user = userService.getUser(luser);
 //        System.out.println(principal.getName());
 
-        // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
-        // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
-        if (user != null) {
-            return ResponseEntity.ok().body(convertToDto(user));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  //s
+            // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
+            // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
+            if (user != null) {
+                return ResponseEntity.ok().body(convertToDto(user));
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  //s
+            }
         }
     }
 
@@ -139,13 +139,7 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        // 인증 토큰을 담은 쿠키를 삭제합니다.
-        final ResponseCookie cookie = ResponseCookie.from("AUTH-TOKEN","")
-                .httpOnly(true)
-                .maxAge(0)
-                .path("/")
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        SecurityContextHolder.clearContext();
 
         return ResponseEntity.ok().build();
     }

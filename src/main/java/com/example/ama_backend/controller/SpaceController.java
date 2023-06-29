@@ -9,12 +9,14 @@ import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
+import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
+
 @Controller
 @RequestMapping("/spaces")
 public class SpaceController {
@@ -39,6 +43,8 @@ public class SpaceController {
     private SpaceRepository spaceRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private HttpSession httpSession;
     @Autowired
@@ -148,7 +154,7 @@ public class SpaceController {
 
 
     @GetMapping("/{spaceId}")
-    public String qnaForm(@PathVariable Long spaceId, Model model, HttpSession session) throws Exception {
+    public ResponseEntity getSpaceInfo(@PathVariable Long spaceId) throws Exception {
         //이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -156,74 +162,14 @@ public class SpaceController {
         UserEntity ownerUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-        // 현재 로그인한 세션유저
-        SessionUser sessionUser = (SessionUser) session.getAttribute("user");
-        // 현재 로그인한 세션유저로 찾은 현재 유저 엔터티
-        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+        // 현재 로그인한 유저
+        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        // 현재 로그인한 유저 아이디
+        long currentUserId = Long.valueOf((String)testAuthentication.getPrincipal());
+        // 현재 로그인한 유저 아이디로 찾은 현재 유저 엔터티
+        UserEntity user = userService.getUser(currentUserId);
 
-        //로그인한 유저가 남긴 답변 리스트
-        assert user != null;
-        // 로그인한 유저가 남긴 답변 리스트
-
-
-        Optional<Follow> followCheck = followRepository.findByFromUserAndToUser(user, ownerUser);
-        boolean isFollowing = followCheck.isPresent();
-
-        // 스페이스의 주인 엔타티의 팔로잉 리스트 가져오기
-        List<Follow> followingList = followService.getAllFollowings(ownerUser);
-
-        List<UserEntity> followingUserEntityList = new ArrayList<UserEntity>();
-
-        for(Follow f : followingList) {
-            followingUserEntityList.add(f.getToUser());
-        }
-
-        // 스페이스의 주인 엔타티의 팔로워 리스트 가져오기
-        List<Follow> followerList = followService.getAllFollowers(ownerUser);
-
-        List<UserEntity> followerUserEntityList = new ArrayList<UserEntity>();
-
-        for(Follow f : followerList) {
-            followerUserEntityList.add(f.getFromUser());
-        }
-
-        // 현재 스페이스가 현재 로그인한 소유한 스페이스라면
-        if (space.isOwnedBy(user)) {
-            model.addAttribute("isOwner", true);
-            model.addAttribute("picture", user.getPicture());
-            model.addAttribute("pictureName", user.getProfileImgName());
-            model.addAttribute("name", user.getName());
-            model.addAttribute("email", user.getEmail());
-            model.addAttribute("introduce", user.getIntroduce());
-            model.addAttribute("instaId", user.getInstaId());
-            model.addAttribute("role", user.getRole());
-        }
-        // 현재 스페이스가 현재 로그인한 소유한 스페이스가 아니라면
-        else {
-            model.addAttribute("isOwner", false);
-            model.addAttribute("picture", ownerUser.getPicture());
-            model.addAttribute("pictureName", user.getProfileImgName());
-            model.addAttribute("name", ownerUser.getName());
-            model.addAttribute("email", ownerUser.getEmail());
-            model.addAttribute("introduce", ownerUser.getIntroduce());
-            model.addAttribute("instaId", ownerUser.getInstaId());
-            model.addAttribute("role", ownerUser.getRole());
-            model.addAttribute("spaceId", space.getId());
-        }
-
-        model.addAttribute("isFollowing", isFollowing);
-        model.addAttribute("space", space);
-        model.addAttribute("sentQuestions", getMySentQuestions(spaceId).getBody().getData());
-        model.addAttribute("receivedQuestions", getMyReceivedQuestions(spaceId).getBody().getData());
-
-        model.addAttribute("sentAnswers", getMySentAnswer(spaceId).getBody().getData());
-        model.addAttribute("receivedAnswers", getMyReceivedAnswer(spaceId).getBody().getData());
-
-        // 팔로잉, 팔로워 리스트
-        model.addAttribute("followingUserEntityList", followingUserEntityList);
-        model.addAttribute("followerUserEntityList", followerUserEntityList);
-
-        return "space";
+        return ResponseEntity.ok().body(convertToDto(user));
     }
 
 //    // TODO: 프로필이미지 가져오기
