@@ -59,6 +59,7 @@ public class UserService {
             throw new IllegalArgumentException("null user");
         }
         userEntity=createOrUpdateUser(userEntity);
+        // 스페이스 생성
         saveOrGet(userEntity.getId());
         return jwtUtils.createToken(userEntity, false);
 
