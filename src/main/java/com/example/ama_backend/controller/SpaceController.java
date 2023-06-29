@@ -5,6 +5,7 @@ import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
+import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -55,6 +58,8 @@ public class SpaceController {
     private FollowRepository followRepository;
     @Autowired
     private FollowService followService;
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
 
 
     // 내가 보낸 질문 조회
@@ -176,7 +181,6 @@ public class SpaceController {
         }
     }
 
-//    // TODO: 프로필이미지 가져오기
 //    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
 //    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
 //        UserEntity user = userRepository.findById(spaceId).orElse(null);
@@ -186,7 +190,7 @@ public class SpaceController {
 //        } else {
 //            assert user != null;
 //            InputStream inputStream = new FileInputStream(user.getPicture());
-//            //byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+//            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
 //            inputStream.close();
 //            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
 //        }
@@ -249,13 +253,9 @@ public class SpaceController {
         }
     }
 
-
-    /*
-    // UserEntity 수정
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
-        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
-        UserEntity currentUser = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+        UserEntity currentUser = userRepository.findById(userId).orElse(null);
 
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
@@ -268,6 +268,7 @@ public class SpaceController {
         currentUser.setName(requestDto.getName());
         currentUser.setIntroduce(requestDto.getIntroduce());
         currentUser.setInstaId(requestDto.getInstaId());
+        currentUser.setLink(requestDto.getLink());
 
         if (imgFile == null) {
             customOAuth2UserService.saveUserAccountWithoutProfile(currentUser);
@@ -277,9 +278,6 @@ public class SpaceController {
 
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
-
-
-     */
 
     @GetMapping("/{spaceId}/{questionId}/answer")
     public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {

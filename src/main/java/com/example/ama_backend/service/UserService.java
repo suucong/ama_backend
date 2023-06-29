@@ -105,7 +105,7 @@ public class UserService {
         String email = payload.getEmail();
         String picture = (String) payload.get("picture");
 
-        return new UserEntity(null, name, email, picture, null, null, null, Role.USER);
+        return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null);
     }
 
     public SpaceEntity saveOrGet(Long userId) {
