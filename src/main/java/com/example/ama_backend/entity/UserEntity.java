@@ -38,8 +38,11 @@ public class UserEntity  {
     @Column(length = 100,nullable = true)
     private String introduce;
 
+    @Column(nullable = true)
+    private String link;
+
     @Builder
-    public UserEntity(Long id, String name, String email, String picture, String profileImgName, String introduce, String instaId, Role role) {
+    public UserEntity(Long id, String name, String email, String picture, String profileImgName, String introduce, String instaId, Role role, String link) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -48,15 +51,17 @@ public class UserEntity  {
         this.role = role;
         this.introduce = introduce;
         this.instaId = instaId;
+        this.link = link;
     }
 
-    public UserEntity update(Long id,String name, String picture, String profileImgName, String introduce, String instaId) {
+    public UserEntity update(Long id,String name, String picture, String profileImgName, String introduce, String instaId, String link) {
         this.id = id;
         this.name = name;
         this.picture = picture;
         this.profileImgName = profileImgName;
         this.introduce = introduce;
         this.instaId = instaId;
+        this.link = link;
 
         return this;
     }

@@ -6,24 +6,16 @@ import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
-import com.google.common.base.Optional;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
@@ -56,9 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/user/info")
-    public ResponseEntity getUserInfo(Principal principal, Authentication authentication) {
-
-        // 2023.06.27 사용자 정보 가져오기~~~~~~~~~
+    public ResponseEntity<?> getUserInfo(Principal principal, Authentication authentication) {
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (testAuthentication == null) {
             // principal이 null인 경우에 대한 처리 로직

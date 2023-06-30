@@ -15,6 +15,7 @@ public class UserUpdateRequestDto {
     private String profileImgName;
     private String instaId;
     private String introduce;
+    private String link;
 
 
     public UserEntity toEntity(final UserUpdateRequestDto userUpdateRequestDto) {
@@ -25,6 +26,7 @@ public class UserUpdateRequestDto {
                 .profileImgName(userUpdateRequestDto.getProfileImgName())
                 .instaId(userUpdateRequestDto.getInstaId())
                 .introduce(userUpdateRequestDto.getIntroduce())
+                .link(userUpdateRequestDto.getLink())
                 .build();
     }
 
@@ -36,6 +38,7 @@ public class UserUpdateRequestDto {
                 .instaId(userEntity.getInstaId())
                 .introduce(userEntity.getIntroduce())
                 .profileImgName(userEntity.getProfileImgName())
+                .link(userEntity.getLink())
                 .build();
     }
 

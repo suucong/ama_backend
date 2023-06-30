@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .requestMatchers("/spaces/**").permitAll()
+                .requestMatchers("/spaces/user/update/**").permitAll()
                 .requestMatchers("/v1/oauth/login").permitAll() // "/v1/oauth/login" 엔드포인트는 모든 사용자에게 허용한다
                 .requestMatchers("/v1/oauth/user/**").permitAll()
                 .requestMatchers("/static/**", "asset-manifest.json", "favicon.ico", "google-logo.svg", "index.html", "manifest.json", "robots.txt").permitAll()

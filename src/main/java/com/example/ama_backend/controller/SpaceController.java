@@ -5,6 +5,7 @@ import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.AnswerDTO;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
+import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
@@ -21,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.example.ama_backend.config.auth.CustomOAuth2UserService;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,6 +59,8 @@ public class SpaceController {
     private FollowRepository followRepository;
     @Autowired
     private FollowService followService;
+    @Autowired
+    private CustomOAuth2UserService customOAuth2UserService;
 
 
     // 내가 보낸 질문 조회
@@ -178,7 +183,9 @@ public class SpaceController {
     }
 
 
+
 //    // TODO: 프로필이미지 가져오기
+
 //    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
 //    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
 //        UserEntity user = userRepository.findById(spaceId).orElse(null);
@@ -188,7 +195,7 @@ public class SpaceController {
 //        } else {
 //            assert user != null;
 //            InputStream inputStream = new FileInputStream(user.getPicture());
-//            //byte[] imageByteArray = IOUtils.toByteArray(inputStream);
+//            byte[] imageByteArray = IOUtils.toByteArray(inputStream);
 //            inputStream.close();
 //            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
 //        }
@@ -251,13 +258,9 @@ public class SpaceController {
         }
     }
 
-
-    /*
-    // UserEntity 수정
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
-        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
-        UserEntity currentUser = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+        UserEntity currentUser = userRepository.findById(userId).orElse(null);
 
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
@@ -270,6 +273,7 @@ public class SpaceController {
         currentUser.setName(requestDto.getName());
         currentUser.setIntroduce(requestDto.getIntroduce());
         currentUser.setInstaId(requestDto.getInstaId());
+        currentUser.setLink(requestDto.getLink());
 
         if (imgFile == null) {
             customOAuth2UserService.saveUserAccountWithoutProfile(currentUser);
@@ -281,7 +285,7 @@ public class SpaceController {
     }
 
 
-     */
+
 //
 //    @GetMapping("/{spaceId}/{questionId}/answer")
 //    public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
@@ -309,6 +313,34 @@ public class SpaceController {
 //
 //        return "answer";
 //    }
+
+    @GetMapping("/{spaceId}/{questionId}/answer")
+    public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
+        // 이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+
+        // 답변달 질문 엔터티
+        QuestionEntity question = questionRepository.findById(questionId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid question id"));
+
+        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
+        //현재 로그인한 세션유저로 찾은 현재 유저 엔터티
+        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+
+        //현재 스페이스가 내 스페이스라면
+        if (space.isOwnedBy(user)) {
+            assert user != null;
+            model.addAttribute("sendingUserName", user.getName());
+            model.addAttribute("sendingUserPicture", user.getPicture());
+            model.addAttribute("userId", user.getId());
+            model.addAttribute("questionId", question.getId());
+            model.addAttribute("spaceId", space.getId());
+        }
+
+        return "answer";
+    }
+
 
     // 답변 등록 API
     @PostMapping("/{spaceId}/{questionId}/answer/create")
@@ -450,12 +482,12 @@ public class SpaceController {
                     // id를 null로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
                     questionEntity.setId(null);
 
+
                     // 질문 보내는 사람 이름 설정
                     questionEntity.setUserId(currentUser.getName());
                     // 질문보내는 사람 아이디 설정
                     questionEntity.setSendingUserId(currentUser.getId());
-                    //질문 받는 사람 아이디 설정
-                    questionEntity.setReceivingUserId(spaceUser.getId());
+
                     //답변 null 설정
                     questionEntity.setAnswers(null);
                     //현재 시각 설정
@@ -463,6 +495,11 @@ public class SpaceController {
 
                     //질문 보내는 사람 프사 설정
                     questionEntity.setSentUserPic(currentUser.getPicture());
+
+
+
+                    //질문 받는 사람 아이디 설정
+                    questionEntity.setReceivingUserId(spaceUser.getId());
 
                     // 서비스를 이용해 질문 엔티티를 생성한다
                     List<QuestionEntity> entities = qaService.saveQuestion(questionEntity);
