@@ -9,7 +9,6 @@ import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
-
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
 
 @CrossOrigin(originPatterns = "http://localhost:8080")
@@ -41,6 +38,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) throws GeneralSecurityException, IOException {
 
+        // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
         String authToken = userService.loginOAuthGoogle(requestBody);
 
         response.addHeader("Authorization", authToken);
@@ -48,7 +46,8 @@ public class UserController {
     }
 
     @GetMapping("/user/info")
-    public ResponseEntity<?> getUserInfo(Principal principal, Authentication authentication) {
+    public ResponseEntity getUserInfo() {
+
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (testAuthentication == null) {
             // principal이 null인 경우에 대한 처리 로직
@@ -60,7 +59,6 @@ public class UserController {
             // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
             long luser = Long.valueOf((String) testAuthentication.getPrincipal());
             UserEntity user = userService.getUser(luser);
-//        System.out.println(principal.getName());
 
             // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
             // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
@@ -69,22 +67,6 @@ public class UserController {
 
         }
     }
-
-//    @GetMapping("/user/info")
-//    public ResponseEntity getUserInfo(Authentication authentication) {
-//        if (authentication == null || !authentication.isAuthenticated()) {
-//            // 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        // 인증된 사용자의 정보를 가져옵니다.
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//        String username = userDetails.getUsername();
-//
-//        // 추가적인 처리를 수행하거나 응답을 반환할 수 있습니다.
-//        return ResponseEntity.ok().body("Authenticated User: " + username);
-//    }
-
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -99,50 +81,4 @@ public class UserController {
 
         return ResponseEntity.ok().build();
     }
-
-    /*
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("JSESSIONID")) {
-                    cookie.setMaxAge(0);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                }
-            }
-        }
-
-        return ResponseEntity.ok().build();
-    }
-
-/*
-    @GetMapping("/spaces/{spaceId}/update")
-    public String modify(@PathVariable Long spaceId, Model model, MultipartFile imgFile) throws Exception {
-        //이동한 스페이스 엔터티
-        SpaceEntity space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-        SessionUser user = (SessionUser) httpSession.getAttribute("user");
-        if (user != null) {
-            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElse(null);
-            if (userEntity != null) {
-                model.addAttribute("userId", userEntity.getId());
-                model.addAttribute("userName", userEntity.getName());
-                model.addAttribute("userIntroduce", userEntity.getIntroduce());
-                model.addAttribute("userPicture", userEntity.getPicture());
-                model.addAttribute("userProfileImgName", userEntity.getProfileImgName());
-                model.addAttribute("userInstaId", userEntity.getInstaId());
-                model.addAttribute("spaceId", space.getId());
-             }
-        }
-        return "profile-edit";
-    }
-    */
-
 }

@@ -12,7 +12,7 @@ public class UserUpdateRequestDto {
     private Long userId;
     private String name;
     private String picture;
-    private String profileImgName;
+    private byte[] profileByte;
     private String instaId;
     private String introduce;
     private String link;
@@ -23,7 +23,7 @@ public class UserUpdateRequestDto {
                 .id(userUpdateRequestDto.getUserId())
                 .name(userUpdateRequestDto.getName())
                 .picture(userUpdateRequestDto.getPicture())
-                .profileImgName(userUpdateRequestDto.getProfileImgName())
+                .profileByte(userUpdateRequestDto.getProfileByte())
                 .instaId(userUpdateRequestDto.getInstaId())
                 .introduce(userUpdateRequestDto.getIntroduce())
                 .link(userUpdateRequestDto.getLink())
@@ -37,7 +37,7 @@ public class UserUpdateRequestDto {
                 .picture(userEntity.getPicture())
                 .instaId(userEntity.getInstaId())
                 .introduce(userEntity.getIntroduce())
-                .profileImgName(userEntity.getProfileImgName())
+                .profileByte(userEntity.getProfileByte())
                 .link(userEntity.getLink())
                 .build();
     }

@@ -184,6 +184,7 @@ public class SpaceController {
 
 
 
+
 //    // TODO: 프로필이미지 가져오기
 
 //    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
@@ -200,6 +201,19 @@ public class SpaceController {
 //            return new ResponseEntity<>(imageByteArray, HttpStatus.OK);
 //        }
 //    }
+
+    @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
+    public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
+        UserEntity user = userRepository.findById(spaceId).orElse(null);
+
+        if (user != null && Objects.equals(user.getProfileByte(), "")) {
+            return new ResponseEntity<>(user.getPicture(), HttpStatus.OK);
+        } else {
+            assert user != null;
+            return new ResponseEntity<>(user.getProfileByte(), HttpStatus.OK);
+        }
+    }
+
 
     @PostMapping("/{spaceId}/follow")
     public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {

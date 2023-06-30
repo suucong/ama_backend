@@ -16,20 +16,20 @@ public class OAuthAttributes {
     private String name;
     private String email;
     private String picture;
-    private String profileImgName;
+    private byte[] profileByte;
     private String introduce;
     private String instaId;
 
     @Builder
     public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, Long id, String name,
-                           String email, String picture, String profileImgName, String introduce, String instaId){
+                           String email, String picture, byte[] profileByte, String introduce, String instaId){
         this.attributes=attributes;
         this.nameAttributeKey=nameAttributeKey;
         this.id=id;
         this.name=name;
         this.email=email;
         this.picture=picture;
-        this.profileImgName=profileImgName;
+        this.profileByte=profileByte;
         this.introduce=introduce;
         this.instaId=instaId;
     }
@@ -45,7 +45,7 @@ public class OAuthAttributes {
                 .name((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .picture((String) attributes.get("picture"))
-                .profileImgName("")
+                .profileByte(null)
                 .introduce("")
                 .instaId("")
                 .attributes(attributes)
@@ -62,7 +62,7 @@ public class OAuthAttributes {
                 .name(name)
                 .email(email)
                 .picture(picture)
-                .profileImgName(profileImgName)
+                .profileByte(profileByte)
                 .introduce(introduce)
                 .instaId(instaId)   //프로필수정(인스타 아이디)
                 .role(Role.USER)
