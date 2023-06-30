@@ -25,8 +25,9 @@ public class UserEntity  {
     @Column(nullable = false)
     private String picture;
 
-    @Column(nullable = true)
-    private String profileImgName = null;
+    @Lob
+    @Column(nullable = true, columnDefinition = "LONGBLOB")
+    private byte[] profileByte = null;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -42,23 +43,23 @@ public class UserEntity  {
     private String link;
 
     @Builder
-    public UserEntity(Long id, String name, String email, String picture, String profileImgName, String introduce, String instaId, Role role, String link) {
+    public UserEntity(Long id, String name, String email, String picture, byte[] profileByte, String introduce, String instaId, Role role, String link) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.picture = picture;
-        this.profileImgName = profileImgName;
+        this.profileByte = profileByte;
         this.role = role;
         this.introduce = introduce;
         this.instaId = instaId;
         this.link = link;
     }
 
-    public UserEntity update(Long id,String name, String picture, String profileImgName, String introduce, String instaId, String link) {
+    public UserEntity update(Long id,String name, String picture, byte[] profileByte, String introduce, String instaId, String link) {
         this.id = id;
         this.name = name;
         this.picture = picture;
-        this.profileImgName = profileImgName;
+        this.profileByte = profileByte;
         this.introduce = introduce;
         this.instaId = instaId;
         this.link = link;

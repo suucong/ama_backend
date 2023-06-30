@@ -82,7 +82,7 @@ public class UserService {
         // existingUser.setId(user.getId());                // 2023.06.06 로그인후 다시 로그인하면 id가 null로 넘어온 상태라 에러남... 확인해볼것~~~~
         existingUser.setIntroduce(user.getIntroduce());
         existingUser.setInstaId(user.getInstaId());
-        existingUser.setProfileImgName(user.getProfileImgName());
+        existingUser.setProfileByte(user.getProfileByte());
 
         return existingUser;
     }
@@ -122,20 +122,4 @@ public class UserService {
             return null;
         }
     }
-
-    // 주어진 ID 토큰을 검증하고 토큰에 포함된 정보를 사용하여 유저 객체를 생성한다
-//    private UserEntity verifyIDToken(String idToken) throws GeneralSecurityException, IOException {
-//        GoogleIdToken idTokenObj = verifier.verify(idToken);
-//        if (idTokenObj == null) {
-//            throw new IllegalArgumentException("Invalid ID token");
-//        }
-//
-//        GoogleIdToken.Payload payload = idTokenObj.getPayload();
-//        String name = (String) payload.get("name");
-//        String email = payload.getEmail();
-//        String picture = (String) payload.get("picture");
-//
-//        return new UserEntity(null, name, email, picture, null, null, null, Role.USER);
-//    }
-
 }
