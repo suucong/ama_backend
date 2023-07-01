@@ -168,14 +168,17 @@ public class SpaceController {
         UserEntity ownerUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
+
+
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if(testAuthentication!=null){
             // 현재 로그인한 유저 아이디
             long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
-            // 현재 로그인한 유저 아이디로 찾은 현재 유저 엔터티
-            UserEntity user = userService.getUser(ownerUser.getId());
 
+            UserEntity user = userService.getUser(ownerUser.getId());
+            System.out.println("owneruser.getid: "+ownerUser.getId());
+            System.out.println("currentuserid:"+currentUserId);
             return ResponseEntity.ok().body(convertToDto(user));
         }else{
             return ResponseEntity.ok().body(convertToDto(ownerUser));
