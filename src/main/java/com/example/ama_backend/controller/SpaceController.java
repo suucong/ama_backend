@@ -29,10 +29,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
@@ -168,8 +165,6 @@ public class SpaceController {
         UserEntity ownerUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-
-
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if(testAuthentication!=null){
@@ -219,7 +214,7 @@ public class SpaceController {
 
 
     @PostMapping("/{spaceId}/follow")
-    public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {
+    public ResponseEntity<String> follow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
         try {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -229,11 +224,15 @@ public class SpaceController {
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-            // 현재 로그인한 세션유저
-            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+            // 현재 로그인한 유저;
+//            org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
+//            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
 
-            //현재 로그인한 세션유저로 찾은 현재 유저 엔터티(fromUser)
-            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+            Long currentUserId = requestData.get("currentUserId");
+
+            UserEntity user = userService.getUser(currentUserId);
+            System.out.println("owneruser.getid: "+ownerUser.getId());
+            System.out.println("currentuserid:"+currentUserId);
 
             //팔로우하기
             assert user != null;
@@ -248,7 +247,7 @@ public class SpaceController {
     }
 
     @PostMapping("/{spaceId}/unFollow")
-    public ResponseEntity<String> unFollow(@PathVariable Long spaceId, HttpSession session) {
+    public ResponseEntity<String> unFollow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
         try {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -258,11 +257,12 @@ public class SpaceController {
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-            // 현재 로그인한 세션유저
-            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
 
-            //현제로그인한 세션유저로 찾은 현재 유저 엔터티
-            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+            Long currentUserId = requestData.get("currentUserId");
+
+            UserEntity user = userService.getUser(currentUserId);
+            System.out.println("owneruser.getid: "+ownerUser.getId());
+            System.out.println("currentuserid:"+currentUserId);
 
             followService.deleteFollow(user, ownerUser);
 
@@ -273,6 +273,18 @@ public class SpaceController {
 
             return ResponseEntity.badRequest().body("bad");
         }
+    }
+
+    @GetMapping("/{spaceId}/isFollow")
+    public ResponseEntity<Boolean> isFollow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
+        Long currentUserId = requestData.get("currentUserId");
+        UserEntity currentUser = userService.getUser(currentUserId);
+
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        boolean isFollowed = followRepository.findByFromUserAndToUser(currentUser, spaceUser).isPresent();
+
+        return ResponseEntity.ok().body(isFollowed);
     }
 
     @PutMapping("/user/update/{userId}")
