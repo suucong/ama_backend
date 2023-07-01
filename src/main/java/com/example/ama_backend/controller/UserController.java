@@ -49,6 +49,7 @@ public class UserController {
     public ResponseEntity getUserInfo() {
 
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (testAuthentication == null) {
             // principal이 null인 경우에 대한 처리 로직
             // 예를 들어, 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
