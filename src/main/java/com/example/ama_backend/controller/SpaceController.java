@@ -12,7 +12,6 @@ import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +23,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.ama_backend.config.auth.CustomOAuth2UserService;
+import com.example.ama_backend.dto.FollowingDTO;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -275,17 +275,39 @@ public class SpaceController {
         }
     }
 
-    @GetMapping("/{spaceId}/isFollow")
-    public ResponseEntity<Boolean> isFollow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
-        Long currentUserId = requestData.get("currentUserId");
+    @GetMapping("/isFollow/{spaceId}")
+    public ResponseEntity<Boolean> isFollow(@PathVariable Long spaceId, @RequestParam Long currentUserId) {
         UserEntity currentUser = userService.getUser(currentUserId);
-
         UserEntity spaceUser = userService.getUser(spaceId);
 
         boolean isFollowed = followRepository.findByFromUserAndToUser(currentUser, spaceUser).isPresent();
 
         return ResponseEntity.ok().body(isFollowed);
     }
+
+    @GetMapping("/following/{spaceId}")
+    public ResponseEntity<FollowingDTO<List<UserUpdateRequestDto>>> getFollowing(@PathVariable Long spaceId) {
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        List<Follow> followingList = followService.getAllFollowings(spaceUser);
+
+        List<UserUpdateRequestDto> followingUserDtoList = new ArrayList<>();
+
+        for (Follow f : followingList) {
+            UserEntity followingUser = f.getToUser();
+            System.out.println(followingUser.getId());
+            followingUserDtoList.add(convertToDto(followingUser));
+        }
+
+        FollowingDTO<List<UserUpdateRequestDto>> responseDTO = FollowingDTO.<List<UserUpdateRequestDto>>builder()
+                .data(followingUserDtoList)
+                .build();
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+
+
 
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
