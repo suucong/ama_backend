@@ -53,8 +53,8 @@ public class QAService {
             throw new RuntimeException("Question Entity 는 null 이면 안됩니다.");
         }
         //isAnonymous 값이 true 일 때 닉네임 "익명"
-        if (questionEntity.getIsAnonymous()) {
-            questionEntity.setUserId("😼익명의 냥이");
+        if (questionEntity.getIsAnonymous()==true) {
+            questionEntity.setUserId("unknown cat");
         }
 
         if (questionEntity.getUserId() == null) {

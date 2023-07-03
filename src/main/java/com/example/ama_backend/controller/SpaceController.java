@@ -169,23 +169,20 @@ public class SpaceController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
 
-
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        if(testAuthentication!=null){
+        if (testAuthentication != null) {
             // 현재 로그인한 유저 아이디
-            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
+            long currentUserId = Long.parseLong((String) testAuthentication.getPrincipal());
 
             UserEntity user = userService.getUser(ownerUser.getId());
-            System.out.println("owneruser.getid: "+ownerUser.getId());
-            System.out.println("currentuserid:"+currentUserId);
+            System.out.println("owneruser.getid: " + ownerUser.getId());
+            System.out.println("currentuserid:" + currentUserId);
             return ResponseEntity.ok().body(convertToDto(user));
-        }else{
+        } else {
             return ResponseEntity.ok().body(convertToDto(ownerUser));
         }
     }
-
-
 
 
 //    // TODO: 프로필이미지 가져오기
@@ -300,7 +297,6 @@ public class SpaceController {
 
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
-
 
 
 //
@@ -435,35 +431,73 @@ public class SpaceController {
     }
 
 
-//    @GetMapping("/{spaceId}/question")
-//    public String questionInput(@PathVariable Long spaceId, Model model) {
-//        // 이동한 스페이스 엔터티
-//        SpaceEntity space = spaceRepository.findById(spaceId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-//
-//        // 이동한 스페이스 주인아이디로 유저엔터티 찾기
-//        UserEntity spaceUser = userRepository.findById(space.getUserId())
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
-//
-//        SessionUser user = (SessionUser) httpSession.getAttribute("user");
-//        if (user != null) {
-//            // 현재 로그인한 유저 엔터티
-//            UserEntity userEntity = userRepository.findByEmail(user.getEmail()).orElse(null);
-//            if (userEntity != null) {
-//                // 현재 로그인한 유저의 스페이스 엔터티
-//
-//
-//                model.addAttribute("sendingUserId", userEntity.getId());
-//                model.addAttribute("sendingUserName", userEntity.getName());
-//                model.addAttribute("sendingUserPicture", userEntity.getPicture());
-//                // model.addAttribute("sendingUserSpaceId", space.getId());
-//                model.addAttribute("receivingUserSpaceId", space.getId());
-//
-//            }
-//
-//        }
-//        return "question";
-//    }
+    @GetMapping("/{spaceId}/received/get")
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestion(@PathVariable Long spaceId) {
+        // 이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+
+        // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저
+        UserEntity spaceUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+
+        try {
+            // QuestionEntity 로 변환
+            List<QuestionEntity> questionList = qaService.getMyReceivingQuestions(spaceUser.getId());
+
+            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 QuestionDTO 로 변환한다.
+            List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+
+            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+            // ResponseDTO 를 리턴한다.
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
+        }
+    }
+
+
+    // 보낸 질문과 답변 조회 api
+    @GetMapping("/{spaceId}/sent/get")
+    public ResponseEntity<?> getSentQuestion(@PathVariable Long spaceId) {
+
+        // 이동한 스페이스 엔터티
+        SpaceEntity space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+
+        // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저
+        UserEntity spaceUser = userRepository.findById(space.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+
+
+        try {
+
+            // QuestionEntity 로 변환
+            List<QuestionEntity> questionList =qaService.getMySendingQuestions(spaceUser.getId());
+
+            // 자바 스트림을 이요해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
+            List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+
+            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+            // ResponseDTO 를 리턴한다.
+            return ResponseEntity.ok().body(responseDTO);
+        } catch (Exception e) {
+            // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+            return ResponseEntity.badRequest().body(responseDTO);
+        }
+
+
+    }
+
 
     // 질문 등록 API
     @PostMapping("/{spaceId}/question/create")
@@ -480,6 +514,8 @@ public class SpaceController {
         // 현 로그인한 유저
         //TODO : 로그아웃 후에 다른 계정으로 재로그인 시도 시 testAuthentication null 이어서 else 문 작동되는 듯
         Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("testAuthentication: " +testAuthentication);
+        System.out.println("questionDTO: "+questionDTO);
 
         if (testAuthentication != null) {
             // 현재 로그인한 유저 아이디
@@ -500,23 +536,14 @@ public class SpaceController {
                     questionEntity.setId(null);
 
 
-                    // 질문 보내는 사람 이름 설정
-                    questionEntity.setUserId(currentUser.getName());
-                    // 질문보내는 사람 아이디 설정
-                    questionEntity.setSendingUserId(currentUser.getId());
-
-                    //답변 null 설정
-                    questionEntity.setAnswers(null);
-                    //현재 시각 설정
-                    questionEntity.setCreatedTime(LocalDateTime.now());
-
-                    //질문 보내는 사람 프사 설정
-                    questionEntity.setSentUserPic(currentUser.getPicture());
-
-
-
                     //질문 받는 사람 아이디 설정
                     questionEntity.setReceivingUserId(spaceUser.getId());
+
+                    // 질문 하는 사람 아이디 설정
+                    questionEntity.setSendingUserId(currentUser.getId());
+
+                    System.out.println("questionEntity: "+ questionEntity);
+
 
                     // 서비스를 이용해 질문 엔티티를 생성한다
                     List<QuestionEntity> entities = qaService.saveQuestion(questionEntity);

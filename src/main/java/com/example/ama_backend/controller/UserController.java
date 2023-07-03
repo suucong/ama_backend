@@ -64,22 +64,20 @@ public class UserController {
             // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
             // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
 
-            return ResponseEntity.ok().body(convertToDto(user));
+            if(user!=null) return ResponseEntity.ok().body(convertToDto(user));
+            else return ResponseEntity.ok().body("유저엔터티 null");
 
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-        // 세션을 무효화한다
+
+        SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-
-        // authentication 을 지운다
-        SecurityContextHolder.clearContext();
-
         return ResponseEntity.ok().build();
     }
 }

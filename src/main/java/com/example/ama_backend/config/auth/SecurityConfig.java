@@ -2,12 +2,14 @@ package com.example.ama_backend.config.auth;
 
 import com.example.ama_backend.config.JWTRequestFilter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @EnableWebSecurity //스프링 시큐리티 설정들을 활성화시킴
@@ -44,7 +46,13 @@ public class SecurityConfig {
                 .requestMatchers("/v1/oauth/user/**").permitAll()
                 .requestMatchers("/static/**", "asset-manifest.json", "favicon.ico", "google-logo.svg", "index.html", "manifest.json", "robots.txt").permitAll()
                 .requestMatchers("/h2-console").permitAll() // "/h2-console/" 엔드포인트도 모든 사용자에게 허용한다
-                .anyRequest().authenticated(); // 그 외의 모든 요청은 인증된 사용자만 접근 가능하다.
+                .anyRequest().authenticated()
+                .and()
+                .logout()
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .deleteCookies("JSESSIONID");
         // H2 Console 접근 설정
         http.headers().frameOptions().sameOrigin();
 
