@@ -12,7 +12,6 @@ import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,15 +23,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.ama_backend.config.auth.CustomOAuth2UserService;
+import com.example.ama_backend.dto.FollowingDTO;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
@@ -168,7 +165,6 @@ public class SpaceController {
         UserEntity ownerUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         if (testAuthentication != null) {
@@ -216,7 +212,7 @@ public class SpaceController {
 
 
     @PostMapping("/{spaceId}/follow")
-    public ResponseEntity<String> follow(@PathVariable Long spaceId, HttpSession session) {
+    public ResponseEntity<String> follow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
         try {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -226,11 +222,15 @@ public class SpaceController {
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-            // 현재 로그인한 세션유저
-            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
+            // 현재 로그인한 유저;
+//            org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
+//            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
 
-            //현재 로그인한 세션유저로 찾은 현재 유저 엔터티(fromUser)
-            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+            Long currentUserId = requestData.get("currentUserId");
+
+            UserEntity user = userService.getUser(currentUserId);
+            System.out.println("owneruser.getid: "+ownerUser.getId());
+            System.out.println("currentuserid:"+currentUserId);
 
             //팔로우하기
             assert user != null;
@@ -245,7 +245,7 @@ public class SpaceController {
     }
 
     @PostMapping("/{spaceId}/unFollow")
-    public ResponseEntity<String> unFollow(@PathVariable Long spaceId, HttpSession session) {
+    public ResponseEntity<String> unFollow(@PathVariable Long spaceId, @RequestBody Map<String, Long> requestData) {
         try {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -255,11 +255,12 @@ public class SpaceController {
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-            // 현재 로그인한 세션유저
-            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
 
-            //현제로그인한 세션유저로 찾은 현재 유저 엔터티
-            UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
+            Long currentUserId = requestData.get("currentUserId");
+
+            UserEntity user = userService.getUser(currentUserId);
+            System.out.println("owneruser.getid: "+ownerUser.getId());
+            System.out.println("currentuserid:"+currentUserId);
 
             followService.deleteFollow(user, ownerUser);
 
@@ -271,6 +272,40 @@ public class SpaceController {
             return ResponseEntity.badRequest().body("bad");
         }
     }
+
+    @GetMapping("/isFollow/{spaceId}")
+    public ResponseEntity<Boolean> isFollow(@PathVariable Long spaceId, @RequestParam Long currentUserId) {
+        UserEntity currentUser = userService.getUser(currentUserId);
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        boolean isFollowed = followRepository.findByFromUserAndToUser(currentUser, spaceUser).isPresent();
+
+        return ResponseEntity.ok().body(isFollowed);
+    }
+
+    @GetMapping("/following/{spaceId}")
+    public ResponseEntity<FollowingDTO<List<UserUpdateRequestDto>>> getFollowing(@PathVariable Long spaceId) {
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        List<Follow> followingList = followService.getAllFollowings(spaceUser);
+
+        List<UserUpdateRequestDto> followingUserDtoList = new ArrayList<>();
+
+        for (Follow f : followingList) {
+            UserEntity followingUser = f.getToUser();
+            System.out.println(followingUser.getId());
+            followingUserDtoList.add(convertToDto(followingUser));
+        }
+
+        FollowingDTO<List<UserUpdateRequestDto>> responseDTO = FollowingDTO.<List<UserUpdateRequestDto>>builder()
+                .data(followingUserDtoList)
+                .build();
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+
+
 
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
