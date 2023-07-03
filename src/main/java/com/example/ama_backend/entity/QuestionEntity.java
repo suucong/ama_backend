@@ -26,7 +26,13 @@ public class QuestionEntity {
     private String sentUserPic;
 
     @Column(nullable = false)
+    private String receivedUserPic; // 질문 받은 유저 사진
+
+    @Column(nullable = false)
     private String userId; // "익명" 혹은 유저네임
+
+    @Column(nullable = false)
+    private String receivedUserId; // 질문받은 유저 네임
 
     @Column(nullable = false)
     private Long sendingUserId;  // 질문하는 유저의 아이디

@@ -2,10 +2,12 @@ package com.example.ama_backend.dto;
 
 import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.entity.QuestionEntity;
+import com.example.ama_backend.service.QAService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,8 +18,13 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class QuestionDTO {
+
     private Long id;
     private String sentUserPic;
+
+    private String receivedUserPic; //받은 유저의 사진
+    private String receivedUserName; //받은 유저의 이름
+
     private String questionText;
     private LocalDateTime createdTime;
     private List<AnswerDTO> answers;
@@ -27,6 +34,8 @@ public class QuestionDTO {
     public QuestionDTO(QuestionEntity question) {
         this.id = question.getId();
         this.sentUserPic=question.getSentUserPic();
+        this.receivedUserName=question.getReceivedUserId();
+        this.receivedUserPic=question.getReceivedUserPic();
         this.questionText = question.getQuestionText();
         this.createdTime = question.getCreatedTime();
         this.answers = question.getAnswers() != null
@@ -41,6 +50,8 @@ public class QuestionDTO {
                 .id(dto.getId())
                 .sentUserPic(dto.getSentUserPic())
                 .questionText(dto.getQuestionText())
+                .receivedUserId(dto.getReceivedUserName())
+                .receivedUserPic(dto.getReceivedUserPic())
                 .createdTime(dto.getCreatedTime())
                 .answers(dto.getAnswers() != null
                         ? dto.getAnswers().stream().map(AnswerDTO::toEntity).collect(Collectors.toList())
