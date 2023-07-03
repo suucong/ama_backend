@@ -73,6 +73,9 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
 
+        // 클라이언트 측에 저장된 토큰을 무효화하고 삭제하기 위해 응답 헤더에 토큰을 제거하는 코드 추가
+        response.setHeader("Authorization", "");
+
         SecurityContextHolder.clearContext();
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -80,4 +83,5 @@ public class UserController {
         }
         return ResponseEntity.ok().build();
     }
+
 }
