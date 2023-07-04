@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/spaces/**").permitAll()
                 .requestMatchers("/spaces/isFollow/**").permitAll()
+                .requestMatchers("/spaces/followingNumber/**").permitAll()
+                .requestMatchers("/spaces/followerNumber/**").permitAll()
                 .requestMatchers("/spaces/user/update/**").permitAll()
                 .requestMatchers("/v1/oauth/login").permitAll() // "/v1/oauth/login" 엔드포인트는 모든 사용자에게 허용한다
                 .requestMatchers("/static/**", "asset-manifest.json", "favicon.ico", "google-logo.svg", "index.html", "manifest.json", "robots.txt").permitAll()
