@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 @Builder
 public class AnswerDTO {
-    private Long id;//
+    private Long id;
     private Boolean isPublic;
     private String sentUserPic;
     private Long userId; // 답변자 고유 아이디

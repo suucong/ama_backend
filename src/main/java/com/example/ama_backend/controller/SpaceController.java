@@ -392,10 +392,9 @@ public class SpaceController {
 
     // 답변 등록 API
     @PostMapping("/{spaceId}/{questionId}/answer/create")
-    public ResponseEntity<?> createAnswer(@PathVariable Long questionId, @PathVariable Long spaceId, @RequestBody AnswerDTO answerDTO, HttpSession session) {
+    public ResponseEntity<?> createAnswer(@PathVariable Long questionId, @PathVariable Long spaceId, @RequestBody AnswerDTO answerDTO) {
 
         try {
-            SessionUser sessionUser = (SessionUser) session.getAttribute("user");
 
             // 답변달 질문 엔터티
             QuestionEntity question = questionRepository.findById(questionId)
@@ -407,8 +406,6 @@ public class SpaceController {
 
             // id를 null 로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
             answerEntity.setId(null);
-
-            answerEntity.setCreatedTime(LocalDateTime.now());
 
             // 서비스를 이용해 질문 엔티티를 생성한다
             List<AnswerEntity> entities = qaService.saveAnswer(answerEntity);
