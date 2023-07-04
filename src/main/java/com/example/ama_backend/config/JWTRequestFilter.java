@@ -55,7 +55,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("=======================doFilterInternal===========================");
         String token = resolveToken(request);
-        System.out.println(token);
 
         Authentication authentication;
 

@@ -304,8 +304,46 @@ public class SpaceController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @GetMapping("/follower/{spaceId}")
+    public ResponseEntity<FollowingDTO<List<UserUpdateRequestDto>>> getFollower(@PathVariable Long spaceId) {
+        UserEntity spaceUser = userService.getUser(spaceId);
 
+        List<Follow> followerList = followService.getAllFollowers(spaceUser);
 
+        List<UserUpdateRequestDto> followerUserList = new ArrayList<>();
+
+        for (Follow f : followerList) {
+            UserEntity followerUser = f.getFromUser();
+            System.out.println(followerUser.getId());
+            followerUserList.add(convertToDto(followerUser));
+        }
+
+        FollowingDTO<List<UserUpdateRequestDto>> responseDTO = FollowingDTO.<List<UserUpdateRequestDto>>builder()
+                .data(followerUserList)
+                .build();
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/followingNumber/{spaceId}")
+    public ResponseEntity<Integer> getFollowingNumber(@PathVariable Long spaceId) {
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        List<Follow> followingList = followService.getAllFollowings(spaceUser);
+        int followingCount = followingList.size();
+
+        return ResponseEntity.ok().body(followingCount);
+    }
+
+    @GetMapping("/followerNumber/{spaceId}")
+    public ResponseEntity<Integer> getFollowerNumber(@PathVariable Long spaceId) {
+        UserEntity spaceUser = userService.getUser(spaceId);
+
+        List<Follow> followingList = followService.getAllFollowers(spaceUser);
+        int followerCount = followingList.size();
+
+        return ResponseEntity.ok().body(followerCount);
+    }
 
     @PutMapping("/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
