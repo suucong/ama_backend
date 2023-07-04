@@ -55,6 +55,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("=======================doFilterInternal===========================");
         String token = resolveToken(request);
+        System.out.println(token);
 
         Authentication authentication;
 
@@ -62,6 +63,9 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         if (token != null && (authentication = jwtUtils.verifyAndGetAuthentication(token)) != null) {
             // 애플리케이션에서 이후의 인가 확인에 사용할 수 있도록 한다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            // 토큰이 null이거나 유효하지 않은 경우 인증 정보를 제거한다.
+            SecurityContextHolder.clearContext();
         }
 
         // 필터 체인을 계속 진행하고 요청이 다음 필터나 대상 컨트롤러로 전달될 수 있도록 한다.

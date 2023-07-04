@@ -44,7 +44,6 @@ public class SecurityConfig {
                 .requestMatchers("/spaces/isFollow/**").permitAll()
                 .requestMatchers("/spaces/user/update/**").permitAll()
                 .requestMatchers("/v1/oauth/login").permitAll() // "/v1/oauth/login" 엔드포인트는 모든 사용자에게 허용한다
-                .requestMatchers("/v1/oauth/user/**").permitAll()
                 .requestMatchers("/static/**", "asset-manifest.json", "favicon.ico", "google-logo.svg", "index.html", "manifest.json", "robots.txt").permitAll()
                 .requestMatchers("/h2-console").permitAll() // "/h2-console/" 엔드포인트도 모든 사용자에게 허용한다
                 .anyRequest().authenticated()
