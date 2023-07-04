@@ -30,7 +30,6 @@ public class AnswerEntity {
     @Column(length = 500, nullable = false)
     private String answerText; // 원본 답변 내용
 
-    @Column(name = "alternative_answer_text")
     private String alternativeAnswerText; // "질문자만 볼 수 있는 답변입니다." 텍스트
 
     private LocalDateTime createdTime; //답변이 올라온 시간

@@ -334,34 +334,6 @@ public class SpaceController {
     }
 
 
-//
-//    @GetMapping("/{spaceId}/{questionId}/answer")
-//    public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
-//        // 이동한 스페이스 엔터티
-//        SpaceEntity space = spaceRepository.findById(spaceId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-//
-//        // 답변달 질문 엔터티
-//        QuestionEntity question = questionRepository.findById(questionId)
-//                .orElseThrow(() -> new IllegalArgumentException("Invalid question id"));
-//
-//        SessionUser sessionUser = (SessionUser) httpSession.getAttribute("user");
-//        //현재 로그인한 세션유저로 찾은 현재 유저 엔터티
-//        UserEntity user = userRepository.findByEmail(sessionUser.getEmail()).orElse(null);
-//
-//        //현재 스페이스가 내 스페이스라면
-//        if (space.isOwnedBy(user)) {
-//            assert user != null;
-//            model.addAttribute("sendingUserName", user.getName());
-//            model.addAttribute("sendingUserPicture", user.getPicture());
-//            model.addAttribute("userId", user.getId());
-//            model.addAttribute("questionId", question.getId());
-//            model.addAttribute("spaceId", space.getId());
-//        }
-//
-//        return "answer";
-//    }
-
     @GetMapping("/{spaceId}/{questionId}/answer")
     public String AnswerInput(@PathVariable Long spaceId, @PathVariable Long questionId, Model model) {
         // 이동한 스페이스 엔터티

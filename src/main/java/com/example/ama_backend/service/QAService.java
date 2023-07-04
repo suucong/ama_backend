@@ -75,8 +75,8 @@ public class QAService {
         }
 
         // 질문자에게만 공개하는 답변을 등록한다면
-        if (!answerEntity.getIsPublic()) {
-            answerEntity.setAlternativeAnswerText("🔒질문자만 볼 수 있는 답변입니다.");
+        if (!answerEntity.getIsPublic()==false) {
+            answerEntity.setAlternativeAnswerText("질문자만 볼 수 있는 답변입니다.");
         }
 
         // 답변의 유저 아이디가 null 이라면
