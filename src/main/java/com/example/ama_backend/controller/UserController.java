@@ -40,8 +40,10 @@ public class UserController {
 
         // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
         String authToken = userService.loginOAuthGoogle(requestBody);
+        response.addHeader("Access-Control-Allow-Origin", "*");
 
         response.addHeader("Authorization", authToken);
+
         return ResponseEntity.ok().build();
     }
 
