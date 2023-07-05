@@ -22,6 +22,10 @@ public class QuestionDTO {
     private Long id;
     private String sentUserPic;
 
+    private Long sendingUserId; // 질문자 고유 아이디
+    private Long receivingUserId; // 질문받은 유저 고유 아이디
+
+
     private String receivedUserPic; //받은 유저의 사진
     private String receivedUserName; //받은 유저의 이름
 
@@ -34,6 +38,8 @@ public class QuestionDTO {
     public QuestionDTO(QuestionEntity question) {
         this.id = question.getId();
         this.sentUserPic=question.getSentUserPic();
+        this.sendingUserId=question.getSendingUserId();
+        this.receivingUserId=question.getReceivingUserId();
         this.receivedUserName=question.getReceivedUserId();
         this.receivedUserPic=question.getReceivedUserPic();
         this.questionText = question.getQuestionText();
@@ -49,6 +55,8 @@ public class QuestionDTO {
         return QuestionEntity.builder()
                 .id(dto.getId())
                 .sentUserPic(dto.getSentUserPic())
+                .sendingUserId(dto.getSendingUserId())
+                .receivingUserId(dto.getReceivingUserId())
                 .questionText(dto.getQuestionText())
                 .receivedUserId(dto.getReceivedUserName())
                 .receivedUserPic(dto.getReceivedUserPic())

@@ -22,6 +22,7 @@ public class AnswerEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //자동 증가
     private Long id; // 이 오브젝트의 아이디
 
+    @Column(nullable = false)
     private Long userId; // 유저 고유 아이디
 
     @Column(nullable = false)
