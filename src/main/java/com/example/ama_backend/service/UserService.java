@@ -16,8 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.example.ama_backend.entity.SpaceEntity;
-import com.example.ama_backend.persistence.SpaceRepository;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
@@ -108,6 +113,51 @@ public class UserService {
         String picture = (String) payload.get("picture");
 
         return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null);
+    }
+
+    // 사진 압축
+    public static byte[] compressImage(byte[] imageBytes, float quality) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+        BufferedImage image = ImageIO.read(bais);
+
+        // Create a blank, RGB, same width and height, and a white background
+        BufferedImage compressedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        compressedImage.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+
+        // Create a ByteArrayOutputStream to hold the compressed image data
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        // Write the compressed image to the ByteArrayOutputStream with the specified quality
+        ImageIO.write(compressedImage, "jpg", baos);
+
+        // Get the compressed image bytes from the ByteArrayOutputStream
+        byte[] compressedBytes = baos.toByteArray();
+
+        // Close the streams
+        baos.close();
+        bais.close();
+
+        return compressedBytes;
+    }
+
+    public void updatePicture(UserEntity user, MultipartFile imgFile) throws Exception{
+        byte[] imageBytes = imgFile.getBytes();
+        byte[] compressedImageBytes;
+
+        float compressionQuality = 0.1f; // 압축 품질 설정
+
+        compressedImageBytes = compressImage(imageBytes, compressionQuality);
+        user.setProfileByte(compressedImageBytes);
+        System.out.println("Compressed Image Size: " + compressedImageBytes.length + " bytes");
+
+        user.setProfileByte(compressedImageBytes);
+        user.setPicture("http://localhost:8080"+"/picture/"+user.getId());
+
+        userRepository.save(user);
+    }
+
+    public void saveUserAccountWithoutProfile(UserEntity user) {
+        userRepository.save(user);
     }
 
     public SpaceEntity saveOrGet(Long userId) {
