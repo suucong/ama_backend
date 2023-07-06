@@ -16,6 +16,7 @@ public class UserUpdateRequestDto {
     private String instaId;
     private String introduce;
     private String link;
+    private boolean stopSpace;
 
 
     public UserEntity toEntity(final UserUpdateRequestDto userUpdateRequestDto) {
@@ -27,6 +28,7 @@ public class UserUpdateRequestDto {
                 .instaId(userUpdateRequestDto.getInstaId())
                 .introduce(userUpdateRequestDto.getIntroduce())
                 .link(userUpdateRequestDto.getLink())
+                .stopSpace(userUpdateRequestDto.isStopSpace())
                 .build();
     }
 
@@ -39,6 +41,7 @@ public class UserUpdateRequestDto {
                 .introduce(userEntity.getIntroduce())
                 .profileByte(userEntity.getProfileByte())
                 .link(userEntity.getLink())
+                .stopSpace(userEntity.isStopSpace())
                 .build();
     }
 
