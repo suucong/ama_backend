@@ -1,11 +1,7 @@
 package com.example.ama_backend.controller;
 
 
-import com.example.ama_backend.config.auth.dto.SessionUser;
-import com.example.ama_backend.dto.AnswerDTO;
-import com.example.ama_backend.dto.QuestionDTO;
-import com.example.ama_backend.dto.ResponseDTO;
-import com.example.ama_backend.dto.UserUpdateRequestDto;
+import com.example.ama_backend.dto.*;
 import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
@@ -19,16 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import com.example.ama_backend.config.auth.CustomOAuth2UserService;
-import com.example.ama_backend.dto.FollowingDTO;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +26,6 @@ import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
 @Controller
 @RequestMapping("/spaces")
 public class SpaceController {
-
     @Autowired
     private SpaceRepository spaceRepository;
     @Autowired
@@ -48,8 +36,9 @@ public class SpaceController {
     private FollowRepository followRepository;
     @Autowired
     private FollowService followService;
-    @Autowired
-    private CustomOAuth2UserService customOAuth2UserService;
+
+
+
 
 
     @GetMapping("/{spaceId}")
@@ -75,6 +64,7 @@ public class SpaceController {
             return ResponseEntity.ok().body(convertToDto(ownerUser));
         }
     }
+
 
     @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public ResponseEntity<?> getProfileImg(@PathVariable Long spaceId) throws IOException {
@@ -219,30 +209,5 @@ public class SpaceController {
         return ResponseEntity.ok().body(followerCount);
     }
 
-    @PutMapping("/user/update/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
-        UserEntity currentUser = userRepository.findById(userId).orElse(null);
-
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
-        }
-
-        if (!currentUser.getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
-        }
-
-        currentUser.setName(requestDto.getName());
-        currentUser.setIntroduce(requestDto.getIntroduce());
-        currentUser.setInstaId(requestDto.getInstaId());
-        currentUser.setLink(requestDto.getLink());
-
-        if (imgFile == null) {
-            customOAuth2UserService.saveUserAccountWithoutProfile(currentUser);
-        } else {
-            customOAuth2UserService.updatePicture(currentUser, imgFile);
-        }
-
-        return ResponseEntity.ok("수정이 완료되었습니다.");
-    }
 
 }

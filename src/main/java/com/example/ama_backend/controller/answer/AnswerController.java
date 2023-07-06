@@ -13,7 +13,9 @@ import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/spaces")
+@Slf4j
 public class AnswerController {
     @Autowired
     private QAService qaService;
@@ -84,22 +87,22 @@ public class AnswerController {
     // 내가 보낸 답변 삭제 API
     // 1. 이동한 스페이스에서(내 스페이스여야 할 필요 없음)
     // 2. 내가 작성한 답변이여야 함
-    @DeleteMapping("{spaceId}/{answerId}/answer/delete")
-    public ResponseEntity<?> deleteAnswer(@PathVariable Long answerId, @PathVariable Long spaceId) {
+    @DeleteMapping("{spaceId}/{answerId}/{userId}/answer/delete")
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long userId, @PathVariable Long answerId, @PathVariable Long spaceId) {
         try {
+            UserEntity currentUser = userRepository.findById(userId).orElse(null);
+
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+            }
+
+
             // 이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
-            // 현재 로그인한 유저
-            org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
-
-            // 현재 로그인한 유저 엔터티
-            UserEntity currentUser = userService.getUser(currentUserId);
-
             qaService.deleteAnswer(answerId, currentUser.getId());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body("내가 작성한 답변을 삭제했습니다.");
 
         } catch (Exception e) {
             // 혹시 예외가 있으면 dto 대신 error 에 메시지를 넣어 리턴한다

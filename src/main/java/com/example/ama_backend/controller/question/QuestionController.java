@@ -1,7 +1,5 @@
 package com.example.ama_backend.controller.question;
 
-import com.example.ama_backend.config.auth.CustomOAuth2UserService;
-import com.example.ama_backend.config.auth.dto.SessionUser;
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
 import com.example.ama_backend.entity.QuestionEntity;
@@ -12,6 +10,7 @@ import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/spaces")
+@Slf4j
 public class QuestionController {
 
     @Autowired
@@ -192,15 +192,15 @@ public class QuestionController {
     // 질문 삭제 API
     // 남이 보낸 질문이라도 내 스페이스 내라면 삭제 가능
     // 이동한 스페이스에서 내가 보낸 질문이라면 삭제 가능
-    @DeleteMapping("/{spaceId}/{questionId}/question/delete")
-    public ResponseEntity<?> deleteQuestion(@PathVariable Long spaceId, @PathVariable Long questionId) {
+    @DeleteMapping("/{spaceId}/{questionId}/{userId}/question/delete")
+    public ResponseEntity<?> deleteQuestion(@PathVariable Long userId,@PathVariable Long spaceId, @PathVariable Long questionId) {
         try {
-            // 현재 로그인한 유저
-            org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-            long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());
+            UserEntity currentUser = userRepository.findById(userId).orElse(null);
 
-            // 현재 로그인한 유저 엔터티
-            UserEntity currentUser = userService.getUser(currentUserId);
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+            }
+
 
             // 이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -217,21 +217,23 @@ public class QuestionController {
 
 
             // 현재 스페이스가 내 스페이스라면
-            if (space.isOwnedBy(spaceUser)) {
+            if (space.isOwnedBy(currentUser)) {
                 // 서비스를 이용해 질문 엔티티를 삭제한다
                 qaService.deleteQuestionAndAnswers(questionId);
-                return ResponseEntity.ok().build();
+                return ResponseEntity.ok().body("내 스페이스의 질문을 삭제했습니다.");
             }
             // 현재 스페이스가 내 스페이스가 아니라면
             else{
                 if(question!=null){
                     // 삭제하려는 질문이 내가 작성한 질문이면
-                    if(question.isMyQuestion(currentUser.getId())){
+                    if(question.isMyQuestion(currentUser.getId())==true){
                         qaService.deleteQuestionAndAnswers(questionId);
-                        return ResponseEntity.ok().build();
+                        return ResponseEntity.ok().body("내가 작성한 질문을 삭제했습니다.");
                     }else{
                         return ResponseEntity.badRequest().body("본인이 작성한 질문만 삭제 가능합니다.");
                     }
+                }else{
+                    return ResponseEntity.ok().body("삭제할 질문이 존재하지 않습니다.");
                 }
 
             }
@@ -243,7 +245,6 @@ public class QuestionController {
         }
 
 
-        return null;
     }
 
 
