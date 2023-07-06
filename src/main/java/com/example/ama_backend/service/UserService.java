@@ -90,6 +90,7 @@ public class UserService {
         existingUser.setIntroduce(user.getIntroduce());
         existingUser.setInstaId(user.getInstaId());
         existingUser.setProfileByte(user.getProfileByte());
+        existingUser.setStopSpace(user.isStopSpace());
 
         return existingUser;
     }
@@ -112,7 +113,7 @@ public class UserService {
         String email = payload.getEmail();
         String picture = (String) payload.get("picture");
 
-        return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null);
+        return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null, false);
     }
 
     // 사진 압축

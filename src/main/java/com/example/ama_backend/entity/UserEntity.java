@@ -42,8 +42,11 @@ public class UserEntity  {
     @Column(nullable = true)
     private String link;
 
+    @Column(nullable = false)
+    private boolean stopSpace = false;
+
     @Builder
-    public UserEntity(Long id, String name, String email, String picture, byte[] profileByte, String introduce, String instaId, Role role, String link) {
+    public UserEntity(Long id, String name, String email, String picture, byte[] profileByte, String introduce, String instaId, Role role, String link, boolean stopSpace) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -53,9 +56,10 @@ public class UserEntity  {
         this.introduce = introduce;
         this.instaId = instaId;
         this.link = link;
+        this.stopSpace = stopSpace;
     }
 
-    public UserEntity update(Long id,String name, String picture, byte[] profileByte, String introduce, String instaId, String link) {
+    public UserEntity update(Long id,String name, String picture, byte[] profileByte, String introduce, String instaId, String link, boolean stopSpace) {
         this.id = id;
         this.name = name;
         this.picture = picture;
@@ -63,6 +67,7 @@ public class UserEntity  {
         this.introduce = introduce;
         this.instaId = instaId;
         this.link = link;
+        this.stopSpace = stopSpace;
 
         return this;
     }

@@ -127,4 +127,23 @@ public class UserController {
 
         return ResponseEntity.ok("수정이 완료되었습니다.");
     }
+
+    @PutMapping("/v1/oauth/user/spaceStop/{userId}")
+    public ResponseEntity<String> alterStopSpace(@PathVariable Long userId, @RequestBody boolean stopSpace) {
+        UserEntity currentUser = userRepository.findById(userId).orElse(null);
+
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+        }
+
+        if (!currentUser.getId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
+        }
+
+        currentUser.setStopSpace(stopSpace);
+        System.out.println(stopSpace);
+        userService.saveUserAccountWithoutProfile(currentUser);
+
+        return ResponseEntity.ok("스페이스 중지 변경이 완료되었습니다.");
+    }
 }
