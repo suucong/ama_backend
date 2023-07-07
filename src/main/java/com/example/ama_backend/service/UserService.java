@@ -2,8 +2,8 @@ package com.example.ama_backend.service;
 
 import com.example.ama_backend.config.JWTUtils;
 import com.example.ama_backend.dto.IdTokenRequestDto;
-import com.example.ama_backend.entity.Role;
-import com.example.ama_backend.entity.UserEntity;
+import com.example.ama_backend.entity.*;
+import com.example.ama_backend.persistence.QuestionRepository;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -15,11 +15,18 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.example.ama_backend.entity.SpaceEntity;
 import org.springframework.web.multipart.MultipartFile;
+import com.example.ama_backend.service.QAService;
+import com.example.ama_backend.entity.AnswerEntity;
+import com.example.ama_backend.persistence.AnswerRepository;
+import com.example.ama_backend.persistence.FollowRepository;
+import com.example.ama_backend.entity.Follow;
+import com.example.ama_backend.service.FollowService;
+import com.example.ama_backend.persistence.SpaceRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.util.List;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,6 +35,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Optional;
 
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -35,7 +43,16 @@ public class UserService {
     private final GoogleIdTokenVerifier verifier;
     @Autowired
     private SpaceRepository spaceRepository;
-
+    @Autowired
+    private QuestionRepository questionRepository;
+    @Autowired
+    private QAService qaService;
+    @Autowired
+    private AnswerRepository answerRepository;
+    @Autowired
+    private FollowRepository followRepository;
+    @Autowired
+    private FollowService followService;
     private static final String CLIENT_ID = "666974459730-6bv37t0c044nns1tnhd8rrosnspbq613.apps.googleusercontent.com";
 
 
@@ -174,5 +191,46 @@ public class UserService {
         } else {
             return null;
         }
+    }
+
+    public Boolean doSecession(Long userId) {
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+
+        if (userEntity.isPresent()) {
+            UserEntity user = userEntity.get();
+
+            List<QuestionEntity> sendingQuestionEntityList = questionRepository.findBySendingUserId(userId);
+            List<QuestionEntity> receivingQuestionEntityList = questionRepository.findByReceivingUserId(userId);
+            List<AnswerEntity> answerEntityList = answerRepository.findByUserId(userId);
+
+            for (QuestionEntity q : sendingQuestionEntityList) {
+                qaService.deleteQuestionAndAnswers(q.getId());
+            }
+            for (QuestionEntity q : receivingQuestionEntityList) {
+                qaService.deleteQuestionAndAnswers(q.getId());
+            }
+            // answerId에 해당하는 답변을 가져옴
+            for (AnswerEntity a : answerEntityList) {
+                qaService.deleteAnswer(a.getId(), userId);
+            }
+
+            List<Follow> followingList = followService.getAllFollowings(user);
+            List<Follow> followerList = followService.getAllFollowers(user);
+
+            for (Follow f : followingList) {
+                followService.deleteFollow(user, f.getToUser());
+            }
+            for (Follow f: followerList) {
+                followService.deleteFollow(f.getFromUser(), user);
+            }
+            Optional<SpaceEntity> spaceEntity = spaceRepository.findById(userId);
+            if (spaceEntity.isPresent()) {
+                SpaceEntity space = spaceEntity.get();
+                spaceRepository.delete(space);
+            }
+            userRepository.delete(user);
+        }
+
+        return true;
     }
 }

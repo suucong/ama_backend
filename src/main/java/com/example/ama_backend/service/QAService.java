@@ -168,8 +168,6 @@ public class QAService {
             }
 
 
-        } else {
-            throw new IllegalArgumentException("답변을 찾을 수 없습니다.");
         }
 
 

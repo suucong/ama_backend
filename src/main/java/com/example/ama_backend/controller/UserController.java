@@ -146,4 +146,12 @@ public class UserController {
 
         return ResponseEntity.ok("스페이스 중지 변경이 완료되었습니다.");
     }
+
+    @DeleteMapping("/v1/oauth/user/secession/{userId}")
+    public ResponseEntity<String> userSecession(@PathVariable Long userId) {
+        userService.doSecession(userId);
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다. ");
+    }
 }
