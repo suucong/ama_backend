@@ -11,6 +11,7 @@ import com.example.ama_backend.persistence.AnswerRepository;
 import com.example.ama_backend.persistence.QuestionRepository;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
+import com.example.ama_backend.service.MailService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -40,11 +42,15 @@ public class AnswerController {
     private AnswerRepository answerRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private MailService mailService;
 
 
     // 답변 등록 API
     @PostMapping("/{spaceId}/{questionId}/answer/create")
     public ResponseEntity<?> createAnswer(@PathVariable Long questionId, @PathVariable Long spaceId, @RequestBody AnswerDTO answerDTO) {
+        UserEntity spaceUser = userRepository.findById(spaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
         try {
 
@@ -70,6 +76,18 @@ public class AnswerController {
 
             // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
             ResponseDTO<AnswerDTO> responseDTO = ResponseDTO.<AnswerDTO>builder().data(dtos).build();
+
+            Optional<UserEntity> questionUser = userRepository.findById(question.getSendingUserId());
+            if (questionUser.isPresent()) {
+                UserEntity qUser = questionUser.get();
+                if (qUser.isAlertSpace()) {
+                    String mailTop = "당신의 질문에 답변이 생성되었습니다.";
+                    String toAddress = qUser.getEmail();
+                    String mailContent = spaceUser.getName() + "님이 회원님의 스페이스에 답변을 생성하였습니다.";
+
+                    mailService.mailSend(toAddress, mailTop, mailContent);
+                }
+            }
 
             // ResponseDTO 를 리턴한다.
             return ResponseEntity.ok().body(responseDTO);

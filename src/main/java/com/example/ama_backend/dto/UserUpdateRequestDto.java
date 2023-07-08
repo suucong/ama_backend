@@ -17,6 +17,7 @@ public class UserUpdateRequestDto {
     private String introduce;
     private String link;
     private boolean stopSpace;
+    private boolean alertSpace;
 
 
     public UserEntity toEntity(final UserUpdateRequestDto userUpdateRequestDto) {
@@ -29,6 +30,7 @@ public class UserUpdateRequestDto {
                 .introduce(userUpdateRequestDto.getIntroduce())
                 .link(userUpdateRequestDto.getLink())
                 .stopSpace(userUpdateRequestDto.isStopSpace())
+                .alertSpace(userUpdateRequestDto.isAlertSpace())
                 .build();
     }
 
@@ -42,6 +44,7 @@ public class UserUpdateRequestDto {
                 .profileByte(userEntity.getProfileByte())
                 .link(userEntity.getLink())
                 .stopSpace(userEntity.isStopSpace())
+                .alertSpace(userEntity.isAlertSpace())
                 .build();
     }
 
