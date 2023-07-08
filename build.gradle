@@ -41,7 +41,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
 	implementation 'mysql:mysql-connector-java:8.0.30'
 
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
+//	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
