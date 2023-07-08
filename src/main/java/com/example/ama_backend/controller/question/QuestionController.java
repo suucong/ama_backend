@@ -7,7 +7,7 @@ import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
-//import com.example.ama_backend.service.MailService;
+import com.example.ama_backend.service.MailService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -39,8 +39,8 @@ public class QuestionController {
     private UserService userService;
     @Autowired
     private QuestionRepository questionRepository;
-//    @Autowired
-//    private MailService mailService;
+    @Autowired
+    private MailService mailService;
 
 
 
@@ -86,11 +86,6 @@ public class QuestionController {
 
                     // 질문 하는 사람 아이디 설정
                     questionEntity.setSendingUserId(currentUser.getId());
-//
-//                    String mailTop = "스페이스에 새로운 질문이 생성되었습니다.";
-//                    String mailContent = currentUser.getName() + "님이 회원님의 스페이스에 질문을 달았습니다.";
-//
-//                    mailService.mailSend("amaspacealert@gmail.com", "suucong2@swu.ac.kr", mailTop, mailContent);
 
                     System.out.println("questionEntity: "+ questionEntity);
 
@@ -103,6 +98,14 @@ public class QuestionController {
 
                     // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
                     ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+                    if (spaceUser.isAlertSpace()) {
+                        String mailTop = spaceUser.getName() + "님의 스페이스에 새로운 질문이 생성되었습니다.";
+                        String toAddress = spaceUser.getEmail();
+                        String mailContent = currentUser.getName() + "님이 회원님의 스페이스에 질문을 생성했습니다.";
+
+                        mailService.mailSend(toAddress, mailTop, mailContent);
+                    }
 
                     // ResponseDTO 를 리턴한다.
                     return ResponseEntity.ok().body(responseDTO);
