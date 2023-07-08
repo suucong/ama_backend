@@ -7,6 +7,7 @@ import com.example.ama_backend.entity.SpaceEntity;
 import com.example.ama_backend.entity.UserEntity;
 import com.example.ama_backend.persistence.*;
 import com.example.ama_backend.service.FollowService;
+import com.example.ama_backend.service.MailService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -38,7 +39,8 @@ public class QuestionController {
     private UserService userService;
     @Autowired
     private QuestionRepository questionRepository;
-
+    @Autowired
+    private MailService mailService;
 
 
 
@@ -84,6 +86,11 @@ public class QuestionController {
 
                     // 질문 하는 사람 아이디 설정
                     questionEntity.setSendingUserId(currentUser.getId());
+
+                    String mailTop = "스페이스에 새로운 질문이 생성되었습니다.";
+                    String mailContent = currentUser.getName() + "님이 회원님의 스페이스에 질문을 달았습니다.";
+
+                    mailService.mailSend("amaspacealert@gmail.com", "suucong2@swu.ac.kr", mailTop, mailContent);
 
                     System.out.println("questionEntity: "+ questionEntity);
 

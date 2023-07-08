@@ -8,10 +8,19 @@ spring:
     url: jdbc:mysql://localhost:3306/amaDatabase?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: 4701
-#    driver-class-name: org.h2.Driver
-#    url: jdbc:h2:mem:test
-#    username: SA
-#    password: suu
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: amaspacealert
+    password: 49870123!!
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
 
   jpa:
     hibernate:
@@ -28,35 +37,4 @@ spring:
     logging:
       level:
         org.hibernate.SQL: debug
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2-console
-#      enable: true
-#      settings:
-#        trace: false
-#        web-allow-others: false
 
-#spring.datasource.url=jdbc:h2:mem:testdb
-#spring.datasource.driverClassName=org.h2.Driver
-#spring.datasource.username=sa
-#spring.datasource.password=suu
-#spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-#
-#spring.jpa.defer-datasource-initialization=true
-#
-#spring.h2.console.enabled=true
-#spring.h2.console.path=/h2-console
-#spring.h2.console.enables=true
-#
-#spring.h2.console.settings.trace=false
-#spring.h2.console.settings.web-allow-others=false
-#spring.security.oauth2.client.registration.google.client-id=267212024841-rg98504jrgu6ku34t58r9e09sjre3mch.apps.googleusercontent.com
-#spring.security.oauth2.client.registration.google.client-secret=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
-#spring.security.oauth2.client.registration.google.scope=profile,email
-#server.servlet.encoding.force-response=true
-#
-#dependencies.implementation=commons-io:commons-io:2.11.0
-#multipart.max-file-size=100MB
-#multipart.max-request-size=100MB
-#multipart.enabled=true
