@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,6 +127,45 @@ public class QuestionController {
 
 
     }
+    @GetMapping("/{questionId}/get")
+    public ResponseEntity<?> getReceivedShare(@PathVariable Long questionId) {
+        try {
+            log.info("here1");
+            // QuestionEntity 로 변환
+            QuestionEntity question = questionRepository.findById(questionId).orElse(null);
+            log.info("here11: ", question);
+            log.info("here12");
+            // QuestionDTO 로 변환
+            QuestionDTO questionDTO = null;
+            log.info("here123");
+            if (question != null) {
+                log.info("here1234");
+                questionDTO = new QuestionDTO(question);
+                log.info("here12345");
+                // ResponseDTO 초기화
+                ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder()
+                        .data(Collections.singletonList(questionDTO))
+                        .build();
+                log.info("here123456");
+                log.info("here RE: ", responseDTO);
+                // ResponseDTO 반환
+                return ResponseEntity.ok().body(responseDTO);
+
+            }else{
+                return ResponseEntity.badRequest().body("공유할 질문이 존재하지 않습니다.");
+            }
+
+
+        } catch (Exception e) {
+            // 예외 처리
+            String err = e.getMessage();
+            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder()
+                    .error(err)
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
+        }
+    }
+
 
 
     @GetMapping("/{spaceId}/received/get")

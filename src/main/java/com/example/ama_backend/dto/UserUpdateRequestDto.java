@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class UserUpdateRequestDto {
     private Long userId;
+    private String email;
     private String name;
     private String picture;
     private byte[] profileByte;
@@ -23,6 +24,7 @@ public class UserUpdateRequestDto {
     public UserEntity toEntity(final UserUpdateRequestDto userUpdateRequestDto) {
         return UserEntity.builder()
                 .id(userUpdateRequestDto.getUserId())
+                .email(userUpdateRequestDto.getEmail())
                 .name(userUpdateRequestDto.getName())
                 .picture(userUpdateRequestDto.getPicture())
                 .profileByte(userUpdateRequestDto.getProfileByte())
@@ -38,6 +40,7 @@ public class UserUpdateRequestDto {
         return UserUpdateRequestDto.builder()
                 .userId(userEntity.getId())
                 .name(userEntity.getName())
+                .email(userEntity.getEmail())
                 .picture(userEntity.getPicture())
                 .instaId(userEntity.getInstaId())
                 .introduce(userEntity.getIntroduce())
