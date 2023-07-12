@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .csrf()
 // CSRF 토큰을 쿠키에 저장하고, "/v1/oauth/login" 엔드포인트를 CSRF 보호를 예외로 처리한다
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/v1/oauth/login", "/h2-console") // "/v1/oauth/login"과 "/h2-console/"는 CSRF 보호 예외로 처리한다
+                .ignoringRequestMatchers("/v1/oauth/login") // "/v1/oauth/login"과 "/h2-console/"는 CSRF 보호 예외로 처리한다
                 .and()
 // 세션 관리를 STATELESS로 설정한다. 즉, 서버에 세션을 유지하지 않는다.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
