@@ -13,7 +13,6 @@ public class MailService {
     private final JavaMailSender mailSender;
     private static final String FROM_ADDRESS = "dev.choiey@gmail.com";
 
-
     private static final Logger logger = LoggerFactory.getLogger(MailService.class);
 
     public void mailSend(String toAddress, String subject, String msgBody) {
@@ -22,12 +21,8 @@ public class MailService {
         message.setTo(toAddress);
         message.setSubject(subject);
         message.setText(msgBody);
-
-        logger.info("Sending email - To: {}, Subject: {}", toAddress, subject);
-
         try {
             mailSender.send(message);
-            logger.info("Email sent successfully.");
         } catch (Exception e) {
             logger.error("Failed to send email: {}", e.getMessage());
         }

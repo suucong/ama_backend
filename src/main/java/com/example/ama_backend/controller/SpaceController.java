@@ -8,6 +8,7 @@ import com.example.ama_backend.service.FollowService;
 import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,33 +38,29 @@ public class SpaceController {
     @Autowired
     private FollowService followService;
 
-
-
-
-
     @GetMapping("/{spaceId}")
-    public ResponseEntity getSpaceInfo(@PathVariable Long spaceId) throws Exception {
-        //이동한 스페이스 엔터티
-        SpaceEntity space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
-        // 이동한 스페이스의 주인유저 엔터티
-        UserEntity ownerUser = userRepository.findById(space.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+    public ResponseEntity getSpaceInfo(@PathVariable String spaceId) throws Exception {
+        try {
+            long id = Long.parseLong(spaceId); // 문자열을 long으로 변환
+            Optional<SpaceEntity> spaceEntity = spaceRepository.findById(id);
 
-        // 현재 로그인한 유저
-        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        if (testAuthentication != null) {
-            // 현재 로그인한 유저 아이디
-            long currentUserId = Long.parseLong((String) testAuthentication.getPrincipal());
-
-            UserEntity user = userService.getUser(ownerUser.getId());
-            System.out.println("owneruser.getid: " + ownerUser.getId());
-            System.out.println("currentuserid:" + currentUserId);
-            return ResponseEntity.ok().body(convertToDto(user));
-        } else {
-            return ResponseEntity.ok().body(convertToDto(ownerUser));
+            if(spaceEntity.isPresent()) {
+                SpaceEntity space = spaceEntity.get();
+                Optional<UserEntity> user = userRepository.findById(space.getUserId());
+                if(user.isPresent()) {
+                    UserEntity spaceUser = user.get();
+                    return ResponseEntity.ok().body(convertToDto(spaceUser));
+                } else {
+                    return ResponseEntity.ok().body(false);
+                }
+            } else {
+                return ResponseEntity.ok().body(false);
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.ok().body(false);
         }
     }
+
 
 
     @GetMapping(value = "/{spaceId}/picture", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE})

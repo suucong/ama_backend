@@ -24,7 +24,6 @@ import java.util.Objects;
 
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
 
-@CrossOrigin(originPatterns = "http://localhost:8080")
 @RestController
 public class UserController {
     @Autowired
@@ -44,35 +43,27 @@ public class UserController {
 
         // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
         String authToken = userService.loginOAuthGoogle(requestBody);
+        System.out.println(authToken);
         response.addHeader("Access-Control-Allow-Origin", "*");
 
         response.addHeader("Authorization", authToken);
+        response.addHeader("Access-Control-Opener-Policy", "same-origin-allow-popups");
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/v1/oauth/user/info")
     public ResponseEntity getUserInfo() {
-
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (testAuthentication == null) {
-            // principal이 null인 경우에 대한 처리 로직
-            // 예를 들어, 인증되지 않은 사용자에게 에러 응답을 반환하거나 다른 처리를 수행할 수 있습니다.
-            System.out.println("principal null");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.ok().body(false);
         } else {
-            // Principal 객체를 파라미터로 받아와서 사용자의 식별자로 사용한다
-            // 여기서는 사용자의 식별자를 Long 타입으로 변환하여 UserService 의 getUser 메소드를 호출한다
             long luser = Long.valueOf((String) testAuthentication.getPrincipal());
             UserEntity user = userService.getUser(luser);
 
-            // 조회된 사용자 정보를 DTO로 변환하여 응답으로 반환한다.
-            // ResponseEntity 를 사용하여 200 ok 응답과 함께 DTO를 응답 본문에 담아서 반환한다.
-
             if(user!=null) return ResponseEntity.ok().body(convertToDto(user));
-            else return ResponseEntity.ok().body("유저엔터티 null");
-
+            else return ResponseEntity.ok().body(false);
         }
     }
 

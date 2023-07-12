@@ -76,6 +76,7 @@ public class UserService {
 
     // Google OAuth 로부터 받은 ID 토큰을 검증하여 UserEntity 를 인증하고 JWT 토큰을 생성하여 반환한다
     public String loginOAuthGoogle(IdTokenRequestDto requestBody) throws GeneralSecurityException, IOException {
+        System.out.println("loginOAuthGoogle");
         UserEntity userEntity=verifyCredential(requestBody.getIdToken());
         if(userEntity ==null){
             throw new IllegalArgumentException("null user");
@@ -120,6 +121,7 @@ public class UserService {
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();
 
+        System.out.println("verifycredential");
         GoogleIdToken idToken = GoogleIdToken.parse(jsonFactory, credential);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid credential");
@@ -169,7 +171,7 @@ public class UserService {
         System.out.println("Compressed Image Size: " + compressedImageBytes.length + " bytes");
 
         user.setProfileByte(compressedImageBytes);
-        user.setPicture("http://localhost:8080"+"/picture/"+user.getId());
+        user.setPicture("https://api.mumul.space/picture/"+user.getId());
 
         userRepository.save(user);
     }
