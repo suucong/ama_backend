@@ -40,7 +40,7 @@ public class UserController {
     // Google OAuth를 통해 받은 ID 토큰으로 로그인을 처리하는 메소드이다.
     @PostMapping("/v1/oauth/login")
     public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) throws GeneralSecurityException, IOException {
-
+        System.out.println("v1/oauth/login 엔드포인트 되는지 확인");
         // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
         String authToken = userService.loginOAuthGoogle(requestBody);
         System.out.println(authToken);
@@ -54,9 +54,11 @@ public class UserController {
 
     @GetMapping("/v1/oauth/user/info")
     public ResponseEntity getUserInfo() {
+        System.out.println("getUserInfo");
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (testAuthentication == null) {
+            System.out.println("getUserInfo1");
             return ResponseEntity.ok().body(false);
         } else {
             long luser = Long.valueOf((String) testAuthentication.getPrincipal());

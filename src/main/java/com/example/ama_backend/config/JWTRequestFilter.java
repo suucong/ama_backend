@@ -9,10 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Enumeration;
 
 @Component
 public class JWTRequestFilter extends OncePerRequestFilter {
@@ -27,21 +24,6 @@ public class JWTRequestFilter extends OncePerRequestFilter {
         this.jwtUtils = jwtUtils;
     }
 
-//    private Cookie[] parseCookies(String cookieHeader) {
-//        String[] cookiePairs = cookieHeader.split("; ");
-//        Cookie[] cookies = new Cookie[cookiePairs.length];
-//
-//        for (int i = 0; i < cookiePairs.length; i++) {
-//            String[] pair = cookiePairs[i].split("=", 2);
-//            String name = pair[0].trim();
-//            String value = pair[1].trim();
-//            cookies[i] = new Cookie(name, value);
-//        }
-//
-//        return cookies;
-//    }
-
-
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
@@ -55,6 +37,7 @@ public class JWTRequestFilter extends OncePerRequestFilter {
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("=======================doFilterInternal===========================");
         String token = resolveToken(request);
+        System.out.println("DoRequestFilter token: " + token);
 
         Authentication authentication;
 

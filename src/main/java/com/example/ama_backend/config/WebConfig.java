@@ -11,12 +11,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://mumul.space",
-                                "http://localhost:3000")
+                .allowedOrigins("http://localhost:3000",
+                                "https://mumul.space",
+                                "http://192.168.218.138:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
-                .exposedHeaders("Authorization")                // <----- 추가함 2023.06.06
+                .exposedHeaders("Authorization")         // <----- 추가함 2023.06.06
                 .exposedHeaders("Access-Control-Allow-Origin"); // "Access-Control-Allow-Origin" 헤더를 노출합니다.
     }
 
