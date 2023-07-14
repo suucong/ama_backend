@@ -25,6 +25,7 @@ import java.util.Objects;
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
 
 @RestController
+@CrossOrigin(origins = "https://mumul.space")
 public class UserController {
     @Autowired
     private QAService qaService;
@@ -38,7 +39,7 @@ public class UserController {
     private UserService userService;
 
     // Google OAuth를 통해 받은 ID 토큰으로 로그인을 처리하는 메소드이다.
-    @PostMapping("/v1/oauth/login")
+    @PostMapping(value = "/v1/oauth/login", consumes = "application/json")
     public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) throws GeneralSecurityException, IOException {
         System.out.println("v1/oauth/login 엔드포인트 되는지 확인");
         // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
@@ -52,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/v1/oauth/user/info")
+    @PostMapping("/v1/oauth/user/info")
     public ResponseEntity getUserInfo() {
         System.out.println("getUserInfo");
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -68,6 +69,7 @@ public class UserController {
             else return ResponseEntity.ok().body(false);
         }
     }
+
 
     @PostMapping("/v1/oauth/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
