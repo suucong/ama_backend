@@ -53,15 +53,19 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/v1/oauth/user/info")
+    @GetMapping("/v1/oauth/user/info")
     public ResponseEntity getUserInfo() {
         System.out.println("getUserInfo");
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (testAuthentication == null) {
+        if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
             System.out.println("getUserInfo1");
             return ResponseEntity.ok().body(false);
         } else {
+            System.out.println(">>>>>>>>>");
+            System.out.println(testAuthentication.toString());
+            System.out.println(testAuthentication.getPrincipal());
+
             long luser = Long.valueOf((String) testAuthentication.getPrincipal());
             UserEntity user = userService.getUser(luser);
 

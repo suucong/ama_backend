@@ -11,9 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000",
-                                "https://mumul.space",
-                                "http://192.168.218.138:3000")
+                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("https://mumul.space")
+                .allowedOrigins("https://api.mumul.space")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
