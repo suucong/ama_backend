@@ -5,16 +5,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
+@EnableAsync
 public class MailService {
     private final JavaMailSender mailSender;
     private static final String FROM_ADDRESS = "dev.choiey@gmail.com";
 
     private static final Logger logger = LoggerFactory.getLogger(MailService.class);
-
+    @Async
     public void mailSend(String toAddress, String subject, String msgBody) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM_ADDRESS);

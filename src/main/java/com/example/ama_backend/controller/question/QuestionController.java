@@ -124,8 +124,6 @@ public class QuestionController {
         } else {
             return ResponseEntity.ok().body("질문을 하기 위해서는 로그인이 필수입니다.");
         }
-
-
     }
     @GetMapping("/{questionId}/get")
     public ResponseEntity<?> getReceivedShare(@PathVariable Long questionId) {
