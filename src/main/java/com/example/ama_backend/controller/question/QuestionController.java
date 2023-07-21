@@ -103,8 +103,12 @@ public class QuestionController {
                     if (spaceUser.isAlertSpace()) {
                         String mailTop = spaceUser.getName() + "님의 스페이스에 새로운 질문이 생성되었습니다.";
                         String toAddress = spaceUser.getEmail();
-                        String mailContent = currentUser.getName() + "님이 회원님의 스페이스에 질문을 생성했습니다.";
-
+                        String mailContent;
+                        if (questionEntity.getIsAnonymous()) {
+                            mailContent = "익명의 토끼가 회원님의 스페이스에 질문을 생성했습니다.";
+                        } else {
+                            mailContent = currentUser.getName() + "님이 회원님의 스페이스에 질문을 생성했습니다.";
+                        }
                         mailService.mailSend(toAddress, mailTop, mailContent);
                     }
 
