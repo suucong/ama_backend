@@ -42,7 +42,7 @@ public class FollowController {
 
     // 현재 로그인한 유저가 스페이스 유저 팔로우
     @PostMapping("/follow/{spaceId}")
-    public ResponseEntity<String> follow(@PathVariable Long spaceId) {
+    public ResponseEntity<?> follow(@PathVariable Long spaceId) {
         try {
             SpaceEntity space = spaceRepository.findById(spaceId)
                     .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -51,7 +51,7 @@ public class FollowController {
             UserEntity ownerUser = userRepository.findById(space.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
 
-            // 현재 로그인한 유저;
+            // 현재 로그인한 유저
             org.springframework.security.core.Authentication Authentication = SecurityContextHolder.getContext().getAuthentication();
             long currentUserId = Long.parseLong((String)Authentication.getPrincipal());
             UserEntity user = userService.getUser(currentUserId);
@@ -60,16 +60,16 @@ public class FollowController {
             assert user != null;
             followService.follow(user, ownerUser);
 
-            return ResponseEntity.ok().body("ok");
+            return ResponseEntity.ok().body(true);
         } catch(Exception e) {
             e.printStackTrace();
 
-            return ResponseEntity.badRequest().body("bad");
+            return ResponseEntity.badRequest().body(false);
         }
     }
     // 현재 로그인한 유저가 스페이스 유저 언팔로우
     @PostMapping("/unFollow/{spaceId}")
-    public ResponseEntity<String> unFollow(@PathVariable Long spaceId) {
+    public ResponseEntity<?> unFollow(@PathVariable Long spaceId) {
         try {
             //이동한 스페이스 엔터티
             SpaceEntity space = spaceRepository.findById(spaceId)
@@ -87,17 +87,17 @@ public class FollowController {
             // 팔로우 정보 삭제
             followService.deleteFollow(user, ownerUser);
 
-            return ResponseEntity.ok().body("ok");
+            return ResponseEntity.ok().body(true);
         } catch (Exception e) {
             e.printStackTrace();
 
-            return ResponseEntity.badRequest().body("bad");
+            return ResponseEntity.badRequest().body(false);
         }
     }
 
     // 현재 로그인한 유저가 스페이스 주인유저를 팔로우했는지 아닌지 확인
     @GetMapping("/isFollow/{spaceId}")
-    public ResponseEntity<Boolean> isFollow(@PathVariable Long spaceId) {
+    public ResponseEntity<?> isFollow(@PathVariable Long spaceId) {
         // 현재 로그인한 유저
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
         long currentUserId = Long.parseLong((String)testAuthentication.getPrincipal());

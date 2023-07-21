@@ -1,4 +1,4 @@
-package com.example.ama_backend.controller.question;
+package com.example.ama_backend.controller;
 
 import com.example.ama_backend.dto.QuestionDTO;
 import com.example.ama_backend.dto.ResponseDTO;
@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,7 +47,6 @@ public class QuestionController {
     // 질문 등록 API
     @PostMapping("/{spaceId}/question/create")
     public ResponseEntity<?> createQuestion(@PathVariable Long spaceId, @RequestBody QuestionDTO questionDTO) {
-
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -60,8 +58,6 @@ public class QuestionController {
         // 현 로그인한 유저
         //TODO : 로그아웃 후에 다른 계정으로 재로그인 시도 시 testAuthentication null 이어서 else 문 작동되는 듯
         Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("testAuthentication: " +testAuthentication);
-        System.out.println("questionDTO: "+questionDTO);
 
         if (testAuthentication != null) {
             // 현재 로그인한 유저 아이디
@@ -70,26 +66,20 @@ public class QuestionController {
             // 현 로그인한 유저의 아이디로 현 로그인한 유저 엔터티 찾기  -- 질문할 유저
             UserEntity currentUser = userService.getUser(currentUserId);
 
-
             // 로그인을 한 상태라면
             if (currentUser != null) {
                 try {
-
                     // QuestionEntity 로 변환
                     QuestionEntity questionEntity = QuestionDTO.toEntity(questionDTO);
 
                     // id를 null로 초기화한다. 생성 당시에는 id가 없어야 하기 때문이다.
                     questionEntity.setId(null);
 
-
                     //질문 받는 사람 아이디 설정
                     questionEntity.setReceivingUserId(spaceUser.getId());
 
                     // 질문 하는 사람 아이디 설정
                     questionEntity.setSendingUserId(currentUser.getId());
-
-                    System.out.println("questionEntity: "+ questionEntity);
-
 
                     // 서비스를 이용해 질문 엔티티를 생성한다
                     List<QuestionEntity> entities = qaService.saveQuestion(questionEntity);
@@ -123,7 +113,7 @@ public class QuestionController {
             }
             // 로그인을 안한 상태라면
             else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  //s
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         } else {
             return ResponseEntity.ok().body("질문을 하기 위해서는 로그인이 필수입니다.");
@@ -170,7 +160,7 @@ public class QuestionController {
 
     @GetMapping("/{spaceId}/received/get")
     public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestionWithPaging(@PathVariable Long spaceId, @RequestParam(name = "page", defaultValue = "0") int page,
-                                                                                  @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                                                  @RequestParam(name = "size", defaultValue = "5") int size) {
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -208,7 +198,7 @@ public class QuestionController {
     // 보낸 질문과 답변 조회 api
     @GetMapping("/{spaceId}/sent/get")
     public ResponseEntity<?> getSentQuestion(@PathVariable Long spaceId, @RequestParam(name = "page", defaultValue = "0") int page,
-                                             @RequestParam(name = "size", defaultValue = "10") int size) {
+                                             @RequestParam(name = "size", defaultValue = "5") int size) {
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -248,47 +238,44 @@ public class QuestionController {
     @DeleteMapping("/{spaceId}/{questionId}/{userId}/question/delete")
     public ResponseEntity<?> deleteQuestion(@PathVariable Long userId,@PathVariable Long spaceId, @PathVariable Long questionId) {
         try {
-            UserEntity currentUser = userRepository.findById(userId).orElse(null);
+            org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if (currentUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
-            }
+            if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
+                return ResponseEntity.ok().body(false);
+            } else {
+                long luser = Long.valueOf((String) testAuthentication.getPrincipal());
+                UserEntity currentUser = userService.getUser(luser);
 
+                // 이동한 스페이스 엔터티
+                SpaceEntity space = spaceRepository.findById(spaceId)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
 
-            // 이동한 스페이스 엔터티
-            SpaceEntity space = spaceRepository.findById(spaceId)
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
+                // questionId로 질문엔터티 조회
+                QuestionEntity question=questionRepository.findById(questionId).orElse(null);
 
-            // questionId로 질문엔터티 조회
-           QuestionEntity question=questionRepository.findById(questionId).orElse(null);
-
-       ;
-
-            // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저(삭제권한)
-            UserEntity spaceUser = userRepository.findById(space.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
-
-
-            // 현재 스페이스가 내 스페이스라면
-            if (space.isOwnedBy(currentUser)) {
-                // 서비스를 이용해 질문 엔티티를 삭제한다
-                qaService.deleteQuestionAndAnswers(questionId);
-                return ResponseEntity.ok().body("내 스페이스의 질문을 삭제했습니다.");
-            }
-            // 현재 스페이스가 내 스페이스가 아니라면
-            else{
-                if(question!=null){
-                    // 삭제하려는 질문이 내가 작성한 질문이면
-                    if(question.isMyQuestion(currentUser.getId())==true){
-                        qaService.deleteQuestionAndAnswers(questionId);
-                        return ResponseEntity.ok().body("내가 작성한 질문을 삭제했습니다.");
-                    }else{
-                        return ResponseEntity.badRequest().body("본인이 작성한 질문만 삭제 가능합니다.");
-                    }
-                }else{
-                    return ResponseEntity.ok().body("삭제할 질문이 존재하지 않습니다.");
+                // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저(삭제권한)
+                UserEntity spaceUser = userRepository.findById(space.getUserId())
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
+                // 현재 스페이스가 내 스페이스라면
+                if (space.isOwnedBy(currentUser)) {
+                    // 서비스를 이용해 질문 엔티티를 삭제한다
+                    qaService.deleteQuestionAndAnswers(questionId);
+                    return ResponseEntity.ok().body("내 스페이스의 질문을 삭제했습니다.");
                 }
-
+                // 현재 스페이스가 내 스페이스가 아니라면
+                else{
+                    if(question!=null){
+                        // 삭제하려는 질문이 내가 작성한 질문이면
+                        if(question.isMyQuestion(currentUser.getId())==true){
+                            qaService.deleteQuestionAndAnswers(questionId);
+                            return ResponseEntity.ok().body("내가 작성한 질문을 삭제했습니다.");
+                        }else{
+                            return ResponseEntity.badRequest().body("본인이 작성한 질문만 삭제 가능합니다.");
+                        }
+                    }else{
+                        return ResponseEntity.ok().body("삭제할 질문이 존재하지 않습니다.");
+                    }
+                }
             }
         } catch (Exception e) {
             // 혹시 예외가 있으면 dto 대신 error 에 메시지를 넣어 리턴한다
@@ -296,9 +283,5 @@ public class QuestionController {
             ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
-
-
     }
-
-
 }

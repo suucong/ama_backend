@@ -121,7 +121,6 @@ public class UserService {
                 .setAudience(Collections.singletonList(CLIENT_ID))
                 .build();
 
-        System.out.println("verifycredential");
         GoogleIdToken idToken = GoogleIdToken.parse(jsonFactory, credential);
         if (idToken == null) {
             throw new IllegalArgumentException("Invalid credential");
@@ -140,25 +139,26 @@ public class UserService {
         ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
         BufferedImage image = ImageIO.read(bais);
 
-        // Create a blank, RGB, same width and height, and a white background
+        // 이미지를 압축하기 위해 빈 BufferedImage를 생성한다. RGB 형식이며 원본 이미지와 같은 너비와 높이를 가지고 있으며 흰 배경을 가지고 있다.
         BufferedImage compressedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         compressedImage.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
 
-        // Create a ByteArrayOutputStream to hold the compressed image data
+        // 압축된 이미지 데이터를 보관할 ByteArrayOutputStream을 생성
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        // Write the compressed image to the ByteArrayOutputStream with the specified quality
+        // 지정된 품질로 압축된 이미지를 ByteArrayOutputStream에 작성
         ImageIO.write(compressedImage, "jpg", baos);
 
-        // Get the compressed image bytes from the ByteArrayOutputStream
+        // ByteArrayOutputStream에서 압축된 이미지 바이트를 얻는다
         byte[] compressedBytes = baos.toByteArray();
 
-        // Close the streams
+        // 스트림을 닫는다
         baos.close();
         bais.close();
 
         return compressedBytes;
     }
+
 
     public void updatePicture(UserEntity user, MultipartFile imgFile) throws Exception{
         byte[] imageBytes = imgFile.getBytes();
@@ -195,6 +195,7 @@ public class UserService {
         }
     }
 
+    // 회원 탈퇴 메소드
     public Boolean doSecession(Long userId) {
         Optional<UserEntity> userEntity = userRepository.findById(userId);
 

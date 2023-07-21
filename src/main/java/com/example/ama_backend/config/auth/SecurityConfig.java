@@ -26,7 +26,6 @@ public class SecurityConfig {
 // CORS 활성화
         http
             .cors()
-
             .and()
             .csrf().disable()
 
@@ -38,7 +37,6 @@ public class SecurityConfig {
             .sessionManagement()  // session 기반이 아님을 선언
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-
             // spring rest docs 경로
             .and()
             .authorizeHttpRequests()
@@ -47,33 +45,10 @@ public class SecurityConfig {
             .requestMatchers("/picture/**").permitAll()
             .requestMatchers("/spaces/**").permitAll()
             .requestMatchers("/getFollow/**").permitAll()
-            .requestMatchers("/v1/oauth/user/update/**").permitAll()
-//            .requestMatchers("/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .logout()
             .clearAuthentication(true);
-
-//        http
-//                .cors().and()
-//                .csrf().disable()
-//                .httpBasic().disable()  // 토큰 기반 인증이므로
-//                .sessionManagement()  // session 기반이 아님을 선언
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                .and()
-//                .addFilterAfter(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
-//                .authorizeHttpRequests()
-//                .requestMatchers("/v1/oauth/login").permitAll()
-//                .requestMatchers("/v1/oauth/user/info").permitAll()
-//                .requestMatchers("/spaces/**").permitAll()
-//                .requestMatchers("/getFollow/**").permitAll()
-//                .requestMatchers("/spaces/user/update/**").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .logout()
-//                .clearAuthentication(true);
-////                .and()
-////                .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

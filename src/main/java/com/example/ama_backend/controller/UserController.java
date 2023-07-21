@@ -55,17 +55,11 @@ public class UserController {
 
     @GetMapping("/v1/oauth/user/info")
     public ResponseEntity getUserInfo() {
-        System.out.println("getUserInfo");
         org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
-            System.out.println("getUserInfo1");
             return ResponseEntity.ok().body(false);
         } else {
-            System.out.println(">>>>>>>>>");
-            System.out.println(testAuthentication.toString());
-            System.out.println(testAuthentication.getPrincipal());
-
             long luser = Long.valueOf((String) testAuthentication.getPrincipal());
             UserEntity user = userService.getUser(luser);
 
@@ -102,75 +96,90 @@ public class UserController {
     }
 
     @PutMapping("/v1/oauth/user/update/{userId}")
-    public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
-        UserEntity currentUser = userRepository.findById(userId).orElse(null);
-        System.out.println("profileEdit");
+    public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
+        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
-        }
-
-        if (!currentUser.getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
-        }
-
-        currentUser.setName(requestDto.getName());
-        currentUser.setIntroduce(requestDto.getIntroduce());
-        currentUser.setInstaId(requestDto.getInstaId());
-        currentUser.setLink(requestDto.getLink());
-
-        if (imgFile == null) {
-            userService.saveUserAccountWithoutProfile(currentUser);
+        if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
+            return ResponseEntity.ok().body(false);
         } else {
-            userService.updatePicture(currentUser, imgFile);
-        }
+            long luser = Long.valueOf((String) testAuthentication.getPrincipal());
+            UserEntity user = userService.getUser(luser);
 
-        return ResponseEntity.ok("수정이 완료되었습니다.");
+            user.setName(requestDto.getName());
+            user.setIntroduce(requestDto.getIntroduce());
+            user.setInstaId(requestDto.getInstaId());
+            user.setLink(requestDto.getLink());
+
+            if (imgFile == null) {
+                userService.saveUserAccountWithoutProfile(user);
+            } else {
+                userService.updatePicture(user, imgFile);
+            }
+
+            return ResponseEntity.ok().body(true);
+        }
     }
 
     @PutMapping("/v1/oauth/user/spaceStop/{userId}")
-    public ResponseEntity<String> alterStopSpace(@PathVariable Long userId, @RequestBody boolean stopSpace) {
-        UserEntity currentUser = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<?> alterStopSpace(@PathVariable Long userId, @RequestBody boolean stopSpace) {
+        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+        if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
+            return ResponseEntity.ok().body(false);
+        } else {
+            long luser = Long.valueOf((String) testAuthentication.getPrincipal());
+            UserEntity currentUser = userService.getUser(luser);
+
+            if (currentUser == null) {
+                return ResponseEntity.ok(false);
+            }
+            if (!currentUser.getId().equals(userId)) {
+                return ResponseEntity.ok(false);
+            }
+
+            currentUser.setStopSpace(stopSpace);
+            userService.saveUserAccountWithoutProfile(currentUser);
+
+            return ResponseEntity.ok(true);
         }
-
-        if (!currentUser.getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
-        }
-
-        currentUser.setStopSpace(stopSpace);
-        System.out.println(stopSpace);
-        userService.saveUserAccountWithoutProfile(currentUser);
-
-        return ResponseEntity.ok("스페이스 중지 변경이 완료되었습니다.");
     }
 
     @PutMapping("/v1/oauth/user/alertSpace/{userId}")
-    public ResponseEntity<String> alterAlertSpace(@PathVariable Long userId, @RequestBody boolean alertSpace) {
-        UserEntity currentUser = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<?> alterAlertSpace(@PathVariable Long userId, @RequestBody boolean alertSpace) {
+        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");
+        if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
+            return ResponseEntity.ok().body(false);
+        } else {
+            long luser = Long.valueOf((String) testAuthentication.getPrincipal());
+            UserEntity currentUser = userService.getUser(luser);
+
+            currentUser.setAlertSpace(alertSpace);
+            System.out.println(alertSpace);
+            userService.saveUserAccountWithoutProfile(currentUser);
+
+            return ResponseEntity.ok(true);
         }
-
-        if (!currentUser.getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("본인 계정만 수정할 수 있습니다.");
-        }
-
-        currentUser.setAlertSpace(alertSpace);
-        System.out.println(alertSpace);
-        userService.saveUserAccountWithoutProfile(currentUser);
-
-        return ResponseEntity.ok("스페이스 중지 변경이 완료되었습니다.");
     }
 
     @DeleteMapping("/v1/oauth/user/secession/{userId}")
-    public ResponseEntity<String> userSecession(@PathVariable Long userId) {
-        userService.doSecession(userId);
-        SecurityContextHolder.clearContext();
+    public ResponseEntity<?> userSecession(@PathVariable Long userId) {
+        org.springframework.security.core.Authentication testAuthentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다. ");
+        if (testAuthentication == null || testAuthentication.getPrincipal() == "anonymousUser") {
+            return ResponseEntity.ok().body(false);
+        } else {
+            long luser = Long.valueOf((String) testAuthentication.getPrincipal());
+            UserEntity currentUser = userService.getUser(luser);
+
+            if(currentUser.getId() == userId) {
+                userService.doSecession(userId);
+                SecurityContextHolder.clearContext();
+
+                return ResponseEntity.ok(true);
+            } else {
+                return ResponseEntity.ok(false);
+            }
+        }
     }
 }
