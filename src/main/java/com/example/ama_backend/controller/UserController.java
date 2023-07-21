@@ -104,6 +104,7 @@ public class UserController {
     @PutMapping("/v1/oauth/user/update/{userId}")
     public ResponseEntity<String> updateUser(@PathVariable Long userId, @RequestPart(value = "requestDto") UserUpdateRequestDto requestDto, @RequestPart(value = "imgFile", required = false) MultipartFile imgFile) throws Exception {
         UserEntity currentUser = userRepository.findById(userId).orElse(null);
+        System.out.println("profileEdit");
 
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요한 서비스입니다.");

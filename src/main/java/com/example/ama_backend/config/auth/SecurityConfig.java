@@ -12,9 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-@Configuration
 @EnableWebSecurity //스프링 시큐리티 설정들을 활성화시킴
-@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JWTRequestFilter jwtRequestFilter;
@@ -46,15 +44,15 @@ public class SecurityConfig {
             .authorizeHttpRequests()
             .requestMatchers("/v1/oauth/login").permitAll()
             .requestMatchers("/v1/oauth/user/info").permitAll()
+            .requestMatchers("/picture/**").permitAll()
             .requestMatchers("/spaces/**").permitAll()
             .requestMatchers("/getFollow/**").permitAll()
-            .requestMatchers("/spaces/user/update/**").permitAll()
+            .requestMatchers("/v1/oauth/user/update/**").permitAll()
+//            .requestMatchers("/**").permitAll()
             .anyRequest().authenticated()
-
-             .and()
+            .and()
             .logout()
             .clearAuthentication(true);
-            ;
 
 //        http
 //                .cors().and()

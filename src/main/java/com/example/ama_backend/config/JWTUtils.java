@@ -54,9 +54,10 @@ public class JWTUtils {
     // 주어진 토큰을 검증하고 인증(Authentication) 객체를 반환하는 메소드이다.
     public Authentication verifyAndGetAuthentication(String token){
         try{
-            Claims claims = Jwts.parser()
+           Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key) // 서명에 사용할 키를 설정합니다.
-                    .parseClaimsJws(token) // 토큰을 파싱하여 클레임을 얻습니다.
+                    .build()
+                    .parseClaimsJws(token)
                     .getBody();
 
             // 토큰에서 권한 정보를 추출해서 GrantedAuthority 리스트로 변환한다.

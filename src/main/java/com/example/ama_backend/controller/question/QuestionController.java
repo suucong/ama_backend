@@ -166,10 +166,9 @@ public class QuestionController {
         }
     }
 
-
-
     @GetMapping("/{spaceId}/received/get")
-    public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestion(@PathVariable Long spaceId) {
+    public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestionWithPaging(@PathVariable Long spaceId, @RequestParam(name = "page", defaultValue = "0") int page,
+                                                                                  @RequestParam(name = "size", defaultValue = "10") int size) {
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -180,7 +179,12 @@ public class QuestionController {
 
         try {
             // QuestionEntity 로 변환
-            List<QuestionEntity> questionList = qaService.getMyReceivingQuestions(spaceUser.getId());
+            List<QuestionEntity> questionList = qaService.getQuestionsByUserId(spaceUser.getId(), size, page);
+
+            for (QuestionEntity question : questionList) {
+                Long questionId = question.getId();
+                System.out.println("질문 아이디: " + questionId);
+            }
 
             // 자바 스트림을 이용해 리턴된 엔티티 리스트를 QuestionDTO 로 변환한다.
             List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
@@ -199,12 +203,10 @@ public class QuestionController {
     }
 
 
-
-
     // 보낸 질문과 답변 조회 api
     @GetMapping("/{spaceId}/sent/get")
-    public ResponseEntity<?> getSentQuestion(@PathVariable Long spaceId) {
-
+    public ResponseEntity<?> getSentQuestion(@PathVariable Long spaceId, @RequestParam(name = "page", defaultValue = "0") int page,
+                                             @RequestParam(name = "size", defaultValue = "10") int size) {
         // 이동한 스페이스 엔터티
         SpaceEntity space = spaceRepository.findById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid space id"));
@@ -212,14 +214,16 @@ public class QuestionController {
         // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저
         UserEntity spaceUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
-
-
         try {
-
             // QuestionEntity 로 변환
-            List<QuestionEntity> questionList =qaService.getMySendingQuestions(spaceUser.getId());
+            List<QuestionEntity> questionList = qaService.getQuestionsBySUserId(spaceId, size, page);
 
-            // 자바 스트림을 이요해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
+            for (QuestionEntity question : questionList) {
+                Long questionId = question.getId();
+                System.out.println("질문 아이디: " + questionId);
+            }
+
+            // 자바 스트림을 이용해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
             List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
 
             // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
@@ -233,10 +237,7 @@ public class QuestionController {
             ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
             return ResponseEntity.badRequest().body(responseDTO);
         }
-
-
     }
-
 
 
     // 질문 삭제 API

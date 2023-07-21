@@ -6,6 +6,7 @@ import com.example.ama_backend.persistence.AnswerRepository;
 import com.example.ama_backend.persistence.QuestionRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.QueryTimeoutException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,15 @@ public class QAService {
     // 내가 받은 질문 조회 기능
     public List<QuestionEntity> getMyReceivingQuestions(final Long receivingUserId) {
         return questionRepository.findByReceivingUserId(receivingUserId);
+    }
+
+    // 내가 받은 질문 조회 기능(페이징)
+    public List<QuestionEntity> getQuestionsByUserId(Long userId, int size, int page) {
+        return questionRepository.findLastQuestionsByUserId(userId, size, page);
+    }
+    // 내가 보낸 질문 조회 기능(페이징)
+    public List<QuestionEntity> getQuestionsBySUserId(Long sUserId, int size, int page) {
+        return questionRepository.findLastQuestionsBySendingUserId(sUserId, size, page);
     }
 
     // 내가 한 답변을 조회하는 기능
