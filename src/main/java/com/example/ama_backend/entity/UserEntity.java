@@ -48,8 +48,11 @@ public class UserEntity  {
     @Column(nullable = false)
     private boolean alertSpace = false;
 
+    @Column(nullable = false)
+    private boolean isKakaoUser = false;
+
     @Builder
-    public UserEntity(Long id, String name, String email, String picture, byte[] profileByte, String introduce, String instaId, Role role, String link, boolean stopSpace, boolean alertSpace) {
+    public UserEntity(Long id, String name, String email, String picture, byte[] profileByte, String introduce, String instaId, Role role, String link, boolean stopSpace, boolean alertSpace, boolean isKakaoUser) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -61,9 +64,10 @@ public class UserEntity  {
         this.link = link;
         this.stopSpace = stopSpace;
         this.alertSpace = alertSpace;
+        this.isKakaoUser = isKakaoUser;
     }
 
-    public UserEntity update(Long id,String name, String picture, byte[] profileByte, String introduce, String instaId, String link, boolean stopSpace, boolean alertSpace) {
+    public UserEntity update(Long id,String name, String picture, byte[] profileByte, String introduce, String instaId, String link, boolean stopSpace, boolean alertSpace, boolean isKakaoUser) {
         this.id = id;
         this.name = name;
         this.picture = picture;
@@ -73,6 +77,7 @@ public class UserEntity  {
         this.link = link;
         this.stopSpace = stopSpace;
         this.alertSpace = alertSpace;
+        this.isKakaoUser = isKakaoUser;
 
         return this;
     }

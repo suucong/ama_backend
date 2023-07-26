@@ -1,5 +1,6 @@
 package com.example.ama_backend.controller;
 
+import com.example.ama_backend.dto.CodeRequestDto;
 import com.example.ama_backend.dto.IdTokenRequestDto;
 import com.example.ama_backend.dto.UserUpdateRequestDto;
 import com.example.ama_backend.entity.UserEntity;
@@ -25,7 +26,7 @@ import java.util.Objects;
 import static com.example.ama_backend.dto.UserUpdateRequestDto.convertToDto;
 
 @RestController
-@CrossOrigin(origins = "https://mumul.space")
+//@CrossOrigin(origins = "https://mumul.space")
 public class UserController {
     @Autowired
     private QAService qaService;
@@ -39,16 +40,32 @@ public class UserController {
     private UserService userService;
 
     // Google OAuth를 통해 받은 ID 토큰으로 로그인을 처리하는 메소드이다.
-    @PostMapping(value = "/v1/oauth/login", consumes = "application/json")
-    public ResponseEntity LoginWithGoogleOAuth2(@RequestBody IdTokenRequestDto requestBody, HttpServletResponse response) throws GeneralSecurityException, IOException {
-        System.out.println("v1/oauth/login 엔드포인트 되는지 확인");
-        // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
-        String authToken = userService.loginOAuthGoogle(requestBody);
-        System.out.println(authToken);
-        response.addHeader("Access-Control-Allow-Origin", "*");
+//    public ResponseEntity LoginWithGoogleOAuth2(@RequestParam("code") String accessCode, HttpServletResponse response) throws GeneralSecurityException, IOException {
+    @GetMapping(value = "/v1/oauth/login/callback")
+    public ResponseEntity LoginWithGoogleOAuth2(@RequestParam("code") String accessCode, HttpServletResponse response) throws GeneralSecurityException, IOException {
+        System.out.println(accessCode);
+        String idToken = userService.getGoogleAccessToken(accessCode);
 
+        // IdTokenRequestDto 는 요청 바디에서 받아온 ID 토큰을 담고 있다.
+        String authToken = userService.loginOAuthGoogle(idToken);
+        System.out.println(authToken);
+
+        response.addHeader("Access-Control-Allow-Origin", "*");
         response.addHeader("Authorization", authToken);
-        response.addHeader("Access-Control-Opener-Policy", "same-origin-allow-popups");
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/v1/oauth/login/kakao")
+    public ResponseEntity LoginWithKaKao(@RequestParam("code") String code, HttpServletResponse response) throws GeneralSecurityException, IOException {
+        System.out.println("kakao=====" + code);
+        String accessToken = userService.getAccessToken(code);
+
+        String authToken = userService.loginOauthKakao(accessToken);
+        System.out.println(authToken);
+
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Authorization", authToken);
 
         return ResponseEntity.ok().build();
     }

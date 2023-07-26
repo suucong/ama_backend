@@ -47,7 +47,7 @@ public class JWTUtils {
                 .setIssuedAt(new Date()) // 토큰이 발급된 시간을 설정
                 .setExpiration(validity) // 토큰의 만료 시간을 설정
                 .addClaims(claims) // 토큰에 클레임을 추가
-                .signWith(SignatureAlgorithm.HS512, key) // 토큰에 서명을 추가
+                .signWith(key, SignatureAlgorithm.HS512) // 토큰에 서명을 추가
                 .compact(); // 토큰을 문자열로 변환하여 반환한다.
     }
 

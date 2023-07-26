@@ -2,15 +2,12 @@ package com.example.ama_backend.config.auth;
 
 import com.example.ama_backend.config.JWTRequestFilter;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @EnableWebSecurity //스프링 시큐리티 설정들을 활성화시킴
 public class SecurityConfig {
@@ -40,7 +37,8 @@ public class SecurityConfig {
             // spring rest docs 경로
             .and()
             .authorizeHttpRequests()
-            .requestMatchers("/v1/oauth/login").permitAll()
+            .requestMatchers("/v1/oauth/login/callback").permitAll()
+            .requestMatchers("/v1/oauth/login/kakao").permitAll()
             .requestMatchers("/v1/oauth/user/info").permitAll()
             .requestMatchers("/picture/**").permitAll()
             .requestMatchers("/spaces/**").permitAll()

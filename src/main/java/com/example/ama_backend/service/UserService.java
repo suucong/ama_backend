@@ -1,12 +1,16 @@
 package com.example.ama_backend.service;
 
 import com.example.ama_backend.config.JWTUtils;
-import com.example.ama_backend.dto.IdTokenRequestDto;
 import com.example.ama_backend.entity.*;
 import com.example.ama_backend.persistence.QuestionRepository;
 import com.example.ama_backend.persistence.SpaceRepository;
 import com.example.ama_backend.persistence.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+//import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -14,26 +18,29 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import com.example.ama_backend.service.QAService;
 import com.example.ama_backend.entity.AnswerEntity;
 import com.example.ama_backend.persistence.AnswerRepository;
 import com.example.ama_backend.persistence.FollowRepository;
 import com.example.ama_backend.entity.Follow;
-import com.example.ama_backend.service.FollowService;
-import com.example.ama_backend.persistence.SpaceRepository;
-
+import org.springframework.http.HttpHeaders;
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.util.List;
+import java.util.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 
 @Service
@@ -54,7 +61,18 @@ public class UserService {
     @Autowired
     private FollowService followService;
     private static final String CLIENT_ID = "666974459730-6bv37t0c044nns1tnhd8rrosnspbq613.apps.googleusercontent.com";
-
+    @Value("${oauth2.google.token-url}")
+    private String GOOGLE_TOKEN_URL;
+    @Value("${oauth2.google.client-id}")
+    private String GOOGLE_CLIENT_ID;
+    @Value("${oauth2.google.client-secret}")
+    private String GOOGLE_CLIENT_SECRET;
+    @Value("${oauth2.google.redirect-uri}")
+    private String LOGIN_REDIRECT_URL;
+    @Value("${oauth2.kakao.client-id}")
+    private String clientId;
+    @Value("${oauth2.kakao.redirect-uri}")
+    private String KAKAO_REDIRECT_URL;
 
     // UserService 클래스의 생성자이다. 필요한 의존성을 주입받는다.
     public UserService(@Value("${app.googleClientId}") String clientId, UserRepository userRepository, JWTUtils jwtUtils) {
@@ -74,24 +92,94 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    public String getGoogleAccessToken(String accessCode) {
+        RestTemplate restTemplate = new RestTemplate();
+        Map<String, String> params = new HashMap<>();
+
+        params.put("code", accessCode);
+        params.put("client_id", GOOGLE_CLIENT_ID);
+        params.put("client_secret", GOOGLE_CLIENT_SECRET);
+        params.put("redirect_uri", LOGIN_REDIRECT_URL);
+        params.put("grant_type", "authorization_code");
+
+        ResponseEntity<String> responseEntity = restTemplate.postForEntity(GOOGLE_TOKEN_URL, params, String.class);
+
+        if(responseEntity.getStatusCode() == HttpStatus.OK) {
+            String responseBody = responseEntity.getBody();
+
+            // JSON 파싱을 위해 ObjectMapper 사용
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                // JSON 문자열에서 "id_token" 필드의 값 추출
+                Map<String, Object> responseMap = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+
+                return (String) responseMap.get("id_token");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    public String getAccessToken(String code) throws JsonProcessingException {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP Body 생성
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "authorization_code");
+        body.add("client_id", clientId);
+        body.add("redirect_uri", KAKAO_REDIRECT_URL);
+        body.add("code", code);
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kauth.kakao.com/oauth/token",
+                HttpMethod.POST,
+                kakaoTokenRequest,
+                String.class
+        );
+
+        // HTTP 응답 (JSON) -> 액세스 토큰 파싱
+        String responseBody = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        return jsonNode.get("access_token").asText();
+    }
+
+    public String loginOauthKakao(String accessToken) throws GeneralSecurityException, IOException {
+        System.out.println("======loginOauthKakao======");
+        UserEntity userEntity = getKakaoUserInfo(accessToken);
+        userEntity = createOrUpdateUser(userEntity);
+        // 스페이스 생성
+        saveOrGet(userEntity.getId());
+
+        return jwtUtils.createToken(userEntity, false);
+    }
+
     // Google OAuth 로부터 받은 ID 토큰을 검증하여 UserEntity 를 인증하고 JWT 토큰을 생성하여 반환한다
-    public String loginOAuthGoogle(IdTokenRequestDto requestBody) throws GeneralSecurityException, IOException {
-        System.out.println("loginOAuthGoogle");
-        UserEntity userEntity=verifyCredential(requestBody.getIdToken());
+    public String loginOAuthGoogle(String idToken) throws GeneralSecurityException, IOException {
+        System.out.println("======loginOAuthGoogle=======");
+        UserEntity userEntity=verifyCredential(idToken);
         if(userEntity ==null){
             throw new IllegalArgumentException("null user");
         }
         userEntity=createOrUpdateUser(userEntity);
         // 스페이스 생성
         saveOrGet(userEntity.getId());
-        return jwtUtils.createToken(userEntity, false);
 
+        return jwtUtils.createToken(userEntity, false);
     }
 
     // 주어진 유저를 생성하거나 업데이트한다. 이미 존재하는 유저라면 업데이트하고, 존재하지 않는 경우 새로운 유저로 생성한다
     @Transactional
     public UserEntity createOrUpdateUser(UserEntity user){
-        UserEntity existingUser = userRepository.findByEmail(user.getEmail()).orElse(null);
+        UserEntity existingUser = userRepository.findByIsKakaoUserAndEmail(user.isKakaoUser(), user.getEmail()).orElse(null);
         // 존재하지 않는 경우
         if(existingUser==null){
             user.setRole(Role.USER);
@@ -109,8 +197,41 @@ public class UserService {
         existingUser.setInstaId(user.getInstaId());
         existingUser.setProfileByte(user.getProfileByte());
         existingUser.setStopSpace(user.isStopSpace());
+        existingUser.setKakaoUser(user.isKakaoUser());
 
         return existingUser;
+    }
+
+    public UserEntity getKakaoUserInfo(String accessToken) throws JsonProcessingException, IOException {
+        // HTTP Header 생성
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        // HTTP 요청 보내기
+        HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> response = rt.exchange(
+                "https://kapi.kakao.com/v2/user/me",
+                HttpMethod.POST,
+                kakaoUserInfoRequest,
+                String.class
+        );
+
+        String responseBody = response.getBody();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        String nickname = jsonNode.get("properties").get("nickname").asText();
+        Boolean hasEmail = jsonNode.get("kakao_account").get("has_email").asBoolean();
+        String email = "";
+        if(hasEmail) {
+            email = jsonNode.get("kakao_account").get("email").asText();
+        }
+        String picture = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
+
+        return new UserEntity(null, nickname, email, picture, null, null, null, Role.USER, null, false, false, true);
     }
 
     public UserEntity verifyCredential(String credential) throws GeneralSecurityException, IOException {
@@ -131,7 +252,7 @@ public class UserService {
         String email = payload.getEmail();
         String picture = (String) payload.get("picture");
 
-        return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null, false, false);
+        return new UserEntity(null, name, email, picture, null, null, null, Role.USER, null, false, false, false);
     }
 
     // 사진 압축
@@ -189,14 +310,14 @@ public class UserService {
             // 이전에 생성한 스페이스가 없다면 새로 생성하여 반환
             SpaceEntity space = new SpaceEntity();
             space.setUserId(userId);
-            return spaceRepository.save(space);
+             return spaceRepository.save(space);
         } else {
             return null;
         }
     }
 
     // 회원 탈퇴 메소드
-    public Boolean doSecession(Long userId) {
+    public void doSecession(Long userId) {
         Optional<UserEntity> userEntity = userRepository.findById(userId);
 
         if (userEntity.isPresent()) {
@@ -233,7 +354,5 @@ public class UserService {
             }
             userRepository.delete(user);
         }
-
-        return true;
     }
 }
