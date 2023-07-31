@@ -230,8 +230,9 @@ public class UserService {
             email = jsonNode.get("kakao_account").get("email").asText();
         }
         String picture = jsonNode.get("kakao_account").get("profile").get("profile_image_url").asText();
+        String updatedPicture = picture.replace("http://", "https://");
 
-        return new UserEntity(null, nickname, email, picture, null, null, null, Role.USER, null, false, false, true);
+        return new UserEntity(null, nickname, email, updatedPicture, null, null, null, Role.USER, null, false, false, true);
     }
 
     public UserEntity verifyCredential(String credential) throws GeneralSecurityException, IOException {

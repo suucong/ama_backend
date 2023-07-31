@@ -119,44 +119,6 @@ public class QuestionController {
             return ResponseEntity.ok().body("질문을 하기 위해서는 로그인이 필수입니다.");
         }
     }
-    @GetMapping("/{questionId}/get")
-    public ResponseEntity<?> getReceivedShare(@PathVariable Long questionId) {
-        try {
-            log.info("here1");
-            // QuestionEntity 로 변환
-            QuestionEntity question = questionRepository.findById(questionId).orElse(null);
-            log.info("here11: ", question);
-            log.info("here12");
-            // QuestionDTO 로 변환
-            QuestionDTO questionDTO = null;
-            log.info("here123");
-            if (question != null) {
-                log.info("here1234");
-                questionDTO = new QuestionDTO(question);
-                log.info("here12345");
-                // ResponseDTO 초기화
-                ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder()
-                        .data(Collections.singletonList(questionDTO))
-                        .build();
-                log.info("here123456");
-                log.info("here RE: ", responseDTO);
-                // ResponseDTO 반환
-                return ResponseEntity.ok().body(responseDTO);
-
-            }else{
-                return ResponseEntity.badRequest().body("공유할 질문이 존재하지 않습니다.");
-            }
-
-
-        } catch (Exception e) {
-            // 예외 처리
-            String err = e.getMessage();
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder()
-                    .error(err)
-                    .build();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
-        }
-    }
 
     @GetMapping("/{spaceId}/received/get")
     public ResponseEntity<ResponseDTO<QuestionDTO>> getReceivedQuestionWithPaging(@PathVariable Long spaceId, @RequestParam(name = "page", defaultValue = "0") int page,
@@ -206,28 +168,94 @@ public class QuestionController {
         // 이동한 스페이스 주인아이디로 유저엔터티 찾기 -- 질문 받는 스페이스 주인 유저
         UserEntity spaceUser = userRepository.findById(space.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id"));
-        try {
-            // QuestionEntity 로 변환
-            List<QuestionEntity> questionList = qaService.getQuestionsBySUserId(spaceId, size, page);
 
-            for (QuestionEntity question : questionList) {
-                Long questionId = question.getId();
-                System.out.println("질문 아이디: " + questionId);
+        if(SecurityContextHolder.getContext().getAuthentication() != null) {
+            long currentUserId = Long.parseLong((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+            if (spaceId == currentUserId) {
+                try {
+                    // QuestionEntity 로 변환
+                    List<QuestionEntity> questionList = qaService.getQuestionsBySUserId(spaceId, size, page);
+
+                    for (QuestionEntity question : questionList) {
+                        Long questionId = question.getId();
+                        System.out.println("질문 아이디: " + questionId);
+                    }
+
+                    // 자바 스트림을 이용해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
+                    List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+
+                    // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+                    ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+                    // ResponseDTO 를 리턴한다.
+                    return ResponseEntity.ok().body(responseDTO);
+                } catch (Exception e) {
+                    // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+                    String err = e.getMessage();
+                    ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+                    return ResponseEntity.badRequest().body(responseDTO);
+                }
+            } else {
+                try {
+                    // QuestionEntity 로 변환
+                    List<QuestionEntity> questionList = qaService.getQuestionsBySUserId(spaceId, size, page);
+
+                    // isAnonymous가 false인 엔티티만 남기도록 필터링
+                    List<QuestionEntity> filteredQuestionList = questionList.stream()
+                            .filter(question -> !question.getIsAnonymous())
+                            .collect(Collectors.toList());
+
+                    for (QuestionEntity question : filteredQuestionList) {
+                        Long questionId = question.getId();
+                        System.out.println("질문 아이디: " + questionId);
+                    }
+
+                    // 자바 스트림을 이용해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
+                    List<QuestionDTO> dtos = filteredQuestionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+
+                    // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+                    ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+                    // ResponseDTO 를 리턴한다.
+                    return ResponseEntity.ok().body(responseDTO);
+                } catch (Exception e) {
+                    // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+                    String err = e.getMessage();
+                    ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+                    return ResponseEntity.badRequest().body(responseDTO);
+                }
+
             }
+        } else {
+            try {
+                // QuestionEntity 로 변환
+                List<QuestionEntity> questionList = qaService.getQuestionsBySUserId(spaceId, size, page);
 
-            // 자바 스트림을 이용해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
-            List<QuestionDTO> dtos = questionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+                // isAnonymous가 false인 엔티티만 남기도록 필터링
+                List<QuestionEntity> filteredQuestionList = questionList.stream()
+                        .filter(question -> !question.getIsAnonymous())
+                        .collect(Collectors.toList());
 
-            // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+                for (QuestionEntity question : filteredQuestionList) {
+                    Long questionId = question.getId();
+                    System.out.println("질문 아이디: " + questionId);
+                }
 
-            // ResponseDTO 를 리턴한다.
-            return ResponseEntity.ok().body(responseDTO);
-        } catch (Exception e) {
-            // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
-            String err = e.getMessage();
-            ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
-            return ResponseEntity.badRequest().body(responseDTO);
+                // 자바 스트림을 이용해 리턴된 엔티티 리스트를  QuestionDTO 로 변환한다.
+                List<QuestionDTO> dtos = filteredQuestionList.stream().map(QuestionDTO::new).collect(Collectors.toList());
+
+                // 변환된 QuestionDTO 리스트를 이용해 ResponseDTO 를 초기화한다.
+                ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().data(dtos).build();
+
+                // ResponseDTO 를 리턴한다.
+                return ResponseEntity.ok().body(responseDTO);
+            } catch (Exception e) {
+                // 혹시 예외가 있으면 dto 대신 error에 메시지를 넣어 리턴한다
+                String err = e.getMessage();
+                ResponseDTO<QuestionDTO> responseDTO = ResponseDTO.<QuestionDTO>builder().error(err).build();
+                return ResponseEntity.badRequest().body(responseDTO);
+            }
         }
     }
 
