@@ -1,5 +1,5 @@
 <div align="center">
-<img width="329" height="329" alt="image" src="mumul_intro.png">
+<img alt="image" src="mumul_intro_.png">
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FVoluntain-SKKU%2FVoluntain-2nd&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
@@ -12,7 +12,9 @@
 
 > **개발 버전** : [https://mumul.space](https://mumul.space) <br>
 
+## 프론트엔드 리포지토리 주소
 
+> **FrontEnd Repository** : [https://github.com/suucong/mumul_frontend](https://github.com/suucong/mumul_frontend) <br>
 ## 웹개발팀 소개
 
 |      최은영       |          노수진                                                                                                                           
