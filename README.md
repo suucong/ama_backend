@@ -62,6 +62,10 @@ $ git clone https://github.com/suucong/ama_backend.git
 ### Development
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=SpringBoot&logoColor=white)
+![SpringSecurity](https://img.shields.io/badge/SpringSecurity-6DB33F?style=for-the-badge&logo=SpringSecurity&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+![Google Cloud](https://img.shields.io/badge/GoogleCloud-%234285F4.svg?style=for-the-badge&logo=google-cloud&logoColor=white)
+![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
 
 
 ### Communication
@@ -83,10 +87,10 @@ $ git clone https://github.com/suucong/ama_backend.git
 ## 주요 기능 📦
 
 ### ⭐️ 익명 혹은 본인의 닉네임으로 질문 등록
-- 익명의 토끼🐰 와 본인 닉네임 중에서 선택해서 스페이스에 질문을 남길 수 있음
+- ```익명의 토끼🐰``` 와 ```본인 닉네임``` 중 선택해서 스페이스에 질문을 남길 수 있음
 
 ### ⭐️ 공개 혹은 비공개 답변 등록
-- 공개 답변과 질문자에게만 공개 답변 중에서 선택해서 질문에 답변을 남길 수 있음
+- ```공개 답변```과 ```질문자에게만 공개 답변``` 중 선택해서 질문에 답변을 남길 수 있음
 
 ### ⭐️ 팔로우하기
 - 팔로우하고 싶은 스페이스를 팔로우 할 수 있음
