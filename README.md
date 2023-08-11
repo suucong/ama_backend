@@ -83,11 +83,11 @@ $ git clone https://github.com/suucong/ama_backend.git
 ## 화면 구성 📺
 | 메인 페이지  |  로그인 페이지   |
 | :-------------------------------------------: | :------------: |
-|  <img src="img/intro.png"/> |  <img src="img/login.png"/>|  
+|  <img width="329" src="img/intro.png"/> |  <img width="329" src="img/login.png"/>|  
 | 내 스페이스 페이지   |  질문 팝업창   |  
-| <img width="400" src="img/myspace.png"/>   |  <img width="400" src="img/ask.png"/>     |
+| <img width="329" src="img/myspace.png"/>   |  <img width="329" src="img/ask.png"/>     |
 | 답변 팝업창   |  설정 페이지   |  
-| <img width="400" src="img/answer.png"/>   |  <img width="400" src="img/settings.png"/>     |
+| <img width="329" src="img/answer.png"/>   |  <img width="329" src="img/settings.png"/>     |
 
 ---
 ## 주요 기능 📦
