@@ -1,5 +1,5 @@
 <div align="center">
-<img alt="image" src="mumul_intro_.png">
+<img width="600" height="150" alt="image" src="img/header.png">
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FVoluntain-SKKU%2FVoluntain-2nd&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
@@ -81,11 +81,13 @@ $ git clone https://github.com/suucong/ama_backend.git
 
 ---
 ## 화면 구성 📺
-| 메인 페이지  |  소개 페이지   |
+| 메인 페이지  |  로그인 페이지   |
 | :-------------------------------------------: | :------------: |
-|  <img width="329" src="https://user-images.githubusercontent.com/50205887/208036155-a57900f7-c68a-470d-923c-ff3c296ea635.png"/> |  <img width="329" src="https://user-images.githubusercontent.com/50205887/208036645-a76cf400-85bc-4fa2-af72-86d2abf61366.png"/>|  
-| 강좌 소개 페이지   |  강의 영상 페이지   |  
-| <img width="329" src="https://user-images.githubusercontent.com/50205887/208038737-2b32b7d2-25f4-4949-baf5-83b5c02915a3.png"/>   |  <img width="329" src="https://user-images.githubusercontent.com/50205887/208038965-43a6318a-7b05-44bb-97c8-b08b0495fba7.png"/>     |
+|  <img width="329" src="img/intro.png"/> |  <img width="329" src="img/login.png"/>|  
+| 내 스페이스 페이지   |  질문 팝업창   |  
+| <img width="329" src="img/myspace.png"/>   |  <img width="329" src="img/ask.png"/>     |
+| 답변 팝업창   |  설정 페이지   |  
+| <img width="329" src="img/answer.png"/>   |  <img width="329" src="img/settings.png"/>     |
 
 ---
 ## 주요 기능 📦
