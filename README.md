@@ -36,9 +36,9 @@ MUMUL은 **'사람과 사람을 잇다'** 라는 핵심 가치 아래 개발되�
 ### Requirements
 For building and running the application you need:
 
-- Java 17
-- SpringBoot 3.0.5
-- Gradle 8.0
+- ```Java 17```
+- ```SpringBoot 3.0.5```
+- ```Gradle 8.0```
 
 ### Installation
 ``` bash
