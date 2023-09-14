@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 public class MailService {
     private final JavaMailSender mailSender;
     private static final String FROM_ADDRESS = "dev.choiey@gmail.com";
-
     private static final Logger logger = LoggerFactory.getLogger(MailService.class);
     @Async
     public void mailSend(String toAddress, String subject, String msgBody) {
